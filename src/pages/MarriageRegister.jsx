@@ -34,69 +34,88 @@ export default function MarriageRegister() {
   const update = (e) =>
     setData({ ...data, [e.target.name]: e.target.value });
 
-  const generatePDFBlob = async () => {
-    const element = pdfRef.current;
-    const opt = {
-      filename: "Marriage_Registration_Affidavit.pdf",
-      margin: 0,
-      image: { type: "jpeg", quality: 1 },
-      html2canvas: {
-        scale: 2,
-        scrollY: 0,
-        backgroundColor: "#ffffff",
-      },
-      jsPDF: {
-        unit: "mm",
-        format: "a4",
-        orientation: "portrait",
-      },
-      pagebreak: { mode: [] },
-    };
-    
-    return new Promise((resolve) => {
-      html2pdf().set(opt).from(element).outputPdf().then(resolve);
+  // FIXED: Generate PDF as Blob using html2pdf with proper method
+  const generatePDFBlob = () => {
+    return new Promise((resolve, reject) => {
+      const element = pdfRef.current;
+      const opt = {
+        margin: 0,
+        filename: "Marriage_Registration_Affidavit.pdf",
+        image: { type: "jpeg", quality: 1 },
+        html2canvas: { scale: 2, scrollY: 0, backgroundColor: "#ffffff" },
+        jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+        pagebreak: { mode: [] },
+      };
+      
+      // Create a temporary div to clone the content
+      const container = document.createElement('div');
+      container.style.position = 'absolute';
+      container.style.left = '-9999px';
+      container.style.top = '-9999px';
+      container.style.width = '210mm';
+      container.style.backgroundColor = '#fff';
+      document.body.appendChild(container);
+      
+      // Clone the element and append to container
+      const clone = element.cloneNode(true);
+      container.appendChild(clone);
+      
+      // Generate PDF from the clone
+      html2pdf().set(opt).from(container).outputPdf('blob').then((pdfBlob) => {
+        // Clean up
+        document.body.removeChild(container);
+        resolve(pdfBlob);
+      }).catch((error) => {
+        document.body.removeChild(container);
+        reject(error);
+      });
     });
   };
 
-// Make sure this function exists and is called after payment success
-const handleSubmit = async () => {
-  if (!user) {
-    navigate('/login');
-    return;
-  }
-  
-  setLoading(true);
-  try {
-    // Step 1: Generate PDF
-    const pdfBlob = await generatePDFBlob();
+  const handleSubmit = async () => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
     
-    // Step 2: Create document request
-    const response = await documentAPI.createRequest({
-      documentType: 'marriage-register',
-      formData: data,
-      paymentAmount: 1,
-    });
-    
-    const requestId = response.data.requestId;
-    
-    // Step 3: Upload PDF to Cloudinary
-    const uploadResult = await uploadPDFToCloudinary(pdfBlob, 'marriage-register', requestId);
-    
-    // Step 4: Update request with PDF URL
-    await documentAPI.updatePDFUrl(requestId, {
-      pdfUrl: uploadResult.url,
-      cloudinaryPublicId: uploadResult.publicId
-    });
-    
-    setRequestId(requestId);
-    setShowPayment(true);
-  } catch (error) {
-    console.error('Error creating request:', error);
-    alert('Failed to create request. Please try again.');
-  } finally {
-    setLoading(false);
-  }
-};
+    setLoading(true);
+    try {
+      // Step 1: Generate PDF Blob
+      setUploading(true);
+      const pdfBlob = await generatePDFBlob();
+      
+      console.log('PDF Blob generated:', pdfBlob);
+      console.log('PDF Blob size:', pdfBlob.size);
+      console.log('PDF Blob type:', pdfBlob.type);
+      
+      // Step 2: Create document request in backend
+      const response = await documentAPI.createRequest({
+        documentType: 'marriage-register',
+        formData: data,
+        paymentAmount: 1,
+      });
+      
+      const requestId = response.data.requestId;
+      
+      // Step 3: Upload PDF to Cloudinary
+      const uploadResult = await uploadPDFToCloudinary(pdfBlob, 'marriage-register', requestId);
+      
+      // Step 4: Update request with PDF URL
+      await documentAPI.updatePDFUrl(requestId, {
+        pdfUrl: uploadResult.url,
+        cloudinaryPublicId: uploadResult.publicId
+      });
+      
+      setRequestId(requestId);
+      setShowPayment(true);
+    } catch (error) {
+      console.error('Error creating request:', error);
+      alert('Failed to create request. Please try again.');
+    } finally {
+      setLoading(false);
+      setUploading(false);
+    }
+  };
 
   const handlePaymentSuccess = () => {
     setShowPayment(false);
@@ -177,7 +196,7 @@ const handleSubmit = async () => {
           </div>
         </div>
 
-        {/* PDF Preview Section - Keep the same as before */}
+        {/* PDF Preview Section - Keep the same */}
         <div className="bg-gray-100 rounded-xl shadow overflow-y-auto flex justify-center p-4" style={{ height: "90vh" }}>
           <div
             ref={pdfRef}
@@ -195,7 +214,7 @@ const handleSubmit = async () => {
               margin: "0 auto",
             }}
           >
-            {/* Your existing PDF content - same as before */}
+            {/* Your existing PDF content here - same as before */}
             <div
               style={{
                 textAlign: "center",

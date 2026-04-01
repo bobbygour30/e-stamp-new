@@ -7,6 +7,19 @@ const CLOUDINARY_UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
 // Upload PDF to Cloudinary
 export const uploadPDFToCloudinary = async (pdfBlob, documentType, requestId) => {
   try {
+    // Validate that pdfBlob is actually a Blob
+    if (!(pdfBlob instanceof Blob)) {
+      console.error('Invalid blob type:', typeof pdfBlob, pdfBlob);
+      throw new Error('Invalid PDF data. Please try again.');
+    }
+    
+    console.log('Uploading to Cloudinary:', {
+      size: pdfBlob.size,
+      type: pdfBlob.type,
+      documentType,
+      requestId
+    });
+    
     const formData = new FormData();
     formData.append('file', pdfBlob, `${documentType}_${requestId}.pdf`);
     formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
@@ -24,13 +37,15 @@ export const uploadPDFToCloudinary = async (pdfBlob, documentType, requestId) =>
     const data = await response.json();
     
     if (data.secure_url) {
+      console.log('Upload successful:', data.secure_url);
       return {
         success: true,
         url: data.secure_url,
         publicId: data.public_id
       };
     } else {
-      throw new Error('Upload failed');
+      console.error('Cloudinary upload failed:', data);
+      throw new Error(data.error?.message || 'Upload failed');
     }
   } catch (error) {
     console.error('Cloudinary upload error:', error);
