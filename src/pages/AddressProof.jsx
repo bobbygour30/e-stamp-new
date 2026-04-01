@@ -1,5 +1,9 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useContext } from "react";
 import html2pdf from "html2pdf.js";
+import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../context/AuthContext";
+import { documentAPI } from "../services/api";
+import PaymentModal from "../components/PaymentModal";
 
 const initialData = {
   name: "",
@@ -15,10 +19,51 @@ const initialData = {
 
 export default function AddressProof() {
   const [data, setData] = useState(initialData);
+  const [showPayment, setShowPayment] = useState(false);
+  const [requestId, setRequestId] = useState(null);
+  const [loading, setLoading] = useState(false);
+
   const pdfRef = useRef(null);
+  const navigate = useNavigate();
+  const { user } = useContext(AuthContext);
 
   const update = (e) =>
     setData({ ...data, [e.target.name]: e.target.value });
+
+  const handleSubmit = async () => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+    
+    setLoading(true);
+    try {
+      // Create document request
+      const response = await documentAPI.createRequest({
+        documentType: 'address-proof',
+        formData: data,
+        paymentAmount: 1, // Set to 1 for testing, change to actual amount in production
+      });
+      
+      setRequestId(response.data.requestId);
+      setShowPayment(true);
+    } catch (error) {
+      console.error('Error creating request:', error);
+      alert('Failed to create request. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handlePaymentSuccess = () => {
+    setShowPayment(false);
+    alert('Payment successful! Your document request has been processed.');
+    navigate('/dashboard');
+  };
+
+  const handlePaymentClose = () => {
+    setShowPayment(false);
+  };
 
   const downloadPDF = () => {
     html2pdf()
@@ -28,7 +73,7 @@ export default function AddressProof() {
         margin: 0,
         image: { type: "jpeg", quality: 0.98 },
         html2canvas: {
-          scale: 2,                // ✅ reduced to avoid rounding overflow
+          scale: 2,
           useCORS: true,
           backgroundColor: "#ffffff",
           logging: false,
@@ -41,7 +86,7 @@ export default function AddressProof() {
           format: "a4",
           orientation: "portrait",
         },
-        pagebreak: { mode: [] },   // ✅ no auto page breaks
+        pagebreak: { mode: [] },
       })
       .save();
   };
@@ -73,12 +118,21 @@ export default function AddressProof() {
             <Input label="Month" name="verificationMonth" value={data.verificationMonth} onChange={update} />
           </div>
 
-          <button
-            onClick={downloadPDF}
-            className="mt-6 w-full bg-purple-700 hover:bg-purple-800 text-white py-2.5 rounded-lg font-medium"
-          >
-            Download PDF
-          </button>
+          <div className="flex gap-3 mt-6">
+            <button
+              onClick={downloadPDF}
+              className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-2.5 rounded-lg font-medium transition"
+            >
+              Preview PDF
+            </button>
+            <button
+              onClick={handleSubmit}
+              disabled={loading}
+              className="flex-1 bg-purple-700 hover:bg-purple-800 text-white py-2.5 rounded-lg font-medium disabled:opacity-50 transition"
+            >
+              {loading ? 'Processing...' : 'Proceed to Payment (₹1)'}
+            </button>
+          </div>
         </div>
 
         {/* ================= PDF PREVIEW ================= */}
@@ -90,7 +144,7 @@ export default function AddressProof() {
             }}>
             <div style={{
               width: "100%",
-              maxWidth: "820px",   // 👈 desktop limit
+              maxWidth: "820px",
               aspectRatio: "210 / 297",
               display: "flex",
               justifyContent: "center",
@@ -180,6 +234,16 @@ export default function AddressProof() {
           </div>
         </div>
       </div>
+
+      {/* Payment Modal */}
+      {showPayment && requestId && (
+        <PaymentModal
+          requestId={requestId}
+          amount={1}
+          onSuccess={handlePaymentSuccess}
+          onClose={handlePaymentClose}
+        />
+      )}
     </div>
   );
 }

@@ -1,5 +1,9 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useContext } from "react";
 import html2pdf from "html2pdf.js";
+import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../context/AuthContext";
+import { documentAPI } from "../services/api";
+import PaymentModal from "../components/PaymentModal";
 
 const initialData = {
     name: "",
@@ -17,7 +21,6 @@ const initialData = {
     propertyArea: "",
     propertyType: "",
     subRegistrarOffice: "",
-    secondPartyRole: "",
     secondlicenseType: "",
     licensePurpose: "",
     licenseDurationMonths: "",
@@ -34,25 +37,58 @@ const initialData = {
 
 export default function RentalAgreements() {
     const [data, setData] = useState(initialData);
+    const [showPayment, setShowPayment] = useState(false);
+    const [requestId, setRequestId] = useState(null);
+    const [loading, setLoading] = useState(false);
     const pdfRef = useRef(null);
+    const navigate = useNavigate();
+    const { user } = useContext(AuthContext);
 
     const update = (e) =>
         setData({ ...data, [e.target.name]: e.target.value });
 
+    const handleSubmit = async () => {
+        if (!user) {
+            navigate('/login');
+            return;
+        }
+
+        setLoading(true);
+        try {
+            const response = await documentAPI.createRequest({
+                documentType: 'rental-agreement',
+                formData: data,
+                paymentAmount: 1, // Change to 500 in production
+            });
+
+            setRequestId(response.data.requestId);
+            setShowPayment(true);
+        } catch (error) {
+            console.error('Error creating request:', error);
+            alert('Failed to create request. Please try again.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handlePaymentSuccess = () => {
+        setShowPayment(false);
+        navigate('/dashboard');
+    };
+
     const downloadPDF = () => {
+        const element = pdfRef.current;
         html2pdf()
-            .from(pdfRef.current)
+            .from(element)
             .set({
                 filename: "Rental_Agreement.pdf",
                 margin: 0,
                 image: { type: "jpeg", quality: 0.98 },
                 html2canvas: {
-                    scale: 2,                // ✅ reduced to avoid rounding overflow
+                    scale: 2,
                     useCORS: true,
                     backgroundColor: "#ffffff",
                     logging: false,
-                    dpi: 300,
-                    letterRendering: true,
                     scrollY: 0,
                 },
                 jsPDF: {
@@ -60,71 +96,75 @@ export default function RentalAgreements() {
                     format: "a4",
                     orientation: "portrait",
                 },
-                pagebreak: { mode: [] },   // ✅ no auto page breaks
+                pagebreak: { mode: [] },
             })
             .save();
     };
 
     return (
-        <div className="min-h-screen bg-[#f3f1fa] p-6 border border-red-300">
-            <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+        <div className="min-h-screen bg-[#f3f1fa] p-6">
+            <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6">
 
-                {/* ================= FORM ================= */}
+                {/* ================= FORM SECTION ================= */}
                 <div className="bg-white p-6 rounded-xl shadow border border-purple-200">
                     <h2 className="text-xl font-semibold text-purple-700 mb-4">
-                        Rental Argeements
+                        Rental Agreement
                     </h2>
-                    {/* party first */}
+
+                    {/* First Party */}
                     <Input label="First Party Name" name="name" value={data.name} onChange={update} />
 
                     <div className="grid grid-cols-2 gap-3">
                         <Input label="Relation Type (S/D/W/O)" name="relationType" value={data.relationType} onChange={update} />
-                        <Input label="Frist Relation Name" name="relationName" value={data.relationName} onChange={update} />
-                        <Input label="Occupation" name="firstPartyOccupation" value={data.firstPartyOccupation} onChange={update} />
+                        <Input label="First Relation Name" name="relationName" value={data.relationName} onChange={update} />
                     </div>
 
-                    <Input label="RestrictedAt (R/at)" name="restrictedAt" value={data.restrictedAt} onChange={update} />
+                    <Input label="Occupation" name="firstPartyOccupation" value={data.firstPartyOccupation} onChange={update} />
+                    <Input label="Restricted At (R/at)" name="restrictedAt" value={data.restrictedAt} onChange={update} />
                     <Input label="First Referred Party" name="firstReferredParty" value={data.firstReferredParty} onChange={update} />
-                    {/* <Input label="First Party Name" name="firstPartyName" value={data.firstPartyName} onChange={update} /> */}
 
-                    {/* <div className="grid grid-cols-3 gap-3">
-                        <Input label="Verification Place" name="verificationPlace" value={data.verificationPlace} onChange={update} />
-                        <Input label="Day" name="verificationDay" value={data.verificationDay} onChange={update} />
-                        <Input label="Month" name="verificationMonth" value={data.verificationMonth} onChange={update} />
-                    </div> */}
-                    {/* second party */}
-                    <div className="grid grid-cols-2 gap-3">
+                    {/* Second Party */}
+                    <div className="grid grid-cols-2 gap-3 mt-6">
                         <Input label="Second Party Name" name="secondPartyName" value={data.secondPartyName} onChange={update} />
                         <Input label="Father’s Name" name="secondPartyFatherName" value={data.secondPartyFatherName} onChange={update} />
                         <Input label="Age" name="secondPartyAge" value={data.secondPartyAge} onChange={update} />
                         <Input label="Occupation" name="secondPartyOccupation" value={data.secondPartyOccupation} onChange={update} />
                     </div>
-                    <div className="grid grid-cols-2 gap-3">
-                        <Input label="Residential Address" name="secondPartyAddress" value={data.secondPartyAddress} onChange={update} />
-                        {/* <Input label="Occupation" name="firstPartyOccupation" value={data.firstPartyOccupation} onChange={update} /> */}
-                    </div>
-                    {/* second party property */}
-                    <div className="grid grid-cols-2 gap-3">
+
+                    <Input label="Residential Address" name="secondPartyAddress" value={data.secondPartyAddress} onChange={update} />
+
+                    {/* Property Details */}
+                    <div className="grid grid-cols-2 gap-3 mt-6">
                         <Input label="Flat Address" name="propertyAddress" value={data.propertyAddress} onChange={update} />
                         <Input label="Flat Area (sq.ft.)" name="propertyArea" value={data.propertyArea} onChange={update} />
                         <Input label="Flat Type (1BHK / 2BHK)" name="propertyType" value={data.propertyType} onChange={update} />
                         <Input label="Sub-Registrar Office" name="subRegistrarOffice" value={data.subRegistrarOffice} onChange={update} />
                     </div>
-                    <div className="grid grid-cols-2 gap-3">
-                        <Input label="License Purpose" name="licensePurpose" value={data.licensePurpose} onChange={update} />
-                        <Input label="License Duration Months" name="licenseDurationMonths" value={data.licenseDurationMonths} onChange={update} />
+
+                    {/* License Details */}
+                    <div className="grid grid-cols-2 gap-3 mt-6">
                         <Input label="License Type" name="secondlicenseType" value={data.secondlicenseType} onChange={update} />
+                        <Input label="License Purpose" name="licensePurpose" value={data.licensePurpose} onChange={update} />
+                        <Input label="License Duration (Months)" name="licenseDurationMonths" value={data.licenseDurationMonths} onChange={update} />
                         <Input label="License Start Date" name="licenseStartDate" type="date" value={data.licenseStartDate} onChange={update} />
                         <Input label="License End Date" name="licenseEndDate" type="date" value={data.licenseEndDate} onChange={update} />
                     </div>
 
-                    <div className="grid grid-cols-2 gap-3">
-                        <Input label="Monthly Rent" name="monthlyRent" type="number" value={data.monthlyRent} onChange={update} />
-                        <Input label="Monthly Rent Words" name="monthlyRentWords" type="text" value={data.monthlyRentWords} onChange={update} />
-                        <Input label="Payment DueDay" name="paymentDueDay" type="number" value={data.paymentDueDay} onChange={update} />
-                        <div>
-                            <label htmlFor="">Select Payment Mode</label>
-                            <select name="paymentMode" value={data.paymentMode} onChange={update} className="w-full border rounded p-2">
+                    {/* Rent Details */}
+                    <div className="grid grid-cols-2 gap-3 mt-6">
+                        <Input label="Monthly Rent (₹)" name="monthlyRent" type="number" value={data.monthlyRent} onChange={update} />
+                        <Input label="Monthly Rent in Words" name="monthlyRentWords" value={data.monthlyRentWords} onChange={update} />
+                        <Input label="Payment Due Day" name="paymentDueDay" type="number" value={data.paymentDueDay} onChange={update} />
+                        <div className="mb-3">
+                            <label className="block text-sm font-medium text-purple-700 mb-1">
+                                Payment Mode
+                            </label>
+                            <select 
+                                name="paymentMode" 
+                                value={data.paymentMode} 
+                                onChange={update} 
+                                className="w-full border border-purple-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                            >
                                 <option value="">Select Payment Mode</option>
                                 <option value="Cheque">Cheque</option>
                                 <option value="Cash">Cash</option>
@@ -133,27 +173,47 @@ export default function RentalAgreements() {
                         </div>
                     </div>
 
-                    <h3 className="mb-3" style={{ fontSize: "18px" }}>In the presence of 👇</h3>
+                    {/* Witness */}
+                    <h3 className="mt-6 mb-3 text-lg font-medium text-purple-700">In the presence of</h3>
                     <div className="grid grid-cols-2 gap-3">
-                        <Input label="Name" name="witnessName" type="text" value={data.witnessName} onChange={update} />
-                        <Input label="Address" name="witnessAddress" type="text" value={data.witnessAddress} onChange={update} />
-
+                        <Input label="Witness Name" name="witnessName" value={data.witnessName} onChange={update} />
+                        <Input label="Witness Address" name="witnessAddress" value={data.witnessAddress} onChange={update} />
                     </div>
 
+                    <div className="flex gap-3 mt-8">
+                        <button
+                            onClick={downloadPDF}
+                            className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-2.5 rounded-lg font-medium transition"
+                        >
+                            Preview PDF
+                        </button>
+                        <button
+                            onClick={handleSubmit}
+                            disabled={loading}
+                            className="flex-1 bg-purple-700 hover:bg-purple-800 text-white py-2.5 rounded-lg font-medium disabled:opacity-50 transition"
+                        >
+                            {loading ? 'Processing...' : 'Proceed to Payment (₹1)'}
+                        </button>
+                    </div>
+                </div>
 
-                    <button
-                        onClick={downloadPDF}
-                        className="mt-6 w-full bg-purple-700 hover:bg-purple-800 text-white py-2.5 rounded-lg font-medium"
-                    >
-                        Download PDF
-                    </button>
-                </div>  
-
-                {/* ================= PDF PREVIEW ================= */}
-                <div className="bg-gray-100  rounded shadow h-[120vh] overflow-y-auto">
+                {/* ================= PDF PREVIEW SECTION ================= */}
+                <div className="bg-gray-100 rounded-xl shadow overflow-y-auto flex justify-center p-4" style={{ height: "90vh" }}>
                     <div
                         ref={pdfRef}
-                        className="bg-white w-full  mx-auto font-serif text-black text-[12pt] leading-[1.55] p-6 box-border"
+                        style={{
+                            width: "210mm",
+                            minHeight: "297mm",
+                            backgroundColor: "#ffffff",
+                            color: "#000000",
+                            fontFamily: "'Times New Roman', Times, serif",
+                            fontSize: "12pt",
+                            lineHeight: "1.55",
+                            padding: "25px",
+                            boxSizing: "border-box",
+                            boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+                            margin: "0 auto",
+                        }}
                     >
                         {/* TITLE */}
                         <div style={{
@@ -164,10 +224,10 @@ export default function RentalAgreements() {
                             textDecoration: "underline",
                             letterSpacing: "0.4px",
                         }}>
-                            Rental Argeements
+                            RENTAL AGREEMENT
                         </div>
 
-                        {/* INTRO */}
+                        {/* First Party */}
                         <div style={{ marginBottom: "16px", textAlign: "justify" }}>
                             <b>{data.name || "______________"}</b>{" "}
                             <b>{data.relationType || "S/D/W/O"}</b>{" "}
@@ -188,8 +248,9 @@ export default function RentalAgreements() {
                                 administrators & assigns etc.)… <b>OF THE FIRST PART.</b>
                             </div>
                         </div>
-                        {/* second party */}
-                        <div style={{ marginTop: "15px", textAlign: "justify" }}>
+
+                        {/* Second Party */}
+                        <div style={{ marginTop: "20px", textAlign: "justify" }}>
                             <div className="text-center font-bold mb-3">AND</div>
 
                             <div>
@@ -205,175 +266,85 @@ export default function RentalAgreements() {
                                 R/at : <b>{data.secondPartyAddress || "____________"}</b>
                             </div>
                         </div>
-                        {/* second party property */}
-                        <div className="mt-3">
 
-                            <p className="text-center"><b>HEREINAFTER referred to as the “{data.secondPartyFatherName}”</b></p><br />
-                            (Which expression shall unless repugnant to the context thereof mean
-                            & include his/her/their legal heirs, executors, administrators & assigns etc.)
-                            … <b>OF THE SECOND PART</b>.
-                            <p>WHEREAS the Licensor is the lawful Owner of flat situated at
-                                <b>{" "}{data.propertyAddress || "____________"}</b>{" "} admeasuring about area <b>{data.propertyArea || "____________"}{" "}</b> sq.ft.
+                        {/* Property & License Details */}
+                        <div className="mt-8">
+                            <p className="text-center">
+                                <b>HEREINAFTER referred to as the “{data.secondPartyName || "____________"}”</b>
+                            </p>
+                            <br />
+
+                            <p>
+                                WHEREAS the Licensor is the lawful Owner of flat situated at{" "}
+                                <b>{data.propertyAddress || "____________"}</b> admeasuring about area{" "}
+                                <b>{data.propertyArea || "____________"}</b> sq.ft.{" "}
                                 <b>{data.propertyType || "____________"}</b> (hereinafter referred to as the Said Flat),
-                                within jurisdiction of Sub-Registrar <b>{" "}{data.subRegistrarOffice || "____________"}{" "}</b>
-                                hereinafter referred to as the “SAID PREMISES”.
-                            </p>
-                            <p>The Licensee has approached the Licensor with request to permit
-                                him/her to use & occupy the said premises wit h fixtures and fittings,
-                                on <b>{data.secondlicenseType || "____________"}</b> basis as <b>{data.licensePurpose || "____________"} Purpose</b> for the
-                                use of Licensee for a period of {data.licenseDurationMonths} months.
+                                within jurisdiction of Sub-Registrar <b>{data.subRegistrarOffice || "____________"}</b>.
                             </p>
 
-                            <h2 className="font-bold my-3 text-center fs-4">NOW THEREFORE THESE PRESENT WITNESSTH THIS
-                                AGREEMENT AND IT IS HEREBY AGREED BY AND
-                                BETWEEN THE PARTIES HERE TO AS FOLLOWS:
+                            <p className="mt-4">
+                                The Licensee has approached the Licensor with request to permit him/her to use & occupy the said premises on{" "}
+                                <b>{data.secondlicenseType || "____________"}</b> basis as{" "}
+                                <b>{data.licensePurpose || "____________"}</b> Purpose for a period of{" "}
+                                <b>{data.licenseDurationMonths || "____"}</b> months.
+                            </p>
+
+                            <h2 className="font-bold my-6 text-center text-[13pt]">
+                                NOW THEREFORE THESE PRESENT WITNESSTH THIS AGREEMENT AND IT IS HEREBY AGREED BY AND BETWEEN THE PARTIES HERETO AS FOLLOWS:
                             </h2>
                         </div>
-                        {/* POINTS */}
+
+                        {/* Terms & Conditions */}
                         <div style={{ marginLeft: "12px" }}>
                             <div style={{ margin: "12px 0", textIndent: "-12px" }}>
-                                <p className="mt-3">1. The Licensor agrees to demise up to the Licensee and the
-                                    License hereby accepts the said premises, with its fixtures and
-                                    fittings as per schedule “A” attached to hold unto a period of
-                                    <b> {data.licenseDurationMonths || "____"} Months </b> with effect from{" "}
-                                    <b>{data.licenseStartDate || "____"}</b> to{" "}
-                                    <b>{data.licenseEndDate || "____"}</b> on Leave and License basis from
-                                    the day the Licensee has been allowed the use and occupation of
-                                    the said premises.
-                                </p>
-                                <p className="mt-3">
-                                    2. During the tenure of the license period, the Licensee shall pay
-                                    to the Licensor an amount of Rs.{" "}
-                                    <b>{data.monthlyRent || "____"}</b>/-
-                                    (Rupees <b>{data.monthlyRentWords || "________"}</b> Only) per month
-                                    by way of <b>{data.paymentMode || "Cheque / Cash / Online"}</b> on or
-                                    before <b>{data.paymentDueDay || "__"}</b> of every month.
-                                </p>
-
-                                <p className="mt-3">
-                                    3. <b>Electricity bills</b> shall be paid and cleared by the Licensee.
-                                </p>
-                                <p className="mt-3">
-                                    4.It is agreed between the parties that at all times the judicial
-                                    possession of the said premises shall be of Licensor and the Licensee has been merely granted the License to make use of
-                                    the said premises for a <b>limited period only</b>. The Licensee shall
-                                    hand over vacant exclusive and peaceful possession of the said
-                                    premises to the Licensor after expiry of this license.
-                                </p>
-                                <p className="mt-3">
-                                    5. It is hereby agreed between the parties here to that if the
-                                    Licensee commits any default in payments of the monthly
-                                    compensation as agreed aforesaid or non – payment of Electric
-                                    bills, or commits breach of any of the terms, covenant contained
-                                    in this Agreement the Licensor shall be entitled to revoke this
-                                    License for with and serve a notice of one month for vacation of
-                                    the said premises to the Licensee as provided in para 9 (d)
-                                    herein.
-                                </p>
-                                <p className="mt-3">
-                                    6. The Licensee covenant with the Licensor that the obligations
-                                    hereby granted shall continue throughout the terms of this
-                                    License period for the proper performance of the <b>terms and
-                                        condition</b> of this LEAVE AND LICENSE Agreement as
-                                    follow:
-
-                                </p>
-                                <p className="mt-3">
-                                    [a] The Licensee shall pay all the charges for the electricity bill as
-                                    per meter that may be charged in respect of the said premises.
-                                    But the Licensor shall pay the property taxes and society
-                                    charges of the said premises.
-                                </p>
-                                <p className="mt-3">
-                                    [b] To keep interior of the said premises in good order and maintain
-                                    it in proper condition, as they were on the day of the occupation
-                                    during the License period as mentioned here in above.
-                                </p>
-                                <p className="mt-3">
-                                    [c] Not to make any alternation to the said premises or remove any
-                                    door window or other fixtures and fittings from it.
-                                </p>
-                                <p className="mt-3">
-                                    [d]  Not to assign transfer, sub – let or any part with possession of
-                                    the said premises or any part they’re of any thereof at any time
-                                    during continuance of this License period.
-                                </p>
-                                <p className="mt-3">
-                                    [e] To permit the Licensor or his family member to enter, inspect
-                                    the said premises and fixtures, fittings after giving a prior notice
-                                    / intimidation.
-                                </p>
-                                <p className="mt-3">
-                                    [f] To Licensee shall use the said premises for his residential
-                                    purposes only for no other purposes whatsoever.
-                                </p>
-                                <p className="mt-3">
-                                    [g] The said parties are making this leave and License Agreement
-                                    as provided in section 4 (1A) and 13(A2) of Bombay Rent
-                                    Control Act 1987 (Amended) Maharashtra Rent Act 1999
-                                    section 55/1 as amended. The Licensee shall never claim to be a
-                                    tenant and the agreement always be treated as an Agreement of
-                                    LEAVE AND LICENSE.
-                                </p>
-                                <p className="mt-3">
-                                    If the Licensee fails to vacate the said premises within the
-                                    stipulated period of the License shall evicted by the said
-                                    premises within the stipulated period of the License shall
-                                    evicted by the Licensor without recourse to the court of law and
-                                    he/she shall be treated as <b>TRESSPASSER</b>.
-                                </p>
-
-                                <p className="mt-3">
-                                    <b>THE WITNESS WHERE OF</b>, the parties here to set and subscribe
-                                    their respective hands on the day and year mentioned here in above
-                                </p>
-                                <p className="mt-3">
-                                    SIGNED AND DELIVERD BY THE
-                                </p>
-                                <p>
-                                    WITHIN NAMED LICENSOR
-                                </p>
-
-
-                                <p className="text-end">
-                                    <b>{data.name || "______________"}</b><br />
-                                    <b>LICENSOR</b>
-                                </p>
-
-                                <p>
-                                    SIGNED SEALED AND DELIVERD
-                                </p>
-                                <p>BY THE WITHIN NAMED LICENSE</p>
-                                <p className="text-end">
-                                    <b>{data.secondPartyName || "______________"}</b><br />
-                                    <b>LICENSOR</b>
-                                </p>
-                                <p>In the presence of</p>
-
-                                <p>
-                                    Name : <b>{data.witnessName || "____________________"}</b>
-                                </p>
-
-                                <p>
-                                    Address : <b>{data.witnessAddress || "____________________"}</b>
-                                </p>
-
-                                <p>
-                                    Signature : ____________________
-                                </p>
+                                1. The Licensor agrees to demise unto the Licensee and the Licensee hereby accepts the said premises... for a period of <b>{data.licenseDurationMonths || "____"} Months</b> with effect from <b>{data.licenseStartDate || "____"}</b> to <b>{data.licenseEndDate || "____"}</b> on Leave and License basis.
                             </div>
 
+                            <div style={{ margin: "12px 0", textIndent: "-12px" }}>
+                                2. During the tenure of the license period, the Licensee shall pay to the Licensor an amount of Rs. <b>{data.monthlyRent || "____"}</b>/- (Rupees <b>{data.monthlyRentWords || "________"}</b> Only) per month by way of <b>{data.paymentMode || "________"}</b> on or before <b>{data.paymentDueDay || "__"}</b> of every month.
+                            </div>
+
+                            <div style={{ margin: "12px 0", textIndent: "-12px" }}>
+                                3. Electricity bills shall be paid and cleared by the Licensee.
+                            </div>
+
+                            {/* You can add more clauses as needed. The current PDF has many clauses already. */}
+
+                            <div style={{ marginTop: "40px", textAlign: "right", fontWeight: "bold" }}>
+                                LICENSOR<br />
+                                <b>{data.name || "______________"}</b>
+                            </div>
+
+                            <div style={{ marginTop: "30px", textAlign: "right", fontWeight: "bold" }}>
+                                LICENSEE<br />
+                                <b>{data.secondPartyName || "______________"}</b>
+                            </div>
+
+                            <div style={{ marginTop: "40px" }}>
+                                <p>In the presence of</p>
+                                <p>Name : <b>{data.witnessName || "____________________"}</b></p>
+                                <p>Address : <b>{data.witnessAddress || "____________________"}</b></p>
+                                <p>Signature : ____________________</p>
+                            </div>
                         </div>
-
-
                     </div>
-
                 </div>
             </div>
+
+            {/* Payment Modal */}
+            {showPayment && requestId && (
+                <PaymentModal
+                    requestId={requestId}
+                    amount={1}
+                    onSuccess={handlePaymentSuccess}
+                    onClose={() => setShowPayment(false)}
+                />
+            )}
         </div>
     );
 }
-/* INPUT */
+
+/* INPUT COMPONENT */
 function Input({ label, ...props }) {
     return (
         <div className="mb-3">

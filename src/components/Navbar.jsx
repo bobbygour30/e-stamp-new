@@ -2,7 +2,7 @@
 
 import { useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Menu, X, ChevronDown, User, LogOut, LayoutDashboard } from "lucide-react";
+import { Menu, X, ChevronDown, User, LogOut, LayoutDashboard, Shield } from "lucide-react";
 import { AuthContext } from "../context/AuthContext";
 
 export default function Navbar() {
@@ -142,7 +142,7 @@ export default function Navbar() {
                 </div>
               ))}
 
-              {/* ✅ AUTH ICON DROPDOWN - Updated with user context */}
+              {/* AUTH ICON DROPDOWN - Updated with user context and admin link */}
               <div
                 className="relative"
                 onMouseEnter={() => setAuthDropdown(true)}
@@ -160,7 +160,7 @@ export default function Navbar() {
                 </button>
 
                 <div
-                  className={`absolute right-0 mt-3 w-48 rounded-xl bg-white shadow-xl border border-slate-100 z-50
+                  className={`absolute right-0 mt-3 w-56 rounded-xl bg-white shadow-xl border border-slate-100 z-50
                   transition-all duration-300
                   ${
                     authDropdown
@@ -173,18 +173,38 @@ export default function Navbar() {
                       <div className="px-5 py-3 border-b border-slate-100">
                         <p className="text-sm font-medium text-slate-900">{user.name}</p>
                         <p className="text-xs text-slate-500 truncate">{user.email}</p>
+                        {user.role === 'admin' && (
+                          <span className="inline-block mt-1 text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded">
+                            Admin
+                          </span>
+                        )}
                       </div>
+                      
+                      {/* User Dashboard Link */}
                       <Link
                         to="/dashboard"
                         onClick={() => setAuthDropdown(false)}
                         className="flex items-center gap-2 px-5 py-3 text-sm text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition"
                       >
                         <LayoutDashboard size={16} />
-                        Dashboard
+                        My Dashboard
                       </Link>
+                      
+                      {/* Admin Dashboard Link - Only for admin users */}
+                      {user.role === 'admin' && (
+                        <Link
+                          to="/admin"
+                          onClick={() => setAuthDropdown(false)}
+                          className="flex items-center gap-2 px-5 py-3 text-sm text-purple-600 hover:bg-purple-50 transition border-t border-slate-100"
+                        >
+                          <Shield size={16} />
+                          Admin Dashboard
+                        </Link>
+                      )}
+                      
                       <button
                         onClick={handleLogout}
-                        className="flex items-center gap-2 w-full text-left px-5 py-3 text-sm text-red-600 hover:bg-red-50 transition"
+                        className="flex items-center gap-2 w-full text-left px-5 py-3 text-sm text-red-600 hover:bg-red-50 transition border-t border-slate-100"
                       >
                         <LogOut size={16} />
                         Logout
@@ -253,7 +273,7 @@ export default function Navbar() {
           className={`lg:hidden fixed top-0 right-0 z-50 h-full w-80 bg-white shadow-xl transform transition-transform duration-300
           ${menuOpen ? "translate-x-0" : "translate-x-full"}`}
         >
-          <div className="p-6 flex flex-col gap-4">
+          <div className="p-6 flex flex-col gap-4 overflow-y-auto max-h-full">
             <div className="flex items-center justify-between">
               <span className="text-lg font-semibold text-slate-900">
                 Menu
@@ -270,9 +290,14 @@ export default function Navbar() {
                   <div className="h-10 w-10 rounded-full bg-indigo-200 flex items-center justify-center">
                     <User size={20} className="text-indigo-700" />
                   </div>
-                  <div>
+                  <div className="flex-1">
                     <p className="font-medium text-slate-900">{user.name}</p>
-                    <p className="text-xs text-slate-600">{user.email}</p>
+                    <p className="text-xs text-slate-600 truncate">{user.email}</p>
+                    {user.role === 'admin' && (
+                      <span className="inline-block mt-1 text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded">
+                        Admin
+                      </span>
+                    )}
                   </div>
                 </div>
               </div>
@@ -282,7 +307,7 @@ export default function Navbar() {
               <details key={idx} className="group">
                 <summary className="flex cursor-pointer items-center justify-between py-2 text-slate-700 font-medium">
                   {item.label}
-                  <ChevronDown className="group-open:rotate-180 transition-transform" />
+                  <ChevronDown className="group-open:rotate-180 transition-transform" size={16} />
                 </summary>
                 <div className="ml-3 flex flex-col gap-2 pb-2">
                   {item.submenu.map((sub, subIdx) => (
@@ -290,7 +315,7 @@ export default function Navbar() {
                       key={subIdx}
                       to={sub.path}
                       onClick={() => setMenuOpen(false)}
-                      className="text-sm text-slate-600 hover:text-indigo-600 transition"
+                      className="text-sm text-slate-600 hover:text-indigo-600 transition py-1"
                     >
                       {sub.name}
                     </Link>
@@ -299,23 +324,39 @@ export default function Navbar() {
               </details>
             ))}
 
-            {/* ✅ MOBILE AUTH SECTION - Updated with user context */}
+            {/* Divider */}
+            <div className="border-t border-slate-200 my-2"></div>
+
+            {/* MOBILE AUTH SECTION - Updated with user context and admin link */}
             {user ? (
               <>
                 <Link
                   to="/dashboard"
                   onClick={() => setMenuOpen(false)}
-                  className="flex items-center gap-2 text-slate-700 font-medium hover:text-indigo-600 transition"
+                  className="flex items-center gap-2 text-slate-700 font-medium hover:text-indigo-600 transition py-2"
                 >
                   <LayoutDashboard size={18} />
-                  Dashboard
+                  My Dashboard
                 </Link>
+                
+                {/* Admin Dashboard Link for Mobile */}
+                {user.role === 'admin' && (
+                  <Link
+                    to="/admin"
+                    onClick={() => setMenuOpen(false)}
+                    className="flex items-center gap-2 text-purple-600 font-medium hover:text-purple-700 transition py-2"
+                  >
+                    <Shield size={18} />
+                    Admin Dashboard
+                  </Link>
+                )}
+                
                 <button
                   onClick={() => {
                     handleLogout();
                     setMenuOpen(false);
                   }}
-                  className="flex items-center gap-2 text-red-600 font-medium hover:text-red-700 transition"
+                  className="flex items-center gap-2 text-red-600 font-medium hover:text-red-700 transition py-2"
                 >
                   <LogOut size={18} />
                   Logout
@@ -326,7 +367,7 @@ export default function Navbar() {
                 <Link
                   to="/login"
                   onClick={() => setMenuOpen(false)}
-                  className="text-slate-700 font-medium hover:text-indigo-600 transition"
+                  className="text-slate-700 font-medium hover:text-indigo-600 transition py-2"
                 >
                   Login
                 </Link>
@@ -334,7 +375,7 @@ export default function Navbar() {
                 <Link
                   to="/signup"
                   onClick={() => setMenuOpen(false)}
-                  className="text-slate-700 font-medium hover:text-indigo-600 transition"
+                  className="text-slate-700 font-medium hover:text-indigo-600 transition py-2"
                 >
                   Sign Up
                 </Link>

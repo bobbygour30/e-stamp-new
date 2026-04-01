@@ -2,6 +2,7 @@ import React from "react";
 import { Route, Routes } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import PrivateRoute from "./components/PrivateRoute";
+import AdminRoute from "./components/AdminRoute";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import HomePage from "./pages/HomePage";
@@ -29,6 +30,9 @@ import Signup from "./pages/Signup";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import Dashboard from "./pages/Dashboard";
+import AdminDashboard from "./pages/AdminDashboard";
+import PaymentSuccess from "./pages/PaymentSuccess";
+import PaymentFailure from "./pages/PaymentFailure";
 
 const App = () => {
   return (
@@ -73,18 +77,33 @@ const App = () => {
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password/:token" element={<ResetPassword />} />
           
-          {/* Protected Routes */}
+          {/* Payment Routes */}
+          <Route path="/payment-success" element={<PaymentSuccess />} />
+          <Route path="/payment-failure" element={<PaymentFailure />} />
+          
+          {/* Protected Routes - User */}
           <Route path="/dashboard" element={
             <PrivateRoute>
               <Dashboard />
             </PrivateRoute>
           } />
           
-          {/* You can add more protected routes here */}
           <Route path="/profile" element={
             <PrivateRoute>
-              <div>Profile Page (Coming Soon)</div>
+              <div className="min-h-screen flex items-center justify-center">
+                <div className="bg-white rounded-xl shadow-xl p-8 max-w-md w-full">
+                  <h2 className="text-2xl font-bold mb-4">Profile Page</h2>
+                  <p className="text-gray-600">Coming Soon...</p>
+                </div>
+              </div>
             </PrivateRoute>
+          } />
+          
+          {/* Admin Routes */}
+          <Route path="/admin" element={
+            <AdminRoute>
+              <AdminDashboard />
+            </AdminRoute>
           } />
         </Routes>
         <Footer />

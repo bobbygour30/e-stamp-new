@@ -1,5 +1,9 @@
-import { useState, useRef } from "react";
+import { useRef, useState, useContext } from "react";
 import html2pdf from "html2pdf.js";
+import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../context/AuthContext";
+import { documentAPI } from "../services/api";
+import PaymentModal from "../components/PaymentModal";
 
 const initialData = {
   ownerName: "",
@@ -32,18 +36,52 @@ const initialData = {
 export default function RentAgreementPage() {
   const [step, setStep] = useState(1);
   const [data, setData] = useState(initialData);
-  const previewRef = useRef();
+  const [showPayment, setShowPayment] = useState(false);
+  const [requestId, setRequestId] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const previewRef = useRef(null);
+  const navigate = useNavigate();
+  const { user } = useContext(AuthContext);
 
   const update = (e) =>
     setData({ ...data, [e.target.name]: e.target.value });
 
+  const handleSubmit = async () => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await documentAPI.createRequest({
+        documentType: 'rent-agreement',
+        formData: data,
+        paymentAmount: 1, // Change to actual amount (e.g. 500) in production
+      });
+
+      setRequestId(response.data.requestId);
+      setShowPayment(true);
+    } catch (error) {
+      console.error('Error creating request:', error);
+      alert('Failed to create request. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handlePaymentSuccess = () => {
+    setShowPayment(false);
+    navigate('/dashboard');
+  };
+
   const downloadPDF = () => {
     const element = previewRef.current;
-
     html2pdf()
       .from(element)
       .set({
-        margin: [8, 6, 8, 6], // even tighter margins
+        margin: [8, 6, 8, 6],
         filename: "Rent_Agreement.pdf",
         image: { type: "jpeg", quality: 0.98 },
         html2canvas: {
@@ -51,7 +89,7 @@ export default function RentAgreementPage() {
           useCORS: true,
           logging: false,
           windowWidth: 794,
-          backgroundColor: "#fffdf5", // force background in canvas
+          backgroundColor: "#fffdf5",
           allowTaint: true,
         },
         jsPDF: {
@@ -122,53 +160,56 @@ export default function RentAgreementPage() {
             </>
           )}
 
-          <div className="flex justify-between mt-6">
+          <div className="flex justify-between mt-8 gap-3">
             {step > 1 && (
               <button
                 onClick={() => setStep(step - 1)}
-                className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+                className="flex-1 px-4 py-2.5 bg-gray-300 rounded hover:bg-gray-400 transition"
               >
                 Previous
               </button>
             )}
+
             {step < 4 ? (
               <button
                 onClick={() => setStep(step + 1)}
-                className="px-4 py-2 bg-orange-400 text-white rounded hover:bg-orange-500"
+                className="flex-1 px-4 py-2.5 bg-orange-400 text-white rounded hover:bg-orange-500 transition"
               >
                 Next
               </button>
             ) : (
               <button
-                onClick={downloadPDF}
-                className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+                onClick={handleSubmit}
+                disabled={loading}
+                className="flex-1 px-4 py-2.5 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50 transition"
               >
-                Download PDF
+                {loading ? 'Processing...' : 'Proceed to Payment (₹1)'}
               </button>
             )}
           </div>
         </div>
 
         {/* RIGHT - PREVIEW */}
-        <div className="bg-gray-100 p-4 rounded shadow overflow-y-auto max-h-[90vh]">
+        <div className="bg-gray-100 p-4 rounded shadow overflow-y-auto" style={{ height: "90vh" }}>
           <div
             ref={previewRef}
             style={{
               position: "relative",
               width: "210mm",
-              height: "594mm", // exactly 2 A4 pages
+              height: "594mm", // 2 A4 pages
               backgroundColor: "#fffdf5",
               color: "#111827",
               fontFamily: "monospace",
-              padding: "12mm 10mm", // tighter padding
+              padding: "12mm 10mm",
               boxSizing: "border-box",
               margin: "0 auto",
-              fontSize: "9.8pt", // smaller font to fit
+              fontSize: "9.8pt",
               lineHeight: "1.3",
               overflow: "hidden",
+              boxShadow: "0 4px 6px -1px rgba(0,0,0,0.1)",
             }}
           >
-            {/* Full-page background filler (invisible div to ensure color covers empty space) */}
+            {/* Background filler */}
             <div
               style={{
                 position: "absolute",
@@ -274,8 +315,7 @@ export default function RentAgreementPage() {
               </li>
             </ol>
 
-            {/* Force page break to page 2 for signatures */}
-            <div style={{ pageBreakAfter: "always", margin: "0" }}></div>
+            <div style={{ pageBreakAfter: "always", height: "20px" }} />
 
             <p style={{ margin: "8px 0 6px 0" }}>
               IN WITNESS WHEREOF the parties have signed this agreement on the day and year first above written.
@@ -287,11 +327,20 @@ export default function RentAgreementPage() {
               <p style={{ margin: "3px 0" }}>2. ____________________ (SECOND PARTY)</p>
             </div>
 
-            {/* Filler to ensure page 2 is fully colored if content is short */}
-            <div style={{ height: "200mm", marginTop: "20px" }}></div>
+            <div style={{ height: "180mm", marginTop: "20px" }} />
           </div>
         </div>
       </div>
+
+      {/* Payment Modal */}
+      {showPayment && requestId && (
+        <PaymentModal
+          requestId={requestId}
+          amount={1}
+          onSuccess={handlePaymentSuccess}
+          onClose={() => setShowPayment(false)}
+        />
+      )}
     </div>
   );
 }

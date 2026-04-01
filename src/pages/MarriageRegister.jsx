@@ -1,35 +1,112 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useContext } from "react";
 import html2pdf from "html2pdf.js";
+import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../context/AuthContext";
+import { documentAPI } from "../services/api";
+import PaymentModal from "../components/PaymentModal";
+import { uploadPDFToCloudinary } from "../utils/cloudinary";
 
 const initialData = {
   groomName: "",
   groomFather: "",
   groomAddress: "",
-
   brideName: "",
   brideFather: "",
   brideAddress: "",
-
   marriageDate: "",
   marriagePlace: "",
-
   dob: "",
   ageAtMarriage: "",
-
   verificationPlace: "Delhi",
   verificationDate: "",
 };
 
 export default function MarriageRegister() {
   const [data, setData] = useState(initialData);
+  const [showPayment, setShowPayment] = useState(false);
+  const [requestId, setRequestId] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const pdfRef = useRef(null);
+  const navigate = useNavigate();
+  const { user } = useContext(AuthContext);
 
   const update = (e) =>
     setData({ ...data, [e.target.name]: e.target.value });
 
+  const generatePDFBlob = async () => {
+    const element = pdfRef.current;
+    const opt = {
+      filename: "Marriage_Registration_Affidavit.pdf",
+      margin: 0,
+      image: { type: "jpeg", quality: 1 },
+      html2canvas: {
+        scale: 2,
+        scrollY: 0,
+        backgroundColor: "#ffffff",
+      },
+      jsPDF: {
+        unit: "mm",
+        format: "a4",
+        orientation: "portrait",
+      },
+      pagebreak: { mode: [] },
+    };
+    
+    return new Promise((resolve) => {
+      html2pdf().set(opt).from(element).outputPdf().then(resolve);
+    });
+  };
+
+// Make sure this function exists and is called after payment success
+const handleSubmit = async () => {
+  if (!user) {
+    navigate('/login');
+    return;
+  }
+  
+  setLoading(true);
+  try {
+    // Step 1: Generate PDF
+    const pdfBlob = await generatePDFBlob();
+    
+    // Step 2: Create document request
+    const response = await documentAPI.createRequest({
+      documentType: 'marriage-register',
+      formData: data,
+      paymentAmount: 1,
+    });
+    
+    const requestId = response.data.requestId;
+    
+    // Step 3: Upload PDF to Cloudinary
+    const uploadResult = await uploadPDFToCloudinary(pdfBlob, 'marriage-register', requestId);
+    
+    // Step 4: Update request with PDF URL
+    await documentAPI.updatePDFUrl(requestId, {
+      pdfUrl: uploadResult.url,
+      cloudinaryPublicId: uploadResult.publicId
+    });
+    
+    setRequestId(requestId);
+    setShowPayment(true);
+  } catch (error) {
+    console.error('Error creating request:', error);
+    alert('Failed to create request. Please try again.');
+  } finally {
+    setLoading(false);
+  }
+};
+
+  const handlePaymentSuccess = () => {
+    setShowPayment(false);
+    navigate('/dashboard');
+  };
+
   const downloadPDF = () => {
+    const element = pdfRef.current;
     html2pdf()
-      .from(pdfRef.current)
+      .from(element)
       .set({
         filename: "Marriage_Registration_Affidavit.pdf",
         margin: 0,
@@ -38,14 +115,13 @@ export default function MarriageRegister() {
           scale: 2,
           scrollY: 0,
           backgroundColor: "#ffffff",
-          // scrollY: 0,
         },
         jsPDF: {
           unit: "mm",
           format: "a4",
           orientation: "portrait",
         },
-        pagebreak: { mode: [] }, // ✅ one page only
+        pagebreak: { mode: [] },
       })
       .save();
   };
@@ -54,7 +130,7 @@ export default function MarriageRegister() {
     <div className="min-h-screen bg-[#f3f1fa] p-6">
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6">
 
-        {/* ================= FORM ================= */}
+        {/* Form Section */}
         <div className="bg-white p-6 rounded-xl shadow border border-purple-200">
           <h2 className="text-xl font-semibold text-purple-700 mb-4">
             Marriage Registration Affidavit
@@ -84,146 +160,147 @@ export default function MarriageRegister() {
             onChange={update}
           />
 
-          <button
-            onClick={downloadPDF}
-            className="mt-6 w-full bg-purple-700 hover:bg-purple-800 text-white py-2.5 rounded-lg font-medium"
-          >
-            Download PDF
-          </button>
+          <div className="flex gap-3 mt-6">
+            <button
+              onClick={downloadPDF}
+              className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-2.5 rounded-lg font-medium transition"
+            >
+              Preview PDF
+            </button>
+            <button
+              onClick={handleSubmit}
+              disabled={loading || uploading}
+              className="flex-1 bg-purple-700 hover:bg-purple-800 text-white py-2.5 rounded-lg font-medium disabled:opacity-50 transition"
+            >
+              {uploading ? 'Generating PDF...' : loading ? 'Processing...' : 'Proceed to Payment (₹1)'}
+            </button>
+          </div>
         </div>
 
-        {/* ================= PDF PREVIEW ================= */}
-        <div className="bg-gray-100 rounded shadow overflow-y-auto flex justify-center h-screen">
-          <div className="flex justify-center"
+        {/* PDF Preview Section - Keep the same as before */}
+        <div className="bg-gray-100 rounded-xl shadow overflow-y-auto flex justify-center p-4" style={{ height: "90vh" }}>
+          <div
+            ref={pdfRef}
             style={{
-              width: "100%",
-              maxWidth: "100%",
-            }}>
-            <div style={{
-              width: "100%",
-              maxWidth: "820px",   // 👈 desktop limit
-              aspectRatio: "210 / 297",
-              display: "flex",
-              justifyContent: "center",
-            }}>
-              <div
-                ref={pdfRef}
-                style={{
-                  width: "210mm",
-                  height: "297mm",
-                  backgroundColor: "#fff",
-                  color: "#000",
-                  fontFamily: "'Times New Roman', Times, serif",
-                  fontSize: "12pt",
-                  lineHeight: "1.55",
-                  padding: "25px",
-                  boxSizing: "border-box",
-                  overflow: "hidden",
-                }}
-              >
-                {/* TITLE */}
-                <div
-                  style={{
-                    textAlign: "center",
-                    fontWeight: "bold",
-                    textDecoration: "underline",
-                    marginBottom: "22px",
-                    fontSize: "15pt",
-                  }}
-                >
-                  AFFIDAVIT
-                </div>
+              width: "210mm",
+              minHeight: "297mm",
+              backgroundColor: "#fff",
+              color: "#000",
+              fontFamily: "'Times New Roman', Times, serif",
+              fontSize: "12pt",
+              lineHeight: "1.55",
+              padding: "25px",
+              boxSizing: "border-box",
+              boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+              margin: "0 auto",
+            }}
+          >
+            {/* Your existing PDF content - same as before */}
+            <div
+              style={{
+                textAlign: "center",
+                fontWeight: "bold",
+                textDecoration: "underline",
+                marginBottom: "22px",
+                fontSize: "15pt",
+              }}
+            >
+              AFFIDAVIT
+            </div>
 
-                {/* INTRO */}
-                <p style={{ textAlign: "justify" }}>
-                  I, <b>{data.groomName || "____________________"}</b> Son of Shri{" "}
-                  <b>{data.groomFather || "____________________"}</b> R/O{" "}
-                  <b>{data.groomAddress || "____________________"}</b>, do hereby
-                  take oath and solemnly affirm and declare as under:-
-                </p>
+            <p style={{ textAlign: "justify", marginBottom: "16px" }}>
+              I, <b>{data.groomName || "____________________"}</b> Son of Shri{" "}
+              <b>{data.groomFather || "____________________"}</b> R/O{" "}
+              <b>{data.groomAddress || "____________________"}</b>, do hereby
+              take oath and solemnly affirm and declare as under:-
+            </p>
 
-                {/* POINTS */}
-                <div style={{ marginLeft: "20px", marginTop: "16px" }}>
-                  <p style={{ textIndent: "-20px", marginBottom: "8px" }}>
-                    I. That I got married to{" "}
-                    <b>{data.brideName || "____________________"}</b> D/O Shri{" "}
-                    <b>{data.brideFather || "____________________"}</b> R/O{" "}
-                    <b>{data.brideAddress || "____________________"}</b> on{" "}
-                    <b>{data.marriageDate || "__________"}</b> at{" "}
-                    <b>{data.marriagePlace || "____________________"}</b>.
-                  </p>
+            <div style={{ marginLeft: "20px" }}>
+              <p style={{ textIndent: "-20px", marginBottom: "12px" }}>
+                I. That I got married to{" "}
+                <b>{data.brideName || "____________________"}</b> D/O Shri{" "}
+                <b>{data.brideFather || "____________________"}</b> R/O{" "}
+                <b>{data.brideAddress || "____________________"}</b> on{" "}
+                <b>{data.marriageDate || "__________"}</b> at{" "}
+                <b>{data.marriagePlace || "____________________"}</b>.
+              </p>
 
-                  <p style={{ textIndent: "-20px", marginBottom: "8px" }}>
-                    II. That my date of Birth is <b>{data.dob || "__________"}</b>{" "}
-                    and I have completed <b>{data.ageAtMarriage || "__"}</b> years
-                    of age at the time of marriage.
-                  </p>
+              <p style={{ textIndent: "-20px", marginBottom: "12px" }}>
+                II. That my date of Birth is <b>{data.dob || "__________"}</b>{" "}
+                and I have completed <b>{data.ageAtMarriage || "__"}</b> years
+                of age at the time of marriage.
+              </p>
 
-                  <p style={{ textIndent: "-20px", marginBottom: "8px" }}>
-                    III. That I was unmarried till the time of marriage on{" "}
-                    <b>{data.marriageDate || "__________"}</b> and I did not have a
-                    spouse living at the time of marriage.
-                  </p>
+              <p style={{ textIndent: "-20px", marginBottom: "12px" }}>
+                III. That I was unmarried till the time of marriage on{" "}
+                <b>{data.marriageDate || "__________"}</b> and I did not have a
+                spouse living at the time of marriage.
+              </p>
 
-                  <p style={{ textIndent: "-20px", marginBottom: "8px" }}>
-                    IV. That the marriage was conducted as per <b>Hindu</b> Rites.
-                  </p>
+              <p style={{ textIndent: "-20px", marginBottom: "12px" }}>
+                IV. That the marriage was conducted as per <b>Hindu</b> Rites.
+              </p>
 
-                  <p style={{ textIndent: "-20px", marginBottom: "8px" }}>
-                    V. That I belong to <b>Hindu</b> religion.
-                  </p>
+              <p style={{ textIndent: "-20px", marginBottom: "12px" }}>
+                V. That I belong to <b>Hindu</b> religion.
+              </p>
 
-                  <p style={{ textIndent: "-20px", marginBottom: "8px" }}>
-                    VI. That at the time of marriage, I was capable of giving valid
-                    consent and of sound mind, not suffering from any mental
-                    disorder/insanity.
-                  </p>
+              <p style={{ textIndent: "-20px", marginBottom: "12px" }}>
+                VI. That at the time of marriage, I was capable of giving valid
+                consent and of sound mind, not suffering from any mental
+                disorder/insanity.
+              </p>
 
-                  <p style={{ textIndent: "-20px", marginBottom: "8px" }}>
-                    VII. That until the time of marriage I was not related to{" "}
-                    <b>{data.brideName || "____________________"}</b> D/O Shri{" "}
-                    <b>{data.brideFather || "____________________"}</b> within the
-                    prohibited degree of relationship and not spinals as per{" "}
-                    <b>Hindu Marriage Act</b>.
-                  </p>
+              <p style={{ textIndent: "-20px", marginBottom: "12px" }}>
+                VII. That until the time of marriage I was not related to{" "}
+                <b>{data.brideName || "____________________"}</b> D/O Shri{" "}
+                <b>{data.brideFather || "____________________"}</b> within the
+                prohibited degree of relationship and not spinals as per{" "}
+                <b>Hindu Marriage Act</b>.
+              </p>
 
-                  <p style={{ textIndent: "-20px", marginBottom: "8px" }}>
-                    VIII. That I am an Indian citizen.
-                  </p>
-                </div>
+              <p style={{ textIndent: "-20px", marginBottom: "12px" }}>
+                VIII. That I am an Indian citizen.
+              </p>
+            </div>
 
-                {/* DEPONENT */}
-                <div style={{ marginTop: "40px", textAlign: "right", fontWeight: "bold" }}>
-                  DEPONENT
-                </div>
+            <div style={{ marginTop: "40px", textAlign: "right", fontWeight: "bold" }}>
+              DEPONENT
+            </div>
 
-                {/* VERIFICATION */}
-                <div style={{ marginTop: "30px" }}>
-                  <p>
-                    <b>Verification:-</b>
-                  </p>
-                  <p style={{ textAlign: "justify", marginTop: "10px" }}>
-                    Verified at <b>{data.verificationPlace}</b> on{" "}
-                    <b>{data.verificationDate || "__________"}</b> that the above
-                    content are true and correct to the best of my knowledge and
-                    belief and nothing has been concealed therein.
-                  </p>
-                </div>
+            <div style={{ marginTop: "30px" }}>
+              <p>
+                <b>Verification:-</b>
+              </p>
+              <p style={{ textAlign: "justify", marginTop: "10px" }}>
+                Verified at <b>{data.verificationPlace}</b> on{" "}
+                <b>{data.verificationDate || "__________"}</b> that the above
+                content are true and correct to the best of my knowledge and
+                belief and nothing has been concealed therein.
+              </p>
+            </div>
 
-                <div style={{ marginTop: "35px", textAlign: "right", fontWeight: "bold" }}>
-                  DEPONENT
-                </div>
-              </div>
+            <div style={{ marginTop: "35px", textAlign: "right", fontWeight: "bold" }}>
+              DEPONENT
             </div>
           </div>
         </div>
 
       </div>
+
+      {/* Payment Modal */}
+      {showPayment && requestId && (
+        <PaymentModal
+          requestId={requestId}
+          amount={1}
+          onSuccess={handlePaymentSuccess}
+          onClose={() => setShowPayment(false)}
+        />
+      )}
     </div>
   );
 }
 
-/* INPUT */
 function Input({ label, ...props }) {
   return (
     <div className="mb-3">
