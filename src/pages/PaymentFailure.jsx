@@ -10,8 +10,9 @@ export default function PaymentFailure() {
     const params = new URLSearchParams(location.search);
     const error = params.get('error');
     const txnId = params.get('txnid');
+    const status = params.get('status');
     
-    console.log('Payment failure:', { error, txnId });
+    console.log('Payment failure page:', { error, txnId, status });
     
     // Auto redirect after 5 seconds
     const timer = setTimeout(() => {

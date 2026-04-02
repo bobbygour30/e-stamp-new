@@ -122,28 +122,6 @@ export default function MarriageRegister() {
     navigate('/dashboard');
   };
 
-  const downloadPDF = () => {
-    const element = pdfRef.current;
-    html2pdf()
-      .from(element)
-      .set({
-        filename: "Marriage_Registration_Affidavit.pdf",
-        margin: 0,
-        image: { type: "jpeg", quality: 1 },
-        html2canvas: {
-          scale: 2,
-          scrollY: 0,
-          backgroundColor: "#ffffff",
-        },
-        jsPDF: {
-          unit: "mm",
-          format: "a4",
-          orientation: "portrait",
-        },
-        pagebreak: { mode: [] },
-      })
-      .save();
-  };
 
   return (
     <div className="min-h-screen bg-[#f3f1fa] p-6">
@@ -180,12 +158,7 @@ export default function MarriageRegister() {
           />
 
           <div className="flex gap-3 mt-6">
-            <button
-              onClick={downloadPDF}
-              className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-2.5 rounded-lg font-medium transition"
-            >
-              Preview PDF
-            </button>
+           
             <button
               onClick={handleSubmit}
               disabled={loading || uploading}
