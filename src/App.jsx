@@ -1,5 +1,5 @@
 import React from "react";
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, useLocation } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import PrivateRoute from "./components/PrivateRoute";
 import AdminRoute from "./components/AdminRoute";
@@ -34,82 +34,96 @@ import AdminDashboard from "./pages/AdminDashboard";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentFailure from "./pages/PaymentFailure";
 
-const App = () => {
+function AppContent() {
+  const location = useLocation();
+  
+  // Routes where Navbar and Footer should be hidden
+  const hideNavbarFooterRoutes = ['/admin'];
+  
+  // Check if current route should hide navbar and footer
+  const shouldHideNavbarFooter = hideNavbarFooterRoutes.includes(location.pathname);
+  
+  return (
+    <>
+      {!shouldHideNavbarFooter && <Navbar />}
+      <Routes>
+        {/* Public Routes */}
+        <Route path="/" element={<HomePage />} />
+        <Route path="/address-proof" element={<AddressProof />} />
+        <Route path="/lost-document" element={<LostDocument />} />
+        <Route
+          path="/marriage-registration"
+          element={<MarriageRegistration />}
+        />
+        <Route
+          path="/name-addition-birth-certificate"
+          element={<NameAdditionBirthCertificate />}
+        />
+        <Route path="/name-correction" element={<Correction />} />
+        <Route
+          path="/after-marriage-name-change"
+          element={<AfterMarriageNameChange />}
+        />
+        <Route path="/signature" element={<Signature />} />
+        <Route path="/first-baby" element={<FirstBaby />} />
+        <Route path="/single-girl" element={<SingleGirl />} />
+        <Route path="/additional-name" element={<AddtionalName />} />
+        <Route path="/birth-certificate" element={<BirthCertificate />} />
+        <Route path="/short-attendence" element={<ShortAttendence />} />
+        <Route path="/anti-ragging" element={<AntiRagging />} />
+        <Route path="/education-loan" element={<EducationLoan />} />
+        <Route path="/gap-year" element={<GapYear />} />
+        <Route path="/income" element={<Income />} />
+        <Route path="/name-change" element={<NameChange />} />
+        <Route path="/marriage-register" element={<MarriageRegister />} />
+        <Route path="/rental-agreements" element={<RentalAgreements />} />
+        
+        {/* Authentication Routes */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password/:token" element={<ResetPassword />} />
+        
+        {/* Payment Routes */}
+        <Route path="/payment-success" element={<PaymentSuccess />} />
+        <Route path="/payment-failure" element={<PaymentFailure />} />
+        
+        {/* Protected Routes - User */}
+        <Route path="/dashboard" element={
+          <PrivateRoute>
+            <Dashboard />
+          </PrivateRoute>
+        } />
+        
+        <Route path="/profile" element={
+          <PrivateRoute>
+            <div className="min-h-screen flex items-center justify-center">
+              <div className="bg-white rounded-xl shadow-xl p-8 max-w-md w-full">
+                <h2 className="text-2xl font-bold mb-4">Profile Page</h2>
+                <p className="text-gray-600">Coming Soon...</p>
+              </div>
+            </div>
+          </PrivateRoute>
+        } />
+        
+        {/* Admin Routes - Navbar and Footer hidden */}
+        <Route path="/admin" element={
+          <AdminRoute>
+            <AdminDashboard />
+          </AdminRoute>
+        } />
+      </Routes>
+      {!shouldHideNavbarFooter && <Footer />}
+    </>
+  );
+}
+
+function App() {
   return (
     <AuthProvider>
-      <div>
-        <Navbar />
-        <Routes>
-          {/* Public Routes */}
-          <Route path="/" element={<HomePage />} />
-          <Route path="/address-proof" element={<AddressProof />} />
-          <Route path="/lost-document" element={<LostDocument />} />
-          <Route
-            path="/marriage-registration"
-            element={<MarriageRegistration />}
-          />
-          <Route
-            path="/name-addition-birth-certificate"
-            element={<NameAdditionBirthCertificate />}
-          />
-          <Route path="/name-correction" element={<Correction />} />
-          <Route
-            path="/after-marriage-name-change"
-            element={<AfterMarriageNameChange />}
-          />
-          <Route path="/signature" element={<Signature />} />
-          <Route path="/first-baby" element={<FirstBaby />} />
-          <Route path="/single-girl" element={<SingleGirl />} />
-          <Route path="/additional-name" element={<AddtionalName />} />
-          <Route path="/birth-certificate" element={<BirthCertificate />} />
-          <Route path="/short-attendence" element={<ShortAttendence />} />
-          <Route path="/anti-ragging" element={<AntiRagging />} />
-          <Route path="/education-loan" element={<EducationLoan />} />
-          <Route path="/gap-year" element={<GapYear />} />
-          <Route path="/income" element={<Income />} />
-          <Route path="/name-change" element={<NameChange />} />
-          <Route path="/marriage-register" element={<MarriageRegister />} />
-          <Route path="/rental-agreements" element={<RentalAgreements />} />
-          
-          {/* Authentication Routes */}
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/reset-password/:token" element={<ResetPassword />} />
-          
-          {/* Payment Routes */}
-          <Route path="/payment-success" element={<PaymentSuccess />} />
-          <Route path="/payment-failure" element={<PaymentFailure />} />
-          
-          {/* Protected Routes - User */}
-          <Route path="/dashboard" element={
-            <PrivateRoute>
-              <Dashboard />
-            </PrivateRoute>
-          } />
-          
-          <Route path="/profile" element={
-            <PrivateRoute>
-              <div className="min-h-screen flex items-center justify-center">
-                <div className="bg-white rounded-xl shadow-xl p-8 max-w-md w-full">
-                  <h2 className="text-2xl font-bold mb-4">Profile Page</h2>
-                  <p className="text-gray-600">Coming Soon...</p>
-                </div>
-              </div>
-            </PrivateRoute>
-          } />
-          
-          {/* Admin Routes */}
-          <Route path="/admin" element={
-            <AdminRoute>
-              <AdminDashboard />
-            </AdminRoute>
-          } />
-        </Routes>
-        <Footer />
-      </div>
+      <AppContent />
     </AuthProvider>
   );
-};
+}
 
 export default App;

@@ -34,42 +34,40 @@ export default function MarriageRegister() {
   const update = (e) =>
     setData({ ...data, [e.target.name]: e.target.value });
 
-  // FIXED: Generate PDF as Blob using html2pdf with proper method
-  const generatePDFBlob = () => {
-    return new Promise((resolve, reject) => {
-      const element = pdfRef.current;
-      const opt = {
-        margin: 0,
-        filename: "Marriage_Registration_Affidavit.pdf",
-        image: { type: "jpeg", quality: 1 },
-        html2canvas: { scale: 2, scrollY: 0, backgroundColor: "#ffffff" },
-        jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
-        pagebreak: { mode: [] },
-      };
-      
-      // Create a temporary div to clone the content
-      const container = document.createElement('div');
-      container.style.position = 'absolute';
-      container.style.left = '-9999px';
-      container.style.top = '-9999px';
-      container.style.width = '210mm';
-      container.style.backgroundColor = '#fff';
-      document.body.appendChild(container);
-      
-      // Clone the element and append to container
-      const clone = element.cloneNode(true);
-      container.appendChild(clone);
-      
-      // Generate PDF from the clone
-      html2pdf().set(opt).from(container).outputPdf('blob').then((pdfBlob) => {
-        // Clean up
-        document.body.removeChild(container);
-        resolve(pdfBlob);
-      }).catch((error) => {
-        document.body.removeChild(container);
-        reject(error);
-      });
-    });
+  // FIXED: Generate PDF as Blob using html2pdf directly without cloning
+  const generatePDFBlob = async () => {
+    const element = pdfRef.current;
+    if (!element) {
+      throw new Error('PDF element not found');
+    }
+    
+    const opt = {
+      margin: [0.5, 0.5, 0.5, 0.5], // margins in inches
+      filename: "Marriage_Registration_Affidavit.pdf",
+      image: { type: "jpeg", quality: 0.98 },
+      html2canvas: { 
+        scale: 2, 
+        scrollY: 0, 
+        backgroundColor: "#ffffff",
+        logging: false,
+        useCORS: true
+      },
+      jsPDF: { 
+        unit: "in", 
+        format: "a4", 
+        orientation: "portrait" 
+      },
+      pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
+    };
+    
+    // Use html2pdf to generate PDF as blob directly
+    try {
+      const pdfBlob = await html2pdf().from(element).set(opt).outputPdf('blob');
+      return pdfBlob;
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      throw error;
+    }
   };
 
   const handleSubmit = async () => {
@@ -87,6 +85,10 @@ export default function MarriageRegister() {
       console.log('PDF Blob generated:', pdfBlob);
       console.log('PDF Blob size:', pdfBlob.size);
       console.log('PDF Blob type:', pdfBlob.type);
+      
+      if (!pdfBlob || pdfBlob.size === 0) {
+        throw new Error('Generated PDF is empty');
+      }
       
       // Step 2: Create document request in backend
       const response = await documentAPI.createRequest({
@@ -110,7 +112,7 @@ export default function MarriageRegister() {
       setShowPayment(true);
     } catch (error) {
       console.error('Error creating request:', error);
-      alert('Failed to create request. Please try again.');
+      alert(error.message || 'Failed to create request. Please try again.');
     } finally {
       setLoading(false);
       setUploading(false);
@@ -122,6 +124,20 @@ export default function MarriageRegister() {
     navigate('/dashboard');
   };
 
+  const downloadPDF = () => {
+    const element = pdfRef.current;
+    html2pdf()
+      .from(element)
+      .set({
+        filename: "Marriage_Registration_Affidavit.pdf",
+        margin: [0.5, 0.5, 0.5, 0.5],
+        image: { type: "jpeg", quality: 0.98 },
+        html2canvas: { scale: 2, scrollY: 0, backgroundColor: "#ffffff" },
+        jsPDF: { unit: "in", format: "a4", orientation: "portrait" },
+        pagebreak: { mode: [] },
+      })
+      .save();
+  };
 
   return (
     <div className="min-h-screen bg-[#f3f1fa] p-6">
@@ -158,7 +174,12 @@ export default function MarriageRegister() {
           />
 
           <div className="flex gap-3 mt-6">
-           
+            <button
+              onClick={downloadPDF}
+              className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-2.5 rounded-lg font-medium transition"
+            >
+              Preview PDF
+            </button>
             <button
               onClick={handleSubmit}
               disabled={loading || uploading}
@@ -169,7 +190,7 @@ export default function MarriageRegister() {
           </div>
         </div>
 
-        {/* PDF Preview Section - Keep the same */}
+        {/* PDF Preview Section */}
         <div className="bg-gray-100 rounded-xl shadow overflow-y-auto flex justify-center p-4" style={{ height: "90vh" }}>
           <div
             ref={pdfRef}
@@ -187,7 +208,7 @@ export default function MarriageRegister() {
               margin: "0 auto",
             }}
           >
-            {/* Your existing PDF content here - same as before */}
+            {/* TITLE */}
             <div
               style={{
                 textAlign: "center",
@@ -200,6 +221,7 @@ export default function MarriageRegister() {
               AFFIDAVIT
             </div>
 
+            {/* INTRO */}
             <p style={{ textAlign: "justify", marginBottom: "16px" }}>
               I, <b>{data.groomName || "____________________"}</b> Son of Shri{" "}
               <b>{data.groomFather || "____________________"}</b> R/O{" "}
@@ -207,6 +229,7 @@ export default function MarriageRegister() {
               take oath and solemnly affirm and declare as under:-
             </p>
 
+            {/* POINTS */}
             <div style={{ marginLeft: "20px" }}>
               <p style={{ textIndent: "-20px", marginBottom: "12px" }}>
                 I. That I got married to{" "}
@@ -256,10 +279,12 @@ export default function MarriageRegister() {
               </p>
             </div>
 
+            {/* DEPONENT */}
             <div style={{ marginTop: "40px", textAlign: "right", fontWeight: "bold" }}>
               DEPONENT
             </div>
 
+            {/* VERIFICATION */}
             <div style={{ marginTop: "30px" }}>
               <p>
                 <b>Verification:-</b>
