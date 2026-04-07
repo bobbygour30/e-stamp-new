@@ -4,21 +4,19 @@ import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import { documentAPI } from "../services/api";
 import PaymentModal from "../components/PaymentModal";
+import { uploadPDFToCloudinary } from "../utils/cloudinary";
 
 const initialData = {
   name: "",
   relationType: "S/D/W/O",
   relationName: "",
   residentOf: "",
-
   lostDocument: "",
   documentNumber: "",
   issuedBy: "",
   issuedDate: "",
-
   verificationPlace: "",
-  verificationDay: "",
-  verificationMonth: "",
+  verificationDate: "",
 };
 
 export default function LostDocument() {
@@ -26,12 +24,57 @@ export default function LostDocument() {
   const [showPayment, setShowPayment] = useState(false);
   const [requestId, setRequestId] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const pdfRef = useRef(null);
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
 
-  const update = (e) =>
-    setData({ ...data, [e.target.name]: e.target.value });
+  const update = (e) => {
+    const { name, value } = e.target;
+    setData(prev => ({ ...prev, [name]: value }));
+  };
+
+  // Format date for display in PDF
+  const formatDateForDisplay = (dateString) => {
+    if (!dateString) return "__________";
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' });
+  };
+
+  // Generate PDF as Blob using html2pdf
+  const generatePDFBlob = async () => {
+    const element = pdfRef.current;
+    if (!element) {
+      throw new Error('PDF element not found');
+    }
+    
+    const opt = {
+      margin: [0.5, 0.5, 0.5, 0.5],
+      filename: "Lost_Document_Affidavit.pdf",
+      image: { type: "jpeg", quality: 0.98 },
+      html2canvas: { 
+        scale: 2, 
+        scrollY: 0, 
+        backgroundColor: "#ffffff",
+        logging: false,
+        useCORS: true
+      },
+      jsPDF: { 
+        unit: "in", 
+        format: "a4", 
+        orientation: "portrait" 
+      },
+      pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
+    };
+    
+    try {
+      const pdfBlob = await html2pdf().from(element).set(opt).outputPdf('blob');
+      return pdfBlob;
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      throw error;
+    }
+  };
 
   const handleSubmit = async () => {
     if (!user) {
@@ -41,20 +84,42 @@ export default function LostDocument() {
     
     setLoading(true);
     try {
+      setUploading(true);
+      const pdfBlob = await generatePDFBlob();
+      
+      console.log('PDF Blob generated:', pdfBlob);
+      console.log('PDF Blob size:', pdfBlob.size);
+      
+      if (!pdfBlob || pdfBlob.size === 0) {
+        throw new Error('Generated PDF is empty');
+      }
+      
       // Create document request
       const response = await documentAPI.createRequest({
-        documentType: 'lost-document',   // Appropriate document type
+        documentType: 'lost-document',
         formData: data,
-        paymentAmount: 1, // Set to 1 for testing, change to 500 in production
+        paymentAmount: 1,
       });
       
-      setRequestId(response.data.requestId);
+      const requestId = response.data.requestId;
+      
+      // Upload PDF to Cloudinary
+      const uploadResult = await uploadPDFToCloudinary(pdfBlob, 'lost-document', requestId);
+      
+      // Update request with PDF URL
+      await documentAPI.updatePDFUrl(requestId, {
+        pdfUrl: uploadResult.url,
+        cloudinaryPublicId: uploadResult.publicId
+      });
+      
+      setRequestId(requestId);
       setShowPayment(true);
     } catch (error) {
       console.error('Error creating request:', error);
-      alert('Failed to create request. Please try again.');
+      alert(error.message || 'Failed to create request. Please try again.');
     } finally {
       setLoading(false);
+      setUploading(false);
     }
   };
 
@@ -69,18 +134,10 @@ export default function LostDocument() {
       .from(element)
       .set({
         filename: "Lost_Document_Affidavit.pdf",
-        margin: 0,
-        image: { type: "jpeg", quality: 1 },
-        html2canvas: {
-          scale: 2,
-          scrollY: 0,
-          backgroundColor: "#ffffff",
-        },
-        jsPDF: {
-          unit: "mm",
-          format: "a4",
-          orientation: "portrait",
-        },
+        margin: [0.5, 0.5, 0.5, 0.5],
+        image: { type: "jpeg", quality: 0.98 },
+        html2canvas: { scale: 2, scrollY: 0, backgroundColor: "#ffffff" },
+        jsPDF: { unit: "in", format: "a4", orientation: "portrait" },
         pagebreak: { mode: [] },
       })
       .save();
@@ -108,12 +165,22 @@ export default function LostDocument() {
           <Input label="Lost Document Name" name="lostDocument" value={data.lostDocument} onChange={update} />
           <Input label="Document Number" name="documentNumber" value={data.documentNumber} onChange={update} />
           <Input label="Issued By" name="issuedBy" value={data.issuedBy} onChange={update} />
-          <Input label="Issued Date" name="issuedDate" value={data.issuedDate} onChange={update} />
+          
+          <DateInput 
+            label="Issued Date" 
+            name="issuedDate" 
+            value={data.issuedDate} 
+            onChange={update} 
+          />
 
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 gap-3">
             <Input label="Verification Place" name="verificationPlace" value={data.verificationPlace} onChange={update} />
-            <Input label="Day" name="verificationDay" value={data.verificationDay} onChange={update} />
-            <Input label="Month" name="verificationMonth" value={data.verificationMonth} onChange={update} />
+            <DateInput 
+              label="Verification Date" 
+              name="verificationDate" 
+              value={data.verificationDate} 
+              onChange={update} 
+            />
           </div>
 
           <div className="flex gap-3 mt-6">
@@ -125,10 +192,10 @@ export default function LostDocument() {
             </button>
             <button
               onClick={handleSubmit}
-              disabled={loading}
+              disabled={loading || uploading}
               className="flex-1 bg-purple-700 hover:bg-purple-800 text-white py-2.5 rounded-lg font-medium disabled:opacity-50 transition"
             >
-              {loading ? 'Processing...' : 'Proceed to Payment (₹1)'}
+              {uploading ? 'Generating PDF...' : loading ? 'Processing...' : 'Proceed to Payment (₹1)'}
             </button>
           </div>
         </div>
@@ -190,7 +257,7 @@ export default function LostDocument() {
                 issued by{" "}
                 <b>{data.issuedBy || "____________________"}</b>{" "}
                 on dated{" "}
-                <b>{data.issuedDate || "__________"}</b>.
+                <b>{formatDateForDisplay(data.issuedDate)}</b>.
               </p>
 
               <p style={{ margin: "12px 0", textIndent: "-14px" }}>
@@ -219,9 +286,7 @@ export default function LostDocument() {
                 Verified at{" "}
                 <b>{data.verificationPlace || "__________"}</b>{" "}
                 on this{" "}
-                <b>{data.verificationDay || "__"}</b>{" "}
-                day of{" "}
-                <b>{data.verificationMonth || "__________"}</b>, 2025 that the
+                <b>{formatDateForDisplay(data.verificationDate)}</b> that the
                 contents of the above affidavit are true and correct to the best
                 of my knowledge and belief and nothing material has been
                 concealed therefrom.
@@ -258,6 +323,24 @@ function Input({ label, ...props }) {
       </label>
       <input
         {...props}
+        className="w-full border border-purple-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+      />
+    </div>
+  );
+}
+
+/* DATE INPUT COMPONENT */
+function DateInput({ label, name, value, onChange }) {
+  return (
+    <div className="mb-3">
+      <label className="block text-sm font-medium text-purple-700 mb-1">
+        {label}
+      </label>
+      <input
+        type="date"
+        name={name}
+        value={value}
+        onChange={onChange}
         className="w-full border border-purple-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
       />
     </div>

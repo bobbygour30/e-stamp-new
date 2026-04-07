@@ -4,23 +4,21 @@ import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import { documentAPI } from "../services/api";
 import PaymentModal from "../components/PaymentModal";
+import { uploadPDFToCloudinary } from "../utils/cloudinary";
 
 const initialData = {
   name: "",
   relationType: "S/O",
   fatherName: "",
   address: "",
-
   childName: "",
   childGender: "Son",
   dob: "",
   className: "",
   section: "",
   schoolName: "",
-
   income: "",
   category: "SC",
-
   verificationPlace: "Delhi",
   verificationDate: "",
 };
@@ -30,12 +28,57 @@ export default function Income() {
   const [showPayment, setShowPayment] = useState(false);
   const [requestId, setRequestId] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const pdfRef = useRef(null);
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
 
-  const update = (e) =>
-    setData({ ...data, [e.target.name]: e.target.value });
+  const update = (e) => {
+    const { name, value } = e.target;
+    setData(prev => ({ ...prev, [name]: value }));
+  };
+
+  // Format date for display in PDF
+  const formatDateForDisplay = (dateString) => {
+    if (!dateString) return "__________";
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' });
+  };
+
+  // Generate PDF as Blob using html2pdf
+  const generatePDFBlob = async () => {
+    const element = pdfRef.current;
+    if (!element) {
+      throw new Error('PDF element not found');
+    }
+    
+    const opt = {
+      margin: [0.5, 0.5, 0.5, 0.5],
+      filename: "Income_Affidavit.pdf",
+      image: { type: "jpeg", quality: 0.98 },
+      html2canvas: { 
+        scale: 2, 
+        scrollY: 0, 
+        backgroundColor: "#ffffff",
+        logging: false,
+        useCORS: true
+      },
+      jsPDF: { 
+        unit: "in", 
+        format: "a4", 
+        orientation: "portrait" 
+      },
+      pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
+    };
+    
+    try {
+      const pdfBlob = await html2pdf().from(element).set(opt).outputPdf('blob');
+      return pdfBlob;
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      throw error;
+    }
+  };
 
   const handleSubmit = async () => {
     if (!user) {
@@ -45,20 +88,42 @@ export default function Income() {
     
     setLoading(true);
     try {
+      setUploading(true);
+      const pdfBlob = await generatePDFBlob();
+      
+      console.log('PDF Blob generated:', pdfBlob);
+      console.log('PDF Blob size:', pdfBlob.size);
+      
+      if (!pdfBlob || pdfBlob.size === 0) {
+        throw new Error('Generated PDF is empty');
+      }
+      
       // Create document request
       const response = await documentAPI.createRequest({
-        documentType: 'income-affidavit',   // Recommended document type
+        documentType: 'income-affidavit',
         formData: data,
-        paymentAmount: 1, // Set to 1 for testing, change to 500 in production
+        paymentAmount: 1,
       });
       
-      setRequestId(response.data.requestId);
+      const requestId = response.data.requestId;
+      
+      // Upload PDF to Cloudinary
+      const uploadResult = await uploadPDFToCloudinary(pdfBlob, 'income-affidavit', requestId);
+      
+      // Update request with PDF URL
+      await documentAPI.updatePDFUrl(requestId, {
+        pdfUrl: uploadResult.url,
+        cloudinaryPublicId: uploadResult.publicId
+      });
+      
+      setRequestId(requestId);
       setShowPayment(true);
     } catch (error) {
       console.error('Error creating request:', error);
-      alert('Failed to create request. Please try again.');
+      alert(error.message || 'Failed to create request. Please try again.');
     } finally {
       setLoading(false);
+      setUploading(false);
     }
   };
 
@@ -73,18 +138,10 @@ export default function Income() {
       .from(element)
       .set({
         filename: "Income_Affidavit.pdf",
-        margin: 0,
-        image: { type: "jpeg", quality: 1 },
-        html2canvas: {
-          scale: 2,
-          scrollY: 0,
-          backgroundColor: "#ffffff",
-        },
-        jsPDF: {
-          unit: "mm",
-          format: "a4",
-          orientation: "portrait",
-        },
+        margin: [0.5, 0.5, 0.5, 0.5],
+        image: { type: "jpeg", quality: 0.98 },
+        html2canvas: { scale: 2, scrollY: 0, backgroundColor: "#ffffff" },
+        jsPDF: { unit: "in", format: "a4", orientation: "portrait" },
         pagebreak: { mode: [] },
       })
       .save();
@@ -109,7 +166,12 @@ export default function Income() {
 
           <Input label="Child Name" name="childName" value={data.childName} onChange={update} />
           <Input label="Child Gender (Son/Daughter)" name="childGender" value={data.childGender} onChange={update} />
-          <Input label="Date of Birth" name="dob" value={data.dob} onChange={update} />
+          <DateInput 
+            label="Date of Birth" 
+            name="dob" 
+            value={data.dob} 
+            onChange={update} 
+          />
           <Input label="Class" name="className" value={data.className} onChange={update} />
           <Input label="Section" name="section" value={data.section} onChange={update} />
           <Input label="School Name" name="schoolName" value={data.schoolName} onChange={update} />
@@ -118,11 +180,12 @@ export default function Income() {
 
           <Input label="Annual Family Income (Rs.)" name="income" value={data.income} onChange={update} />
           <Input label="Category (SC/ST/OBC)" name="category" value={data.category} onChange={update} />
-          <Input
-            label="Verification Date (e.g. 08th January 2021)"
-            name="verificationDate"
-            value={data.verificationDate}
-            onChange={update}
+          
+          <DateInput 
+            label="Verification Date" 
+            name="verificationDate" 
+            value={data.verificationDate} 
+            onChange={update} 
           />
 
           <div className="flex gap-3 mt-6">
@@ -134,10 +197,10 @@ export default function Income() {
             </button>
             <button
               onClick={handleSubmit}
-              disabled={loading}
+              disabled={loading || uploading}
               className="flex-1 bg-purple-700 hover:bg-purple-800 text-white py-2.5 rounded-lg font-medium disabled:opacity-50 transition"
             >
-              {loading ? 'Processing...' : 'Proceed to Payment (₹1)'}
+              {uploading ? 'Generating PDF...' : loading ? 'Processing...' : 'Proceed to Payment (₹1)'}
             </button>
           </div>
         </div>
@@ -195,7 +258,7 @@ export default function Income() {
               <p style={{ textIndent: "-20px", marginBottom: "10px" }}>
                 3. That my {data.childGender.toLowerCase()}{" "}
                 <b>{data.childName || "____________________"}</b> and his/her
-                correct date of birth is <b>{data.dob || "__________"}</b>,
+                correct date of birth is <b>{formatDateForDisplay(data.dob)}</b>,
                 he/she is studying in class{" "}
                 <b>{data.className || "__"}</b> Sec-
                 <b>{data.section || "_"}</b> from{" "}
@@ -232,7 +295,7 @@ export default function Income() {
               </p>
               <p style={{ textAlign: "justify", marginTop: "10px" }}>
                 Verified at <b>{data.verificationPlace}</b> on{" "}
-                <b>{data.verificationDate || "__________"}</b> that the contents
+                <b>{formatDateForDisplay(data.verificationDate)}</b> that the contents
                 of this affidavit are true and correct to the best of my
                 knowledge and belief.
               </p>
@@ -268,6 +331,24 @@ function Input({ label, ...props }) {
       </label>
       <input
         {...props}
+        className="w-full border border-purple-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+      />
+    </div>
+  );
+}
+
+/* DATE INPUT COMPONENT */
+function DateInput({ label, name, value, onChange }) {
+  return (
+    <div className="mb-3">
+      <label className="block text-sm font-medium text-purple-700 mb-1">
+        {label}
+      </label>
+      <input
+        type="date"
+        name={name}
+        value={value}
+        onChange={onChange}
         className="w-full border border-purple-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
       />
     </div>

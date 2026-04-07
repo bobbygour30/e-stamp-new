@@ -4,24 +4,21 @@ import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import { documentAPI } from "../services/api";
 import PaymentModal from "../components/PaymentModal";
+import { uploadPDFToCloudinary } from "../utils/cloudinary";
 
 const initialData = {
   name: "",
   relationType: "S/D/W/O",
   relationName: "",
   residentOf: "",
-
   documentType1: "",
   nameAsPerDoc1: "",
   documentType2: "",
   nameAsPerDoc2: "",
-
   oldName: "",
   newName: "",
-
   verificationPlace: "",
-  verificationDay: "",
-  verificationMonth: "",
+  verificationDate: "",
 };
 
 export default function Correction() {
@@ -29,13 +26,57 @@ export default function Correction() {
   const [showPayment, setShowPayment] = useState(false);
   const [requestId, setRequestId] = useState(null);
   const [loading, setLoading] = useState(false);
-
+  const [uploading, setUploading] = useState(false);
   const pdfRef = useRef(null);
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
 
-  const update = (e) =>
-    setData({ ...data, [e.target.name]: e.target.value });
+  const update = (e) => {
+    const { name, value } = e.target;
+    setData(prev => ({ ...prev, [name]: value }));
+  };
+
+  // Format date for display in PDF
+  const formatDateForDisplay = (dateString) => {
+    if (!dateString) return "__________";
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' });
+  };
+
+  // Generate PDF as Blob using html2pdf
+  const generatePDFBlob = async () => {
+    const element = pdfRef.current;
+    if (!element) {
+      throw new Error('PDF element not found');
+    }
+    
+    const opt = {
+      margin: [0.5, 0.5, 0.5, 0.5],
+      filename: "Name_Correction_Affidavit.pdf",
+      image: { type: "jpeg", quality: 0.98 },
+      html2canvas: { 
+        scale: 2, 
+        scrollY: 0, 
+        backgroundColor: "#ffffff",
+        logging: false,
+        useCORS: true
+      },
+      jsPDF: { 
+        unit: "in", 
+        format: "a4", 
+        orientation: "portrait" 
+      },
+      pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
+    };
+    
+    try {
+      const pdfBlob = await html2pdf().from(element).set(opt).outputPdf('blob');
+      return pdfBlob;
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      throw error;
+    }
+  };
 
   const handleSubmit = async () => {
     if (!user) {
@@ -45,50 +86,60 @@ export default function Correction() {
     
     setLoading(true);
     try {
+      setUploading(true);
+      const pdfBlob = await generatePDFBlob();
+      
+      console.log('PDF Blob generated:', pdfBlob);
+      console.log('PDF Blob size:', pdfBlob.size);
+      
+      if (!pdfBlob || pdfBlob.size === 0) {
+        throw new Error('Generated PDF is empty');
+      }
+      
       // Create document request
       const response = await documentAPI.createRequest({
         documentType: 'name-correction',
         formData: data,
-        paymentAmount: 1, // Set to 1 for testing, change to actual amount in production
+        paymentAmount: 1,
       });
       
-      setRequestId(response.data.requestId);
+      const requestId = response.data.requestId;
+      
+      // Upload PDF to Cloudinary
+      const uploadResult = await uploadPDFToCloudinary(pdfBlob, 'name-correction', requestId);
+      
+      // Update request with PDF URL
+      await documentAPI.updatePDFUrl(requestId, {
+        pdfUrl: uploadResult.url,
+        cloudinaryPublicId: uploadResult.publicId
+      });
+      
+      setRequestId(requestId);
       setShowPayment(true);
     } catch (error) {
       console.error('Error creating request:', error);
-      alert('Failed to create request. Please try again.');
+      alert(error.message || 'Failed to create request. Please try again.');
     } finally {
       setLoading(false);
+      setUploading(false);
     }
   };
 
   const handlePaymentSuccess = () => {
     setShowPayment(false);
-    alert('Payment successful! Your document request has been processed.');
     navigate('/dashboard');
   };
 
-  const handlePaymentClose = () => {
-    setShowPayment(false);
-  };
-
   const downloadPDF = () => {
+    const element = pdfRef.current;
     html2pdf()
-      .from(pdfRef.current)
+      .from(element)
       .set({
         filename: "Name_Correction_Affidavit.pdf",
-        margin: 0,
-        image: { type: "jpeg", quality: 1 },
-        html2canvas: {
-          scale: 2,
-          backgroundColor: "#ffffff",
-          scrollY: 0,
-        },
-        jsPDF: {
-          unit: "mm",
-          format: "a4",
-          orientation: "portrait",
-        },
+        margin: [0.5, 0.5, 0.5, 0.5],
+        image: { type: "jpeg", quality: 0.98 },
+        html2canvas: { scale: 2, scrollY: 0, backgroundColor: "#ffffff" },
+        jsPDF: { unit: "in", format: "a4", orientation: "portrait" },
         pagebreak: { mode: [] },
       })
       .save();
@@ -124,10 +175,14 @@ export default function Correction() {
           <Input label="Old / Incorrect Name" name="oldName" value={data.oldName} onChange={update} />
           <Input label="Correct / New Name" name="newName" value={data.newName} onChange={update} />
 
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 gap-3">
             <Input label="Verification Place" name="verificationPlace" value={data.verificationPlace} onChange={update} />
-            <Input label="Day" name="verificationDay" value={data.verificationDay} onChange={update} />
-            <Input label="Month" name="verificationMonth" value={data.verificationMonth} onChange={update} />
+            <DateInput 
+              label="Verification Date" 
+              name="verificationDate" 
+              value={data.verificationDate} 
+              onChange={update} 
+            />
           </div>
 
           <div className="flex gap-3 mt-6">
@@ -139,129 +194,112 @@ export default function Correction() {
             </button>
             <button
               onClick={handleSubmit}
-              disabled={loading}
+              disabled={loading || uploading}
               className="flex-1 bg-purple-700 hover:bg-purple-800 text-white py-2.5 rounded-lg font-medium disabled:opacity-50 transition"
             >
-              {loading ? 'Processing...' : 'Proceed to Payment (₹1)'}
+              {uploading ? 'Generating PDF...' : loading ? 'Processing...' : 'Proceed to Payment (₹1)'}
             </button>
           </div>
         </div>
 
         {/* ================= PDF PREVIEW ================= */}
-        <div className="bg-gray-100 rounded shadow overflow-hidden flex justify-center h-screen">
-          <div className="flex justify-center"
+        <div className="bg-gray-100 rounded shadow overflow-y-auto flex justify-center p-4" style={{ height: "90vh" }}>
+          <div
+            ref={pdfRef}
             style={{
-              width: "100%",
-              maxWidth: "100%",
-            }}>
-            <div style={{
-              width: "100%",
-              maxWidth: "820px",
-              aspectRatio: "210 / 297",
-              display: "flex",
-              justifyContent: "center",
-            }}>
-              <div
-                ref={pdfRef}
-                style={{
-                  width: "210mm",
-                  height: "296mm",
-                  backgroundColor: "#ffffff",
-                  color: "#000000",
-                  fontFamily: "'Times New Roman', Times, serif",
-                  fontSize: "12pt",
-                  lineHeight: "1.6",
-                  padding: "25px",
-                  boxSizing: "border-box",
-                  overflow: "hidden",
-                  transform: "scale(0.985)",
-                  transformOrigin: "top left",
-                }}
-              >
-                {/* TITLE */}
-                <div
-                  style={{
-                    textAlign: "center",
-                    fontSize: "15pt",
-                    fontWeight: "bold",
-                    textDecoration: "underline",
-                    marginBottom: "22px",
-                  }}
-                >
-                  AFFIDAVIT
-                </div>
+              width: "210mm",
+              minHeight: "297mm",
+              backgroundColor: "#ffffff",
+              color: "#000000",
+              fontFamily: "'Times New Roman', Times, serif",
+              fontSize: "12pt",
+              lineHeight: "1.6",
+              padding: "25px",
+              boxSizing: "border-box",
+              boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+              margin: "0 auto",
+            }}
+          >
+            {/* TITLE */}
+            <div
+              style={{
+                textAlign: "center",
+                fontSize: "15pt",
+                fontWeight: "bold",
+                textDecoration: "underline",
+                marginBottom: "22px",
+              }}
+            >
+              AFFIDAVIT
+            </div>
 
-                {/* INTRO */}
-                <p style={{ textAlign: "justify", marginBottom: "16px" }}>
-                  I,{" "}
-                  <b>{data.name || "____________________"}</b>{" "}
-                  <b>{data.relationType}</b>{" "}
-                  <b>{data.relationName || "____________________"}</b>{" "}
-                  R/O{" "}
-                  <b>{data.residentOf || "____________________"}</b>{" "}
-                  do hereby solemnly affirm and declare as under:
-                </p>
+            {/* INTRO */}
+            <p style={{ textAlign: "justify", marginBottom: "16px" }}>
+              I,{" "}
+              <b>{data.name || "____________________"}</b>{" "}
+              <b>{data.relationType}</b>{" "}
+              <b>{data.relationName || "____________________"}</b>{" "}
+              R/O{" "}
+              <b>{data.residentOf || "____________________"}</b>{" "}
+              do hereby solemnly affirm and declare as under:
+            </p>
 
-                {/* POINTS */}
-                <div style={{ marginLeft: "14px" }}>
-                  <p style={{ margin: "12px 0", textIndent: "-14px" }}>
-                    1. That my name as per my{" "}
-                    <b>{data.documentType1 || "__________"}</b>{" "}
-                    is{" "}
-                    <b>{data.nameAsPerDoc1 || "__________"}</b>{" "}
-                    and my name as per my{" "}
-                    <b>{data.documentType2 || "__________"}</b>{" "}
-                    is{" "}
-                    <b>{data.nameAsPerDoc2 || "__________"}</b>.
-                  </p>
+            {/* POINTS */}
+            <div style={{ marginLeft: "14px" }}>
+              <p style={{ margin: "12px 0", textIndent: "-14px" }}>
+                1. That my name as per my{" "}
+                <b>{data.documentType1 || "__________"}</b>{" "}
+                is{" "}
+                <b>{data.nameAsPerDoc1 || "__________"}</b>{" "}
+                and my name as per my{" "}
+                <b>{data.documentType2 || "__________"}</b>{" "}
+                is{" "}
+                <b>{data.nameAsPerDoc2 || "__________"}</b>.
+              </p>
 
-                  <p style={{ margin: "12px 0", textIndent: "-14px" }}>
-                    2. That I undertake that both names{" "}
-                    <b>{data.nameAsPerDoc1 || "__________"}</b>{" "}
-                    and{" "}
-                    <b>{data.nameAsPerDoc2 || "__________"}</b>{" "}
-                    are the one and same person i.e. my{" "}
-                    <b>{data.oldName || "__________"}</b>.
-                  </p>
+              <p style={{ margin: "12px 0", textIndent: "-14px" }}>
+                2. That I undertake that both names{" "}
+                <b>{data.nameAsPerDoc1 || "__________"}</b>{" "}
+                and{" "}
+                <b>{data.nameAsPerDoc2 || "__________"}</b>{" "}
+                are the one and same person i.e. my{" "}
+                <b>{data.oldName || "__________"}</b>.
+              </p>
 
-                  <p style={{ margin: "12px 0", textIndent: "-14px" }}>
-                    3. That I will be known as{" "}
-                    <b>{data.newName || "__________"}</b>{" "}
-                    in future for all purposes.
-                  </p>
+              <p style={{ margin: "12px 0", textIndent: "-14px" }}>
+                3. That I will be known as{" "}
+                <b>{data.newName || "__________"}</b>{" "}
+                in future for all purposes.
+              </p>
 
-                  <p style={{ margin: "12px 0", textIndent: "-14px" }}>
-                    4. That it is my true and correct statement.
-                  </p>
-                </div>
+              <p style={{ margin: "12px 0", textIndent: "-14px" }}>
+                4. That it is my true and correct statement.
+              </p>
+            </div>
 
-                {/* DEPONENT */}
-                <div style={{ marginTop: "45px", textAlign: "right", fontWeight: "bold" }}>
-                  DEPONENT
-                </div>
+            {/* DEPONENT */}
+            <div style={{ marginTop: "45px", textAlign: "right", fontWeight: "bold" }}>
+              DEPONENT
+            </div>
 
-                {/* VERIFICATION */}
-                <div style={{ marginTop: "40px" }}>
-                  <div style={{ fontWeight: "bold", marginBottom: "12px" }}>
-                    VERIFICATION
-                  </div>
+            {/* VERIFICATION */}
+            <div style={{ marginTop: "40px" }}>
+              <div style={{ fontWeight: "bold", marginBottom: "12px" }}>
+                VERIFICATION
+              </div>
 
-                  <p style={{ textAlign: "justify" }}>
-                    Verified at{" "}
-                    <b>{data.verificationPlace || "__________"}</b>{" "}
-                    on this{" "}
-                    <b>{data.verificationDay || "__"}</b>{" "}
-                    day of{" "}
-                    <b>{data.verificationMonth || "__________"}</b>, 2025 that the
-                    contents of the above affidavit are true and correct to the best
-                    of my knowledge and belief and nothing material has been
-                    concealed therefrom.
-                  </p>
+              <p style={{ textAlign: "justify" }}>
+                Verified at{" "}
+                <b>{data.verificationPlace || "__________"}</b>{" "}
+                on this{" "}
+                <b>{formatDateForDisplay(data.verificationDate)}</b> that the
+                contents of the above affidavit are true and correct to the best
+                of my knowledge and belief and nothing material has been
+                concealed therefrom.
+              </p>
 
-                  <div style={{ marginTop: "45px", textAlign: "right", fontWeight: "bold" }}>
-                    DEPONENT
-                  </div>
-                </div>
+              <div style={{ marginTop: "45px", textAlign: "right", fontWeight: "bold" }}>
+                DEPONENT
               </div>
             </div>
           </div>
@@ -275,7 +313,7 @@ export default function Correction() {
           requestId={requestId}
           amount={1}
           onSuccess={handlePaymentSuccess}
-          onClose={handlePaymentClose}
+          onClose={() => setShowPayment(false)}
         />
       )}
     </div>
@@ -291,6 +329,24 @@ function Input({ label, ...props }) {
       </label>
       <input
         {...props}
+        className="w-full border border-purple-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+      />
+    </div>
+  );
+}
+
+/* DATE INPUT COMPONENT */
+function DateInput({ label, name, value, onChange }) {
+  return (
+    <div className="mb-3">
+      <label className="block text-sm font-medium text-purple-700 mb-1">
+        {label}
+      </label>
+      <input
+        type="date"
+        name={name}
+        value={value}
+        onChange={onChange}
         className="w-full border border-purple-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
       />
     </div>

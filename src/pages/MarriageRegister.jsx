@@ -31,10 +31,32 @@ export default function MarriageRegister() {
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
 
-  const update = (e) =>
-    setData({ ...data, [e.target.name]: e.target.value });
+  const update = (e) => {
+    const { name, value } = e.target;
+    
+    // Auto-calculate age when date of birth is entered
+    if (name === 'dob' && value) {
+      const birthDate = new Date(value);
+      const today = new Date();
+      let age = today.getFullYear() - birthDate.getFullYear();
+      const monthDiff = today.getMonth() - birthDate.getMonth();
+      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+      }
+      setData(prev => ({ ...prev, [name]: value, ageAtMarriage: age.toString() }));
+    } else {
+      setData(prev => ({ ...prev, [name]: value }));
+    }
+  };
 
-  // FIXED: Generate PDF as Blob using html2pdf directly without cloning
+  // Format date for display in PDF
+  const formatDateForDisplay = (dateString) => {
+    if (!dateString) return "__________";
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' });
+  };
+
+  // Generate PDF as Blob using html2pdf
   const generatePDFBlob = async () => {
     const element = pdfRef.current;
     if (!element) {
@@ -42,7 +64,7 @@ export default function MarriageRegister() {
     }
     
     const opt = {
-      margin: [0.5, 0.5, 0.5, 0.5], // margins in inches
+      margin: [0.5, 0.5, 0.5, 0.5],
       filename: "Marriage_Registration_Affidavit.pdf",
       image: { type: "jpeg", quality: 0.98 },
       html2canvas: { 
@@ -60,7 +82,6 @@ export default function MarriageRegister() {
       pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
     };
     
-    // Use html2pdf to generate PDF as blob directly
     try {
       const pdfBlob = await html2pdf().from(element).set(opt).outputPdf('blob');
       return pdfBlob;
@@ -78,19 +99,16 @@ export default function MarriageRegister() {
     
     setLoading(true);
     try {
-      // Step 1: Generate PDF Blob
       setUploading(true);
       const pdfBlob = await generatePDFBlob();
       
       console.log('PDF Blob generated:', pdfBlob);
       console.log('PDF Blob size:', pdfBlob.size);
-      console.log('PDF Blob type:', pdfBlob.type);
       
       if (!pdfBlob || pdfBlob.size === 0) {
         throw new Error('Generated PDF is empty');
       }
       
-      // Step 2: Create document request in backend
       const response = await documentAPI.createRequest({
         documentType: 'marriage-register',
         formData: data,
@@ -98,11 +116,8 @@ export default function MarriageRegister() {
       });
       
       const requestId = response.data.requestId;
-      
-      // Step 3: Upload PDF to Cloudinary
       const uploadResult = await uploadPDFToCloudinary(pdfBlob, 'marriage-register', requestId);
       
-      // Step 4: Update request with PDF URL
       await documentAPI.updatePDFUrl(requestId, {
         pdfUrl: uploadResult.url,
         cloudinaryPublicId: uploadResult.publicId
@@ -161,16 +176,37 @@ export default function MarriageRegister() {
 
           <hr className="my-4" />
 
-          <Input label="Marriage Date" name="marriageDate" value={data.marriageDate} onChange={update} />
+          {/* Date Fields with Calendar */}
+          <DateInput 
+            label="Marriage Date" 
+            name="marriageDate" 
+            value={data.marriageDate} 
+            onChange={update} 
+          />
+          
           <Input label="Marriage Place" name="marriagePlace" value={data.marriagePlace} onChange={update} />
-          <Input label="Your Date of Birth" name="dob" value={data.dob} onChange={update} />
-          <Input label="Age at Marriage" name="ageAtMarriage" value={data.ageAtMarriage} onChange={update} />
+          
+          <DateInput 
+            label="Your Date of Birth" 
+            name="dob" 
+            value={data.dob} 
+            onChange={update} 
+          />
+          
+          <Input 
+            label="Age at Marriage" 
+            name="ageAtMarriage" 
+            value={data.ageAtMarriage} 
+            onChange={update} 
+            placeholder="Auto-calculated from DOB"
+          />
 
-          <Input
-            label="Verification Date (e.g. 22nd October 2019)"
-            name="verificationDate"
-            value={data.verificationDate}
-            onChange={update}
+          <DateInput 
+            label="Verification Date" 
+            name="verificationDate" 
+            value={data.verificationDate} 
+            onChange={update} 
+            placeholder="Select verification date"
           />
 
           <div className="flex gap-3 mt-6">
@@ -236,19 +272,19 @@ export default function MarriageRegister() {
                 <b>{data.brideName || "____________________"}</b> D/O Shri{" "}
                 <b>{data.brideFather || "____________________"}</b> R/O{" "}
                 <b>{data.brideAddress || "____________________"}</b> on{" "}
-                <b>{data.marriageDate || "__________"}</b> at{" "}
+                <b>{formatDateForDisplay(data.marriageDate)}</b> at{" "}
                 <b>{data.marriagePlace || "____________________"}</b>.
               </p>
 
               <p style={{ textIndent: "-20px", marginBottom: "12px" }}>
-                II. That my date of Birth is <b>{data.dob || "__________"}</b>{" "}
+                II. That my date of Birth is <b>{formatDateForDisplay(data.dob)}</b>{" "}
                 and I have completed <b>{data.ageAtMarriage || "__"}</b> years
                 of age at the time of marriage.
               </p>
 
               <p style={{ textIndent: "-20px", marginBottom: "12px" }}>
                 III. That I was unmarried till the time of marriage on{" "}
-                <b>{data.marriageDate || "__________"}</b> and I did not have a
+                <b>{formatDateForDisplay(data.marriageDate)}</b> and I did not have a
                 spouse living at the time of marriage.
               </p>
 
@@ -291,7 +327,7 @@ export default function MarriageRegister() {
               </p>
               <p style={{ textAlign: "justify", marginTop: "10px" }}>
                 Verified at <b>{data.verificationPlace}</b> on{" "}
-                <b>{data.verificationDate || "__________"}</b> that the above
+                <b>{formatDateForDisplay(data.verificationDate)}</b> that the above
                 content are true and correct to the best of my knowledge and
                 belief and nothing has been concealed therein.
               </p>
@@ -318,6 +354,7 @@ export default function MarriageRegister() {
   );
 }
 
+// Regular Input Component
 function Input({ label, ...props }) {
   return (
     <div className="mb-3">
@@ -326,6 +363,24 @@ function Input({ label, ...props }) {
       </label>
       <input
         {...props}
+        className="w-full border border-purple-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+      />
+    </div>
+  );
+}
+
+// Date Input Component with Calendar
+function DateInput({ label, name, value, onChange, placeholder = "Select date" }) {
+  return (
+    <div className="mb-3">
+      <label className="block text-sm font-medium text-purple-700 mb-1">
+        {label}
+      </label>
+      <input
+        type="date"
+        name={name}
+        value={value}
+        onChange={onChange}
         className="w-full border border-purple-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
       />
     </div>
