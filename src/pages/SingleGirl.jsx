@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import { documentAPI } from "../services/api";
 import PaymentModal from "../components/PaymentModal";
+import { uploadPDFToCloudinary } from "../utils/cloudinary";
 
 const initialData = {
   applicantName: "",
@@ -27,12 +28,57 @@ export default function SingleGirl() {
   const [showPayment, setShowPayment] = useState(false);
   const [requestId, setRequestId] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const pdfRef = useRef(null);
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
 
-  const update = (e) =>
-    setData({ ...data, [e.target.name]: e.target.value });
+  const update = (e) => {
+    const { name, value } = e.target;
+    setData(prev => ({ ...prev, [name]: value }));
+  };
+
+  // Format date for display in PDF
+  const formatDateForDisplay = (dateString) => {
+    if (!dateString) return "__________";
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' });
+  };
+
+  // Generate PDF as Blob using html2pdf
+  const generatePDFBlob = async () => {
+    const element = pdfRef.current;
+    if (!element) {
+      throw new Error('PDF element not found');
+    }
+    
+    const opt = {
+      margin: [0.5, 0.5, 0.5, 0.5],
+      filename: "Single_Girl_Child_Affidavit.pdf",
+      image: { type: "jpeg", quality: 0.98 },
+      html2canvas: { 
+        scale: 2, 
+        scrollY: 0, 
+        backgroundColor: "#ffffff",
+        logging: false,
+        useCORS: true
+      },
+      jsPDF: { 
+        unit: "in", 
+        format: "a4", 
+        orientation: "portrait" 
+      },
+      pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
+    };
+    
+    try {
+      const pdfBlob = await html2pdf().from(element).set(opt).outputPdf('blob');
+      return pdfBlob;
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      throw error;
+    }
+  };
 
   const handleSubmit = async () => {
     if (!user) {
@@ -42,19 +88,41 @@ export default function SingleGirl() {
     
     setLoading(true);
     try {
+      setUploading(true);
+      const pdfBlob = await generatePDFBlob();
+      
+      console.log('PDF Blob generated:', pdfBlob);
+      console.log('PDF Blob size:', pdfBlob.size);
+      
+      if (!pdfBlob || pdfBlob.size === 0) {
+        throw new Error('Generated PDF is empty');
+      }
+      
       const response = await documentAPI.createRequest({
         documentType: 'single-girl',
         formData: data,
-        paymentAmount: 1, // Set to 1 for testing, change to 500 in production
+        paymentAmount: 500,
       });
       
-      setRequestId(response.data.requestId);
+      const requestId = response.data.requestId;
+      
+      // Upload PDF to Cloudinary
+      const uploadResult = await uploadPDFToCloudinary(pdfBlob, 'single-girl', requestId);
+      
+      // Update request with PDF URL
+      await documentAPI.updatePDFUrl(requestId, {
+        pdfUrl: uploadResult.url,
+        cloudinaryPublicId: uploadResult.publicId
+      });
+      
+      setRequestId(requestId);
       setShowPayment(true);
     } catch (error) {
       console.error('Error creating request:', error);
-      alert('Failed to create request. Please try again.');
+      alert(error.message || 'Failed to create request. Please try again.');
     } finally {
       setLoading(false);
+      setUploading(false);
     }
   };
 
@@ -69,15 +137,15 @@ export default function SingleGirl() {
       .from(element)
       .set({
         filename: "Single_Girl_Child_Affidavit.pdf",
-        margin: 0,
-        image: { type: "jpeg", quality: 1 },
+        margin: [0.5, 0.5, 0.5, 0.5],
+        image: { type: "jpeg", quality: 0.98 },
         html2canvas: {
           scale: 2,
           backgroundColor: "#ffffff",
           scrollY: 0,
         },
         jsPDF: {
-          unit: "mm",
+          unit: "in",
           format: "a4",
           orientation: "portrait",
         },
@@ -106,14 +174,14 @@ export default function SingleGirl() {
           <hr className="my-4" />
 
           <Input label="Girl Child Name" name="childName" value={data.childName} onChange={update} />
-          <Input label="Date of Birth" name="dob" value={data.dob} onChange={update} />
+          <DateInput label="Date of Birth" name="dob" value={data.dob} onChange={update} />
           <Input label="Class Applied For" name="className" value={data.className} onChange={update} />
 
           <hr className="my-4" />
 
           <Input label="Contact Number 1" name="contact1" value={data.contact1} onChange={update} />
           <Input label="Contact Number 2" name="contact2" value={data.contact2} onChange={update} />
-          <Input label="Verification Date (DD/MM/YYYY)" name="verificationDate" value={data.verificationDate} onChange={update} />
+          <DateInput label="Verification Date" name="verificationDate" value={data.verificationDate} onChange={update} />
 
           <div className="flex gap-3 mt-6">
             <button
@@ -124,10 +192,10 @@ export default function SingleGirl() {
             </button>
             <button
               onClick={handleSubmit}
-              disabled={loading}
+              disabled={loading || uploading}
               className="flex-1 bg-purple-700 hover:bg-purple-800 text-white py-2.5 rounded-lg font-medium disabled:opacity-50 transition"
             >
-              {loading ? 'Processing...' : 'Proceed to Payment (₹500)'}
+              {uploading ? 'Generating PDF...' : loading ? 'Processing...' : 'Proceed to Payment (₹500)'}
             </button>
           </div>
         </div>
@@ -172,7 +240,7 @@ export default function SingleGirl() {
               Resident of <b>{data.address || "____________________"}</b> is
               mother/father of{" "}
               <b>{data.childName || "____________________"}</b> Date of Birth{" "}
-              <b>{data.dob || "__________"}</b> submitting my undertaking to the
+              <b>{formatDateForDisplay(data.dob)}</b> submitting my undertaking to the
               Head of the Institution in Class{" "}
               <b>{data.className || "__"}</b>th vide{" "}
               <b>{data.admissionGuidelines}</b>.
@@ -239,7 +307,7 @@ export default function SingleGirl() {
 
               <p style={{ marginTop: "10px" }}>
                 Verified at <b>{data.verificationPlace}</b> on this{" "}
-                <b>{data.verificationDate || "__/__/____"}</b>, that the contents
+                <b>{formatDateForDisplay(data.verificationDate)}</b>, that the contents
                 of this affidavit are true and correct to the best of my
                 knowledge and belief.
               </p>
@@ -274,6 +342,24 @@ function Input({ label, ...props }) {
       </label>
       <input
         {...props}
+        className="w-full border border-purple-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+      />
+    </div>
+  );
+}
+
+/* DATE INPUT COMPONENT */
+function DateInput({ label, name, value, onChange }) {
+  return (
+    <div className="mb-3">
+      <label className="block text-sm font-medium text-purple-700 mb-1">
+        {label}
+      </label>
+      <input
+        type="date"
+        name={name}
+        value={value}
+        onChange={onChange}
         className="w-full border border-purple-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
       />
     </div>

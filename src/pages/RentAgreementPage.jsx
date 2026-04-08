@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import { documentAPI } from "../services/api";
 import PaymentModal from "../components/PaymentModal";
+import { uploadPDFToCloudinary } from "../utils/cloudinary";
 
 const initialData = {
   ownerName: "",
@@ -39,13 +40,58 @@ export default function RentAgreementPage() {
   const [showPayment, setShowPayment] = useState(false);
   const [requestId, setRequestId] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
 
   const previewRef = useRef(null);
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
 
-  const update = (e) =>
-    setData({ ...data, [e.target.name]: e.target.value });
+  const update = (e) => {
+    const { name, value } = e.target;
+    setData(prev => ({ ...prev, [name]: value }));
+  };
+
+  // Format date for display in PDF
+  const formatDateForDisplay = (dateString) => {
+    if (!dateString) return "__________";
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' });
+  };
+
+  // Generate PDF as Blob using html2pdf
+  const generatePDFBlob = async () => {
+    const element = previewRef.current;
+    if (!element) {
+      throw new Error('PDF element not found');
+    }
+    
+    const opt = {
+      margin: [0.5, 0.5, 0.5, 0.5],
+      filename: "Rent_Agreement.pdf",
+      image: { type: "jpeg", quality: 0.98 },
+      html2canvas: { 
+        scale: 2, 
+        scrollY: 0, 
+        backgroundColor: "#ffffff",
+        logging: false,
+        useCORS: true
+      },
+      jsPDF: { 
+        unit: "in", 
+        format: "a4", 
+        orientation: "portrait" 
+      },
+      pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
+    };
+    
+    try {
+      const pdfBlob = await html2pdf().from(element).set(opt).outputPdf('blob');
+      return pdfBlob;
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      throw error;
+    }
+  };
 
   const handleSubmit = async () => {
     if (!user) {
@@ -55,19 +101,41 @@ export default function RentAgreementPage() {
 
     setLoading(true);
     try {
+      setUploading(true);
+      const pdfBlob = await generatePDFBlob();
+      
+      console.log('PDF Blob generated:', pdfBlob);
+      console.log('PDF Blob size:', pdfBlob.size);
+      
+      if (!pdfBlob || pdfBlob.size === 0) {
+        throw new Error('Generated PDF is empty');
+      }
+      
       const response = await documentAPI.createRequest({
         documentType: 'rent-agreement',
         formData: data,
-        paymentAmount: 1, // Change to actual amount (e.g. 500) in production
+        paymentAmount: 1,
       });
 
-      setRequestId(response.data.requestId);
+      const requestId = response.data.requestId;
+      
+      // Upload PDF to Cloudinary
+      const uploadResult = await uploadPDFToCloudinary(pdfBlob, 'rent-agreement', requestId);
+      
+      // Update request with PDF URL
+      await documentAPI.updatePDFUrl(requestId, {
+        pdfUrl: uploadResult.url,
+        cloudinaryPublicId: uploadResult.publicId
+      });
+
+      setRequestId(requestId);
       setShowPayment(true);
     } catch (error) {
       console.error('Error creating request:', error);
-      alert('Failed to create request. Please try again.');
+      alert(error.message || 'Failed to create request. Please try again.');
     } finally {
       setLoading(false);
+      setUploading(false);
     }
   };
 
@@ -81,19 +149,17 @@ export default function RentAgreementPage() {
     html2pdf()
       .from(element)
       .set({
-        margin: [8, 6, 8, 6],
+        margin: [0.5, 0.5, 0.5, 0.5],
         filename: "Rent_Agreement.pdf",
         image: { type: "jpeg", quality: 0.98 },
         html2canvas: {
           scale: 2,
           useCORS: true,
           logging: false,
-          windowWidth: 794,
-          backgroundColor: "#fffdf5",
-          allowTaint: true,
+          backgroundColor: "#ffffff",
         },
         jsPDF: {
-          unit: "mm",
+          unit: "in",
           format: "a4",
           orientation: "portrait",
         },
@@ -152,8 +218,8 @@ export default function RentAgreementPage() {
             <>
               <Input label="Security Payment Method" name="paymentMethod" value={data.paymentMethod} onChange={update} />
               <Input label="Duration (Months)" name="duration" value={data.duration} onChange={update} />
-              <Input label="Start Date" name="startDate" value={data.startDate} onChange={update} />
-              <Input label="End Date" name="endDate" value={data.endDate} onChange={update} />
+              <DateInput label="Start Date" name="startDate" value={data.startDate} onChange={update} />
+              <DateInput label="End Date" name="endDate" value={data.endDate} onChange={update} />
               <Input label="Notice Period (Months)" name="noticePeriod" value={data.noticePeriod} onChange={update} />
               <Input label="Rent Increment (%)" name="increment" value={data.increment} onChange={update} />
               <Input label="Purpose of Rent" name="purpose" value={data.purpose} onChange={update} />
@@ -180,10 +246,10 @@ export default function RentAgreementPage() {
             ) : (
               <button
                 onClick={handleSubmit}
-                disabled={loading}
+                disabled={loading || uploading}
                 className="flex-1 px-4 py-2.5 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50 transition"
               >
-                {loading ? 'Processing...' : 'Proceed to Payment (₹1)'}
+                {uploading ? 'Generating PDF...' : loading ? 'Processing...' : 'Proceed to Payment (₹1)'}
               </button>
             )}
           </div>
@@ -196,7 +262,7 @@ export default function RentAgreementPage() {
             style={{
               position: "relative",
               width: "210mm",
-              height: "594mm", // 2 A4 pages
+              minHeight: "594mm",
               backgroundColor: "#fffdf5",
               color: "#111827",
               fontFamily: "monospace",
@@ -205,7 +271,6 @@ export default function RentAgreementPage() {
               margin: "0 auto",
               fontSize: "9.8pt",
               lineHeight: "1.3",
-              overflow: "hidden",
               boxShadow: "0 4px 6px -1px rgba(0,0,0,0.1)",
             }}
           >
@@ -236,7 +301,7 @@ export default function RentAgreementPage() {
             <p style={{ margin: "0 0 8px 0", fontSize: "9.5pt" }}>
               THIS AGREEMENT IS MADE AND EXECUTED AT{" "}
               <b>{data.propertyAddress || "__________"}</b> ON THIS{" "}
-              <b>{data.startDate || "__________"}</b>, BY AND BETWEEN:
+              <b>{formatDateForDisplay(data.startDate)}</b>, BY AND BETWEEN:
             </p>
 
             <p style={{ margin: "6px 0" }}>
@@ -273,7 +338,7 @@ export default function RentAgreementPage() {
                 Monthly rent is fixed at ₹<b>{data.monthlyRent || "______"}</b>/- payable in advance on or before <b>{data.rentDay || "___"}</b> of each English calendar month.
               </li>
               <li style={{ marginBottom: "4px" }}>
-                The tenancy is for <b>{data.duration || "___"}</b> months w.e.f. <b>{data.startDate || "________"}</b>. Tenant to vacate after expiry.
+                The tenancy is for <b>{data.duration || "___"}</b> months w.e.f. <b>{formatDateForDisplay(data.startDate)}</b>. Tenant to vacate after expiry.
               </li>
               <li style={{ marginBottom: "4px" }}>
                 Second Party shall pay Water & Electricity bills as per consumption (extra).
@@ -351,6 +416,22 @@ function Input({ label, ...props }) {
       <label className="text-sm block mb-1 font-medium">{label}</label>
       <input
         {...props}
+        className="w-full border border-gray-300 p-2.5 rounded focus:outline-none focus:ring-2 focus:ring-orange-400"
+      />
+    </div>
+  );
+}
+
+/* DATE INPUT COMPONENT */
+function DateInput({ label, name, value, onChange }) {
+  return (
+    <div className="mb-3">
+      <label className="text-sm block mb-1 font-medium">{label}</label>
+      <input
+        type="date"
+        name={name}
+        value={value}
+        onChange={onChange}
         className="w-full border border-gray-300 p-2.5 rounded focus:outline-none focus:ring-2 focus:ring-orange-400"
       />
     </div>

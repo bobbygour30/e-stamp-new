@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import { documentAPI } from "../services/api";
 import PaymentModal from "../components/PaymentModal";
+import { uploadPDFToCloudinary } from "../utils/cloudinary";
 
 const initialData = {
   name: "",
@@ -22,12 +23,50 @@ export default function ShortAttendence() {
   const [showPayment, setShowPayment] = useState(false);
   const [requestId, setRequestId] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const pdfRef = useRef(null);
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
 
-  const update = (e) =>
-    setData({ ...data, [e.target.name]: e.target.value });
+  const update = (e) => {
+    const { name, value } = e.target;
+    setData(prev => ({ ...prev, [name]: value }));
+  };
+
+  // Generate PDF as Blob using html2pdf
+  const generatePDFBlob = async () => {
+    const element = pdfRef.current;
+    if (!element) {
+      throw new Error('PDF element not found');
+    }
+    
+    const opt = {
+      margin: [0.5, 0.5, 0.5, 0.5],
+      filename: "Short_Attendance_Affidavit.pdf",
+      image: { type: "jpeg", quality: 0.98 },
+      html2canvas: { 
+        scale: 2, 
+        scrollY: 0, 
+        backgroundColor: "#ffffff",
+        logging: false,
+        useCORS: true
+      },
+      jsPDF: { 
+        unit: "in", 
+        format: "a4", 
+        orientation: "portrait" 
+      },
+      pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
+    };
+    
+    try {
+      const pdfBlob = await html2pdf().from(element).set(opt).outputPdf('blob');
+      return pdfBlob;
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      throw error;
+    }
+  };
 
   const handleSubmit = async () => {
     if (!user) {
@@ -37,19 +76,41 @@ export default function ShortAttendence() {
 
     setLoading(true);
     try {
+      setUploading(true);
+      const pdfBlob = await generatePDFBlob();
+      
+      console.log('PDF Blob generated:', pdfBlob);
+      console.log('PDF Blob size:', pdfBlob.size);
+      
+      if (!pdfBlob || pdfBlob.size === 0) {
+        throw new Error('Generated PDF is empty');
+      }
+      
       const response = await documentAPI.createRequest({
         documentType: 'short-attendance',
         formData: data,
-        paymentAmount: 1, // Change to 500 in production
+        paymentAmount: 1,
       });
 
-      setRequestId(response.data.requestId);
+      const requestId = response.data.requestId;
+      
+      // Upload PDF to Cloudinary
+      const uploadResult = await uploadPDFToCloudinary(pdfBlob, 'short-attendance', requestId);
+      
+      // Update request with PDF URL
+      await documentAPI.updatePDFUrl(requestId, {
+        pdfUrl: uploadResult.url,
+        cloudinaryPublicId: uploadResult.publicId
+      });
+
+      setRequestId(requestId);
       setShowPayment(true);
     } catch (error) {
       console.error('Error creating request:', error);
-      alert('Failed to create request. Please try again.');
+      alert(error.message || 'Failed to create request. Please try again.');
     } finally {
       setLoading(false);
+      setUploading(false);
     }
   };
 
@@ -64,15 +125,15 @@ export default function ShortAttendence() {
       .from(element)
       .set({
         filename: "Short_Attendance_Affidavit.pdf",
-        margin: 0,
-        image: { type: "jpeg", quality: 1 },
+        margin: [0.5, 0.5, 0.5, 0.5],
+        image: { type: "jpeg", quality: 0.98 },
         html2canvas: {
           scale: 2,
           scrollY: 0,
           backgroundColor: "#ffffff",
         },
         jsPDF: {
-          unit: "mm",
+          unit: "in",
           format: "a4",
           orientation: "portrait",
         },
@@ -113,10 +174,10 @@ export default function ShortAttendence() {
             </button>
             <button
               onClick={handleSubmit}
-              disabled={loading}
+              disabled={loading || uploading}
               className="flex-1 bg-purple-700 hover:bg-purple-800 text-white py-2.5 rounded-lg font-medium disabled:opacity-50 transition"
             >
-              {loading ? 'Processing...' : 'Proceed to Payment (₹1)'}
+              {uploading ? 'Generating PDF...' : loading ? 'Processing...' : 'Proceed to Payment (₹1)'}
             </button>
           </div>
         </div>

@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import { documentAPI } from "../services/api";
 import PaymentModal from "../components/PaymentModal";
+import { uploadPDFToCloudinary } from "../utils/cloudinary";
 
 const initialData = {
     name: "",
@@ -32,7 +33,7 @@ const initialData = {
     paymentDueDay: "",
     witnessAddress: "",
     witnessName: "",
-    verificationMonth: "",
+    verificationDate: "",
 };
 
 export default function RentalAgreements() {
@@ -40,12 +41,57 @@ export default function RentalAgreements() {
     const [showPayment, setShowPayment] = useState(false);
     const [requestId, setRequestId] = useState(null);
     const [loading, setLoading] = useState(false);
+    const [uploading, setUploading] = useState(false);
     const pdfRef = useRef(null);
     const navigate = useNavigate();
     const { user } = useContext(AuthContext);
 
-    const update = (e) =>
-        setData({ ...data, [e.target.name]: e.target.value });
+    const update = (e) => {
+        const { name, value } = e.target;
+        setData(prev => ({ ...prev, [name]: value }));
+    };
+
+    // Format date for display in PDF
+    const formatDateForDisplay = (dateString) => {
+        if (!dateString) return "__________";
+        const date = new Date(dateString);
+        return date.toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' });
+    };
+
+    // Generate PDF as Blob using html2pdf
+    const generatePDFBlob = async () => {
+        const element = pdfRef.current;
+        if (!element) {
+            throw new Error('PDF element not found');
+        }
+        
+        const opt = {
+            margin: [0.5, 0.5, 0.5, 0.5],
+            filename: "Rental_Agreement.pdf",
+            image: { type: "jpeg", quality: 0.98 },
+            html2canvas: { 
+                scale: 2, 
+                scrollY: 0, 
+                backgroundColor: "#ffffff",
+                logging: false,
+                useCORS: true
+            },
+            jsPDF: { 
+                unit: "in", 
+                format: "a4", 
+                orientation: "portrait" 
+            },
+            pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
+        };
+        
+        try {
+            const pdfBlob = await html2pdf().from(element).set(opt).outputPdf('blob');
+            return pdfBlob;
+        } catch (error) {
+            console.error('Error generating PDF:', error);
+            throw error;
+        }
+    };
 
     const handleSubmit = async () => {
         if (!user) {
@@ -55,19 +101,41 @@ export default function RentalAgreements() {
 
         setLoading(true);
         try {
+            setUploading(true);
+            const pdfBlob = await generatePDFBlob();
+            
+            console.log('PDF Blob generated:', pdfBlob);
+            console.log('PDF Blob size:', pdfBlob.size);
+            
+            if (!pdfBlob || pdfBlob.size === 0) {
+                throw new Error('Generated PDF is empty');
+            }
+            
             const response = await documentAPI.createRequest({
                 documentType: 'rental-agreement',
                 formData: data,
-                paymentAmount: 1, // Change to 500 in production
+                paymentAmount: 1,
             });
 
-            setRequestId(response.data.requestId);
+            const requestId = response.data.requestId;
+            
+            // Upload PDF to Cloudinary
+            const uploadResult = await uploadPDFToCloudinary(pdfBlob, 'rental-agreement', requestId);
+            
+            // Update request with PDF URL
+            await documentAPI.updatePDFUrl(requestId, {
+                pdfUrl: uploadResult.url,
+                cloudinaryPublicId: uploadResult.publicId
+            });
+
+            setRequestId(requestId);
             setShowPayment(true);
         } catch (error) {
             console.error('Error creating request:', error);
-            alert('Failed to create request. Please try again.');
+            alert(error.message || 'Failed to create request. Please try again.');
         } finally {
             setLoading(false);
+            setUploading(false);
         }
     };
 
@@ -82,17 +150,16 @@ export default function RentalAgreements() {
             .from(element)
             .set({
                 filename: "Rental_Agreement.pdf",
-                margin: 0,
+                margin: [0.5, 0.5, 0.5, 0.5],
                 image: { type: "jpeg", quality: 0.98 },
                 html2canvas: {
                     scale: 2,
                     useCORS: true,
                     backgroundColor: "#ffffff",
                     logging: false,
-                    scrollY: 0,
                 },
                 jsPDF: {
-                    unit: "mm",
+                    unit: "in",
                     format: "a4",
                     orientation: "portrait",
                 },
@@ -126,7 +193,7 @@ export default function RentalAgreements() {
                     {/* Second Party */}
                     <div className="grid grid-cols-2 gap-3 mt-6">
                         <Input label="Second Party Name" name="secondPartyName" value={data.secondPartyName} onChange={update} />
-                        <Input label="Father’s Name" name="secondPartyFatherName" value={data.secondPartyFatherName} onChange={update} />
+                        <Input label="Father's Name" name="secondPartyFatherName" value={data.secondPartyFatherName} onChange={update} />
                         <Input label="Age" name="secondPartyAge" value={data.secondPartyAge} onChange={update} />
                         <Input label="Occupation" name="secondPartyOccupation" value={data.secondPartyOccupation} onChange={update} />
                     </div>
@@ -146,8 +213,8 @@ export default function RentalAgreements() {
                         <Input label="License Type" name="secondlicenseType" value={data.secondlicenseType} onChange={update} />
                         <Input label="License Purpose" name="licensePurpose" value={data.licensePurpose} onChange={update} />
                         <Input label="License Duration (Months)" name="licenseDurationMonths" value={data.licenseDurationMonths} onChange={update} />
-                        <Input label="License Start Date" name="licenseStartDate" type="date" value={data.licenseStartDate} onChange={update} />
-                        <Input label="License End Date" name="licenseEndDate" type="date" value={data.licenseEndDate} onChange={update} />
+                        <DateInput label="License Start Date" name="licenseStartDate" value={data.licenseStartDate} onChange={update} />
+                        <DateInput label="License End Date" name="licenseEndDate" value={data.licenseEndDate} onChange={update} />
                     </div>
 
                     {/* Rent Details */}
@@ -189,10 +256,10 @@ export default function RentalAgreements() {
                         </button>
                         <button
                             onClick={handleSubmit}
-                            disabled={loading}
+                            disabled={loading || uploading}
                             className="flex-1 bg-purple-700 hover:bg-purple-800 text-white py-2.5 rounded-lg font-medium disabled:opacity-50 transition"
                         >
-                            {loading ? 'Processing...' : 'Proceed to Payment (₹1)'}
+                            {uploading ? 'Generating PDF...' : loading ? 'Processing...' : 'Proceed to Payment (₹1)'}
                         </button>
                     </div>
                 </div>
@@ -270,7 +337,7 @@ export default function RentalAgreements() {
                         {/* Property & License Details */}
                         <div className="mt-8">
                             <p className="text-center">
-                                <b>HEREINAFTER referred to as the “{data.secondPartyName || "____________"}”</b>
+                                <b>HEREINAFTER referred to as the "{data.secondPartyName || "____________"}"</b>
                             </p>
                             <br />
 
@@ -297,7 +364,7 @@ export default function RentalAgreements() {
                         {/* Terms & Conditions */}
                         <div style={{ marginLeft: "12px" }}>
                             <div style={{ margin: "12px 0", textIndent: "-12px" }}>
-                                1. The Licensor agrees to demise unto the Licensee and the Licensee hereby accepts the said premises... for a period of <b>{data.licenseDurationMonths || "____"} Months</b> with effect from <b>{data.licenseStartDate || "____"}</b> to <b>{data.licenseEndDate || "____"}</b> on Leave and License basis.
+                                1. The Licensor agrees to demise unto the Licensee and the Licensee hereby accepts the said premises... for a period of <b>{data.licenseDurationMonths || "____"} Months</b> with effect from <b>{formatDateForDisplay(data.licenseStartDate)}</b> to <b>{formatDateForDisplay(data.licenseEndDate)}</b> on Leave and License basis.
                             </div>
 
                             <div style={{ margin: "12px 0", textIndent: "-12px" }}>
@@ -308,7 +375,13 @@ export default function RentalAgreements() {
                                 3. Electricity bills shall be paid and cleared by the Licensee.
                             </div>
 
-                            {/* You can add more clauses as needed. The current PDF has many clauses already. */}
+                            <div style={{ margin: "12px 0", textIndent: "-12px" }}>
+                                4. It is agreed between the parties that at all times the judicial possession of the said premises shall be of Licensor and the Licensee has been merely granted the License to make use of the said premises for a limited period only.
+                            </div>
+
+                            <div style={{ margin: "12px 0", textIndent: "-12px" }}>
+                                5. It is hereby agreed between the parties here to that if the Licensee commits any default in payments of the monthly compensation as agreed aforesaid or non-payment of Electric bills, or commits breach of any of the terms, covenant contained in this Agreement the Licensor shall be entitled to revoke this License.
+                            </div>
 
                             <div style={{ marginTop: "40px", textAlign: "right", fontWeight: "bold" }}>
                                 LICENSOR<br />
@@ -353,6 +426,24 @@ function Input({ label, ...props }) {
             </label>
             <input
                 {...props}
+                className="w-full border border-purple-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+            />
+        </div>
+    );
+}
+
+/* DATE INPUT COMPONENT */
+function DateInput({ label, name, value, onChange }) {
+    return (
+        <div className="mb-3">
+            <label className="block text-sm font-medium text-purple-700 mb-1">
+                {label}
+            </label>
+            <input
+                type="date"
+                name={name}
+                value={value}
+                onChange={onChange}
                 className="w-full border border-purple-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
             />
         </div>
