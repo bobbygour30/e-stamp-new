@@ -41,7 +41,7 @@ export default function ShortAttendence() {
     }
     
     const opt = {
-      margin: [0.5, 0.5, 0.5, 0.5],
+      margin: [0.3, 0.3, 0.3, 0.3], // Smaller margins to prevent cutting
       filename: "Short_Attendance_Affidavit.pdf",
       image: { type: "jpeg", quality: 0.98 },
       html2canvas: { 
@@ -56,7 +56,7 @@ export default function ShortAttendence() {
         format: "a4", 
         orientation: "portrait" 
       },
-      pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
+      pagebreak: { mode: ['css', 'legacy'] },
     };
     
     try {
@@ -94,10 +94,8 @@ export default function ShortAttendence() {
 
       const requestId = response.data.requestId;
       
-      // Upload PDF to Cloudinary
       const uploadResult = await uploadPDFToCloudinary(pdfBlob, 'short-attendance', requestId);
       
-      // Update request with PDF URL
       await documentAPI.updatePDFUrl(requestId, {
         pdfUrl: uploadResult.url,
         cloudinaryPublicId: uploadResult.publicId
@@ -125,7 +123,7 @@ export default function ShortAttendence() {
       .from(element)
       .set({
         filename: "Short_Attendance_Affidavit.pdf",
-        margin: [0.5, 0.5, 0.5, 0.5],
+        margin: [0.3, 0.3, 0.3, 0.3],
         image: { type: "jpeg", quality: 0.98 },
         html2canvas: {
           scale: 2,
@@ -137,7 +135,7 @@ export default function ShortAttendence() {
           format: "a4",
           orientation: "portrait",
         },
-        pagebreak: { mode: [] },
+        pagebreak: { mode: ['css', 'legacy'] },
       })
       .save();
   };
@@ -146,7 +144,7 @@ export default function ShortAttendence() {
     <div className="min-h-screen bg-[#f3f1fa] p-6">
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6">
 
-        {/* ================= FORM SECTION ================= */}
+        {/* FORM SECTION */}
         <div className="bg-white p-6 rounded-xl shadow border border-purple-200">
           <h2 className="text-xl font-semibold text-purple-700 mb-4">
             Short Attendance Affidavit
@@ -182,22 +180,21 @@ export default function ShortAttendence() {
           </div>
         </div>
 
-        {/* ================= PDF PREVIEW SECTION ================= */}
-        <div className="bg-gray-100 rounded-xl shadow overflow-y-auto flex justify-center p-4" style={{ height: "90vh" }}>
+        {/* PDF PREVIEW SECTION - FIXED LAYOUT */}
+        <div className="bg-gray-100 rounded-xl shadow overflow-auto flex justify-center p-4" style={{ height: "90vh" }}>
           <div
             ref={pdfRef}
             style={{
-              width: "210mm",
-              minHeight: "297mm",
-              backgroundColor: "#fff",
-              color: "#000",
+              width: "100%",
+              maxWidth: "100%",
+              backgroundColor: "#ffffff",
+              color: "#000000",
               fontFamily: "'Times New Roman', Times, serif",
               fontSize: "12pt",
-              lineHeight: "1.55",
-              padding: "25px",
+              lineHeight: "1.5",
+              padding: "20px",
               boxSizing: "border-box",
               boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
-              margin: "0 auto",
             }}
           >
             {/* TITLE */}
@@ -207,34 +204,25 @@ export default function ShortAttendence() {
                 fontSize: "15pt",
                 fontWeight: "bold",
                 textDecoration: "underline",
-                marginBottom: "30px",
+                marginBottom: "25px",
               }}
             >
               AFFIDAVIT
             </div>
 
             {/* BODY */}
-            <p style={{ textAlign: "justify" }}>
-              I, <b>{data.name || "____________________"}</b>{" "}
-              {data.relationType}{" "}
-              <b>{data.fatherName || "____________________"}</b> address{" "}
-              <b>{data.address || "____________________"}</b> studying in{" "}
-              <b>{data.collegeName || "____________________"}</b> (
-              <b>{data.universityName || "____________________"}</b>), Delhi.
+            <p style={{ textAlign: "justify", marginBottom: "15px" }}>
+              I, <b>{data.name || "____________________"}</b> {data.relationType} <b>{data.fatherName || "____________________"}</b> address <b>{data.address || "____________________"}</b> studying in <b>{data.collegeName || "____________________"}</b> (<b>{data.universityName || "____________________"}</b>), Delhi.
             </p>
 
-            <p style={{ textAlign: "justify", marginTop: "14px" }}>
-              <b>{data.course || "__________"}</b> year (
-              <b>{data.section || "___"}</b>) am severally short of attendance.
-              I assure that this will not be repeated next year. I will make up
-              my attendance of the previous year as well as next year, failing
-              which I will not be allowed to appear for the examination.
+            <p style={{ textAlign: "justify", marginBottom: "15px" }}>
+              <b>{data.course || "__________"}</b> year (<b>{data.section || "___"}</b>) am severally short of attendance. I assure that this will not be repeated next year. I will make up my attendance of the previous year as well as next year, failing which I will not be allowed to appear for the examination.
             </p>
 
             {/* SIGNATURE */}
             <div
               style={{
-                marginTop: "100px",
+                marginTop: "80px",
                 textAlign: "right",
                 fontWeight: "bold"
               }}

@@ -66,7 +66,7 @@ export default function RentAgreementPage() {
     }
     
     const opt = {
-      margin: [0.5, 0.5, 0.5, 0.5],
+      margin: [0.3, 0.3, 0.3, 0.3], // Smaller margins to prevent cutting
       filename: "Rent_Agreement.pdf",
       image: { type: "jpeg", quality: 0.98 },
       html2canvas: { 
@@ -81,7 +81,7 @@ export default function RentAgreementPage() {
         format: "a4", 
         orientation: "portrait" 
       },
-      pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
+      pagebreak: { mode: ['css', 'legacy'] },
     };
     
     try {
@@ -119,10 +119,8 @@ export default function RentAgreementPage() {
 
       const requestId = response.data.requestId;
       
-      // Upload PDF to Cloudinary
       const uploadResult = await uploadPDFToCloudinary(pdfBlob, 'rent-agreement', requestId);
       
-      // Update request with PDF URL
       await documentAPI.updatePDFUrl(requestId, {
         pdfUrl: uploadResult.url,
         cloudinaryPublicId: uploadResult.publicId
@@ -149,7 +147,7 @@ export default function RentAgreementPage() {
     html2pdf()
       .from(element)
       .set({
-        margin: [0.5, 0.5, 0.5, 0.5],
+        margin: [0.3, 0.3, 0.3, 0.3],
         filename: "Rent_Agreement.pdf",
         image: { type: "jpeg", quality: 0.98 },
         html2canvas: {
@@ -255,14 +253,13 @@ export default function RentAgreementPage() {
           </div>
         </div>
 
-        {/* RIGHT - PREVIEW */}
-        <div className="bg-gray-100 p-4 rounded shadow overflow-y-auto" style={{ height: "90vh" }}>
+        {/* RIGHT - PREVIEW - FIXED LAYOUT */}
+        <div className="bg-gray-100 p-4 rounded shadow overflow-auto" style={{ height: "90vh" }}>
           <div
             ref={previewRef}
             style={{
-              position: "relative",
-              width: "210mm",
-              minHeight: "594mm",
+              width: "100%",
+              maxWidth: "100%",
               backgroundColor: "#fffdf5",
               color: "#111827",
               fontFamily: "monospace",
@@ -274,19 +271,6 @@ export default function RentAgreementPage() {
               boxShadow: "0 4px 6px -1px rgba(0,0,0,0.1)",
             }}
           >
-            {/* Background filler */}
-            <div
-              style={{
-                position: "absolute",
-                top: 0,
-                left: 0,
-                width: "100%",
-                height: "100%",
-                backgroundColor: "#fffdf5",
-                zIndex: -1,
-              }}
-            />
-
             <h1
               style={{
                 textAlign: "center",
@@ -392,7 +376,7 @@ export default function RentAgreementPage() {
               <p style={{ margin: "3px 0" }}>2. ____________________ (SECOND PARTY)</p>
             </div>
 
-            <div style={{ height: "180mm", marginTop: "20px" }} />
+            <div style={{ height: "100mm", marginTop: "20px" }} />
           </div>
         </div>
       </div>

@@ -52,7 +52,7 @@ export default function EducationLoan() {
     }
     
     const opt = {
-      margin: [0.5, 0.5, 0.5, 0.5],
+      margin: [0.3, 0.3, 0.3, 0.3], // Smaller margins to prevent cutting
       filename: "Education_Loan_Affidavit.pdf",
       image: { type: "jpeg", quality: 0.98 },
       html2canvas: { 
@@ -67,7 +67,7 @@ export default function EducationLoan() {
         format: "a4", 
         orientation: "portrait" 
       },
-      pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
+      pagebreak: { mode: ['css', 'legacy'] },
     };
     
     try {
@@ -97,7 +97,6 @@ export default function EducationLoan() {
         throw new Error('Generated PDF is empty');
       }
       
-      // Create document request
       const response = await documentAPI.createRequest({
         documentType: 'education-loan',
         formData: data,
@@ -106,10 +105,8 @@ export default function EducationLoan() {
       
       const requestId = response.data.requestId;
       
-      // Upload PDF to Cloudinary
       const uploadResult = await uploadPDFToCloudinary(pdfBlob, 'education-loan', requestId);
       
-      // Update request with PDF URL
       await documentAPI.updatePDFUrl(requestId, {
         pdfUrl: uploadResult.url,
         cloudinaryPublicId: uploadResult.publicId
@@ -137,11 +134,11 @@ export default function EducationLoan() {
       .from(element)
       .set({
         filename: "Education_Loan_Affidavit.pdf",
-        margin: [0.5, 0.5, 0.5, 0.5],
+        margin: [0.3, 0.3, 0.3, 0.3],
         image: { type: "jpeg", quality: 0.98 },
         html2canvas: { scale: 2, scrollY: 0, backgroundColor: "#ffffff" },
         jsPDF: { unit: "in", format: "a4", orientation: "portrait" },
-        pagebreak: { mode: [] },
+        pagebreak: { mode: ['css', 'legacy'] },
       })
       .save();
   };
@@ -150,7 +147,7 @@ export default function EducationLoan() {
     <div className="min-h-screen bg-[#f3f1fa] p-6">
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6">
 
-        {/* ================= FORM ================= */}
+        {/* FORM SECTION */}
         <div className="bg-white p-6 rounded-xl shadow border border-purple-200">
           <h2 className="text-xl font-semibold text-purple-700 mb-4">
             Education Loan Affidavit
@@ -193,22 +190,21 @@ export default function EducationLoan() {
           </div>
         </div>
 
-        {/* ================= PDF PREVIEW ================= */}
-        <div className="bg-gray-100 rounded shadow overflow-y-auto flex justify-center p-4" style={{ height: "90vh" }}>
+        {/* PDF PREVIEW SECTION - FIXED LAYOUT */}
+        <div className="bg-gray-100 rounded-xl shadow overflow-auto flex justify-center p-4" style={{ height: "90vh" }}>
           <div
             ref={pdfRef}
             style={{
-              width: "210mm",
-              minHeight: "297mm",
-              backgroundColor: "#fff",
-              color: "#000",
+              width: "100%",
+              maxWidth: "100%",
+              backgroundColor: "#ffffff",
+              color: "#000000",
               fontFamily: "'Times New Roman', Times, serif",
               fontSize: "12pt",
-              lineHeight: "1.55",
-              padding: "25px",
+              lineHeight: "1.5",
+              padding: "20px",
               boxSizing: "border-box",
               boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
-              margin: "0 auto",
             }}
           >
             {/* TITLE */}
@@ -225,42 +221,30 @@ export default function EducationLoan() {
             </div>
 
             {/* INTRO */}
-            <p style={{ textAlign: "justify" }}>
-              We, (1) <b>{data.deponent1Name || "____________________"}</b>{" "}
-              S/O <b>{data.deponent1Father || "____________________"}</b> (2){" "}
-              <b>{data.deponent2Name || "____________________"}</b> S/O{" "}
-              <b>{data.deponent2Father || "____________________"}</b> both R/o{" "}
-              <b>{data.address || "____________________"}</b>, do hereby
-              solemnly affirm and declare as under:-
+            <p style={{ textAlign: "justify", marginBottom: "15px" }}>
+              We, (1) <b>{data.deponent1Name || "____________________"}</b> S/O <b>{data.deponent1Father || "____________________"}</b> (2) <b>{data.deponent2Name || "____________________"}</b> S/O <b>{data.deponent2Father || "____________________"}</b> both R/o <b>{data.address || "____________________"}</b>, do hereby solemnly affirm and declare as under:-
             </p>
 
             {/* POINTS */}
-            <div style={{ marginLeft: "20px", marginTop: "16px" }}>
-              <p style={{ textIndent: "-20px", marginBottom: "10px" }}>
-                (I) That we are citizen of India.
+            <div style={{ marginLeft: "0px", marginTop: "10px" }}>
+              <p style={{ margin: "10px 0" }}>
+                (I) That we are citizens of India.
               </p>
 
-              <p style={{ textIndent: "-20px", marginBottom: "10px" }}>
-                (II) That we are bonafide resident of{" "}
-                <b>{data.address || "____________________"}</b>.
+              <p style={{ margin: "10px 0" }}>
+                (II) That we are bonafide residents of <b>{data.address || "____________________"}</b>.
               </p>
 
-              <p style={{ textIndent: "-20px", marginBottom: "10px" }}>
-                (III) That neither we nor any member of our family has applied
-                for/availed any type of Education Loan for any member of the
-                family from any bank / financial Institution.
+              <p style={{ margin: "10px 0" }}>
+                (III) That neither we nor any member of our family has applied for/availed any type of Education Loan for any member of the family from any bank / financial Institution.
               </p>
 
-              <p style={{ textIndent: "-20px", marginBottom: "10px" }}>
-                (IV) That we have applied for an education loan from State Bank
-                of India for{" "}
-                <b>{data.studentName || "____________________"}</b> for{" "}
-                <b>{data.course}</b> ({data.duration} years) from{" "}
-                <b>{data.institute || "____________________"}</b>.
+              <p style={{ margin: "10px 0" }}>
+                (IV) That we have applied for an education loan from State Bank of India for <b>{data.studentName || "____________________"}</b> for <b>{data.course}</b> ({data.duration} years) from <b>{data.institute || "____________________"}</b>.
               </p>
 
-              <p style={{ marginTop: "6px" }}>
-                That this is a true statement.
+              <p style={{ margin: "10px 0" }}>
+                That the above statements are true and correct to the best of our knowledge and belief.
               </p>
             </div>
 
@@ -269,7 +253,7 @@ export default function EducationLoan() {
               style={{
                 display: "flex",
                 justifyContent: "space-between",
-                marginTop: "45px",
+                marginTop: "40px",
               }}
             >
               <div>Deponent (1)</div>
@@ -282,10 +266,7 @@ export default function EducationLoan() {
                 <b>Verification:-</b>
               </p>
               <p style={{ textAlign: "justify", marginTop: "10px" }}>
-                Verified at <b>{data.verificationPlace}</b> on{" "}
-                <b>{formatDateForDisplay(data.verificationDate)}</b> that the contents
-                of the above affidavit are true and correct to the best of my
-                knowledge and belief.
+                Verified at <b>{data.verificationPlace}</b> on <b>{formatDateForDisplay(data.verificationDate)}</b> that the contents of the above affidavit are true and correct to the best of our knowledge and belief.
               </p>
             </div>
 

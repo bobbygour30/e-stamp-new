@@ -49,7 +49,7 @@ export default function AntiRagging() {
     }
     
     const opt = {
-      margin: [0.5, 0.5, 0.5, 0.5],
+      margin: [0.3, 0.3, 0.3, 0.3], // Smaller margins to prevent cutting
       filename: "Anti_Ragging_Undertaking_Affidavit.pdf",
       image: { type: "jpeg", quality: 0.98 },
       html2canvas: { 
@@ -64,7 +64,7 @@ export default function AntiRagging() {
         format: "a4", 
         orientation: "portrait" 
       },
-      pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
+      pagebreak: { mode: ['css', 'legacy'] },
     };
     
     try {
@@ -94,7 +94,6 @@ export default function AntiRagging() {
         throw new Error('Generated PDF is empty');
       }
       
-      // Create document request
       const response = await documentAPI.createRequest({
         documentType: 'anti-ragging',
         formData: data,
@@ -103,10 +102,8 @@ export default function AntiRagging() {
       
       const requestId = response.data.requestId;
       
-      // Upload PDF to Cloudinary
       const uploadResult = await uploadPDFToCloudinary(pdfBlob, 'anti-ragging', requestId);
       
-      // Update request with PDF URL
       await documentAPI.updatePDFUrl(requestId, {
         pdfUrl: uploadResult.url,
         cloudinaryPublicId: uploadResult.publicId
@@ -134,11 +131,11 @@ export default function AntiRagging() {
       .from(element)
       .set({
         filename: "Anti_Ragging_Undertaking_Affidavit.pdf",
-        margin: [0.5, 0.5, 0.5, 0.5],
+        margin: [0.3, 0.3, 0.3, 0.3],
         image: { type: "jpeg", quality: 0.98 },
         html2canvas: { scale: 2, scrollY: 0, backgroundColor: "#ffffff" },
         jsPDF: { unit: "in", format: "a4", orientation: "portrait" },
-        pagebreak: { mode: [] },
+        pagebreak: { mode: ['css', 'legacy'] },
       })
       .save();
   };
@@ -147,7 +144,7 @@ export default function AntiRagging() {
     <div className="min-h-screen bg-[#f3f1fa] p-6">
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6">
 
-        {/* ================= FORM ================= */}
+        {/* FORM SECTION */}
         <div className="bg-white p-6 rounded-xl shadow border border-purple-200">
           <h2 className="text-xl font-semibold text-purple-700 mb-4">
             Anti Ragging Undertaking
@@ -190,22 +187,21 @@ export default function AntiRagging() {
           </div>
         </div>
 
-        {/* ================= PDF PREVIEW ================= */}
-        <div className="bg-gray-100 rounded shadow overflow-y-auto flex justify-center p-4" style={{ height: "90vh" }}>
+        {/* PDF PREVIEW SECTION - FIXED LAYOUT */}
+        <div className="bg-gray-100 rounded-xl shadow overflow-auto flex justify-center p-4" style={{ height: "90vh" }}>
           <div
             ref={pdfRef}
             style={{
-              width: "210mm",
-              minHeight: "297mm",
-              backgroundColor: "#fff",
-              color: "#000",
+              width: "100%",
+              maxWidth: "100%",
+              backgroundColor: "#ffffff",
+              color: "#000000",
               fontFamily: "'Times New Roman', Times, serif",
               fontSize: "12pt",
-              lineHeight: "1.55",
-              padding: "25px",
+              lineHeight: "1.5",
+              padding: "20px",
               boxSizing: "border-box",
               boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
-              margin: "0 auto",
             }}
           >
             {/* TITLE */}
@@ -224,54 +220,34 @@ export default function AntiRagging() {
             </div>
 
             {/* INTRO */}
-            <p style={{ textAlign: "justify" }}>
-              I, <b>{data.studentName || "____________________"}</b>{" "}
-              {data.relationType}{" "}
-              <b>{data.fatherName || "____________________"}</b>{" "}
-              R/O <b>{data.address || "____________________"}</b>, aged{" "}
-              <b>{data.age || "__"}</b> years, presently residing in allotted
-              room in <b>{data.hostelName || "____________________"}</b> hostel,
-              do hereby solemnly affirm, undertake, and declare as under:-
+            <p style={{ textAlign: "justify", marginBottom: "15px" }}>
+              I, <b>{data.studentName || "____________________"}</b> {data.relationType} <b>{data.fatherName || "____________________"}</b> R/O <b>{data.address || "____________________"}</b>, aged <b>{data.age || "__"}</b> years, presently residing in allotted room in <b>{data.hostelName || "____________________"}</b> hostel, do hereby solemnly affirm, undertake, and declare as under:-
             </p>
 
             {/* POINTS */}
-            <div style={{ marginLeft: "16px", marginTop: "14px" }}>
-              <p style={{ textIndent: "-16px", marginBottom: "10px" }}>
-                1. That my parents and I have obtained and read the prospectus,
-                hostel book containing Anti Ragging regulations of the
-                University and have read them thoroughly, undertake to abide by
-                them in letter and spirit. I understand that my failure to abide
-                by any of them shall make me liable to disciplinary action
-                including rustication by the college authorities. I understand
-                that the decision by the administration in this regard shall be
-                binding and final for me.
+            <div style={{ marginLeft: "0px", marginTop: "10px" }}>
+              <p style={{ margin: "10px 0" }}>
+                1. That my parents and I have obtained and read the prospectus, hostel book containing Anti Ragging regulations of the University and have read them thoroughly, undertake to abide by them in letter and spirit. I understand that my failure to abide by any of them shall make me liable to disciplinary action including rustication by the college authorities. I understand that the decision by the administration in this regard shall be binding and final for me.
               </p>
 
-              <p style={{ textIndent: "-16px", marginBottom: "10px" }}>
-                2. That I understand that Ragging is an offence and punishable by
-                law as per the direction of the Hon'ble Supreme Court of India.
+              <p style={{ margin: "10px 0" }}>
+                2. That I understand that Ragging is an offence and punishable by law as per the direction of the Hon'ble Supreme Court of India.
               </p>
 
-              <p style={{ textIndent: "-16px", marginBottom: "10px" }}>
-                3. That I understand that Ragging in any form is strictly
-                prohibited.
+              <p style={{ margin: "10px 0" }}>
+                3. That I understand that Ragging in any form is strictly prohibited.
               </p>
 
-              <p style={{ textIndent: "-16px", marginBottom: "10px" }}>
-                4. I have read the relevant instruction/regulations regarding
-                Ragging and understand that it is punishable as per law. If I
-                indulge in Ragging of any sort in hostel/campus and been found
-                guilty the Administration can take action as stipulated by law
-                and FIR may be lodge.
+              <p style={{ margin: "10px 0" }}>
+                4. I have read the relevant instruction/regulations regarding Ragging and understand that it is punishable as per law. If I indulge in Ragging of any sort in hostel/campus and been found guilty the Administration can take action as stipulated by law and FIR may be lodged.
               </p>
 
-              <p style={{ textIndent: "-16px", marginBottom: "10px" }}>
-                5. I will abide with the rules of the Hostel and will not indulge
-                in any type of ragging activities.
+              <p style={{ margin: "10px 0" }}>
+                5. I will abide with the rules of the Hostel and will not indulge in any type of ragging activities.
               </p>
             </div>
 
-            <p style={{ marginTop: "14px" }}>
+            <p style={{ marginTop: "15px" }}>
               I have also read and understood the above contents.
             </p>
 

@@ -49,7 +49,7 @@ export default function LostDocument() {
     }
     
     const opt = {
-      margin: [0.5, 0.5, 0.5, 0.5],
+      margin: [0.3, 0.3, 0.3, 0.3], // Smaller margins (top, right, bottom, left)
       filename: "Lost_Document_Affidavit.pdf",
       image: { type: "jpeg", quality: 0.98 },
       html2canvas: { 
@@ -64,7 +64,7 @@ export default function LostDocument() {
         format: "a4", 
         orientation: "portrait" 
       },
-      pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
+      pagebreak: { mode: ['css', 'legacy'] },
     };
     
     try {
@@ -94,7 +94,6 @@ export default function LostDocument() {
         throw new Error('Generated PDF is empty');
       }
       
-      // Create document request
       const response = await documentAPI.createRequest({
         documentType: 'lost-document',
         formData: data,
@@ -103,10 +102,8 @@ export default function LostDocument() {
       
       const requestId = response.data.requestId;
       
-      // Upload PDF to Cloudinary
       const uploadResult = await uploadPDFToCloudinary(pdfBlob, 'lost-document', requestId);
       
-      // Update request with PDF URL
       await documentAPI.updatePDFUrl(requestId, {
         pdfUrl: uploadResult.url,
         cloudinaryPublicId: uploadResult.publicId
@@ -134,11 +131,11 @@ export default function LostDocument() {
       .from(element)
       .set({
         filename: "Lost_Document_Affidavit.pdf",
-        margin: [0.5, 0.5, 0.5, 0.5],
+        margin: [0.3, 0.3, 0.3, 0.3],
         image: { type: "jpeg", quality: 0.98 },
         html2canvas: { scale: 2, scrollY: 0, backgroundColor: "#ffffff" },
         jsPDF: { unit: "in", format: "a4", orientation: "portrait" },
-        pagebreak: { mode: [] },
+        pagebreak: { mode: ['css', 'legacy'] },
       })
       .save();
   };
@@ -147,7 +144,7 @@ export default function LostDocument() {
     <div className="min-h-screen bg-[#f3f1fa] p-6">
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6">
 
-        {/* ================= FORM SECTION ================= */}
+        {/* FORM SECTION */}
         <div className="bg-white p-6 rounded-xl shadow border border-purple-200">
           <h2 className="text-xl font-semibold text-purple-700 mb-4">
             Lost Document Affidavit
@@ -200,100 +197,77 @@ export default function LostDocument() {
           </div>
         </div>
 
-        {/* ================= PDF PREVIEW SECTION ================= */}
-        <div className="bg-gray-100 rounded-xl shadow overflow-y-auto flex justify-center p-4" style={{ height: "90vh" }}>
+        {/* PDF PREVIEW SECTION - FIXED LAYOUT */}
+        <div className="bg-gray-100 rounded-xl shadow overflow-auto flex justify-center p-4" style={{ height: "90vh" }}>
           <div
             ref={pdfRef}
             style={{
-              width: "210mm",
-              minHeight: "297mm",
-              backgroundColor: "#fff",
-              color: "#000",
+              width: "100%",
+              maxWidth: "100%",
+              backgroundColor: "#ffffff",
+              color: "#000000",
               fontFamily: "'Times New Roman', Times, serif",
               fontSize: "12pt",
-              lineHeight: "1.55",
-              padding: "25px",
+              lineHeight: "1.5",
+              padding: "20px",
               boxSizing: "border-box",
               boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
-              margin: "0 auto",
             }}
           >
             {/* TITLE */}
             <div
               style={{
                 textAlign: "center",
-                fontSize: "15pt",
+                fontSize: "16pt",
                 fontWeight: "bold",
                 textDecoration: "underline",
-                marginBottom: "22px",
-                letterSpacing: "0.5px",
+                marginBottom: "25px",
               }}
             >
               AFFIDAVIT
             </div>
 
             {/* INTRO */}
-            <p style={{ textAlign: "justify", marginBottom: "16px" }}>
-              I,{" "}
-              <b>{data.name || "____________________"}</b>{" "}
-              <b>{data.relationType}</b>{" "}
-              <b>{data.relationName || "____________________"}</b>{" "}
-              R/O{" "}
-              <b>{data.residentOf || "____________________"}</b>, do hereby
-              solemnly affirm and declare as under:-
+            <p style={{ textAlign: "justify", marginBottom: "15px" }}>
+              I, <b>{data.name || "____________________"}</b> <b>{data.relationType}</b> <b>{data.relationName || "____________________"}</b> R/O <b>{data.residentOf || "____________________"}</b>, do hereby solemnly affirm and declare as under:-
             </p>
 
             {/* POINTS */}
-            <div style={{ marginLeft: "14px" }}>
-              <p style={{ margin: "12px 0", textIndent: "-14px" }}>
+            <div style={{ marginLeft: "0px" }}>
+              <p style={{ margin: "10px 0" }}>
                 1. That I am a citizen of India.
               </p>
 
-              <p style={{ margin: "12px 0", textIndent: "-14px" }}>
-                2. That I have lost/misplaced original{" "}
-                <b>{data.lostDocument || "____________________"}</b>{" "}
-                vide No.{" "}
-                <b>{data.documentNumber || "__________"}</b>{" "}
-                issued by{" "}
-                <b>{data.issuedBy || "____________________"}</b>{" "}
-                on dated{" "}
-                <b>{formatDateForDisplay(data.issuedDate)}</b>.
+              <p style={{ margin: "10px 0" }}>
+                2. That I have lost/misplaced original <b>{data.lostDocument || "____________________"}</b> vide No. <b>{data.documentNumber || "__________"}</b> issued by <b>{data.issuedBy || "____________________"}</b> on dated <b>{formatDateForDisplay(data.issuedDate)}</b>.
               </p>
 
-              <p style={{ margin: "12px 0", textIndent: "-14px" }}>
-                3. That I undertake that if the said{" "}
-                <b>{data.lostDocument || "____________________"}</b>{" "}
-                found in future then I will return to the Concerned Authority.
+              <p style={{ margin: "10px 0" }}>
+                3. That I undertake that if the said <b>{data.lostDocument || "____________________"}</b> is found in future, I will return it to the Concerned Authority.
               </p>
 
-              <p style={{ margin: "12px 0", textIndent: "-14px" }}>
-                4. That it is my true and correct statement.
+              <p style={{ margin: "10px 0" }}>
+                4. That the above statements are true and correct to the best of my knowledge and belief.
               </p>
             </div>
 
             {/* DEPONENT */}
-            <div style={{ marginTop: "50px", textAlign: "right", fontWeight: "bold" }}>
-              DEPONENT
+            <div style={{ marginTop: "40px", textAlign: "right" }}>
+              <b>DEPONENT</b>
             </div>
 
             {/* VERIFICATION */}
-            <div style={{ marginTop: "45px" }}>
-              <div style={{ fontWeight: "bold", marginBottom: "12px" }}>
+            <div style={{ marginTop: "40px" }}>
+              <div style={{ fontWeight: "bold", marginBottom: "10px", textDecoration: "underline" }}>
                 VERIFICATION
               </div>
 
               <p style={{ textAlign: "justify" }}>
-                Verified at{" "}
-                <b>{data.verificationPlace || "__________"}</b>{" "}
-                on this{" "}
-                <b>{formatDateForDisplay(data.verificationDate)}</b> that the
-                contents of the above affidavit are true and correct to the best
-                of my knowledge and belief and nothing material has been
-                concealed therefrom.
+                Verified at <b>{data.verificationPlace || "__________"}</b> on this <b>{formatDateForDisplay(data.verificationDate)}</b> that the contents of the above affidavit are true and correct to the best of my knowledge and belief and nothing material has been concealed therefrom.
               </p>
 
-              <div style={{ marginTop: "50px", textAlign: "right", fontWeight: "bold" }}>
-                DEPONENT
+              <div style={{ marginTop: "40px", textAlign: "right" }}>
+                <b>DEPONENT</b>
               </div>
             </div>
           </div>

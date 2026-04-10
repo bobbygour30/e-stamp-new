@@ -66,7 +66,7 @@ export default function RentalAgreements() {
         }
         
         const opt = {
-            margin: [0.5, 0.5, 0.5, 0.5],
+            margin: [0.3, 0.3, 0.3, 0.3], // Smaller margins to prevent cutting
             filename: "Rental_Agreement.pdf",
             image: { type: "jpeg", quality: 0.98 },
             html2canvas: { 
@@ -81,7 +81,7 @@ export default function RentalAgreements() {
                 format: "a4", 
                 orientation: "portrait" 
             },
-            pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
+            pagebreak: { mode: ['css', 'legacy'] },
         };
         
         try {
@@ -119,10 +119,8 @@ export default function RentalAgreements() {
 
             const requestId = response.data.requestId;
             
-            // Upload PDF to Cloudinary
             const uploadResult = await uploadPDFToCloudinary(pdfBlob, 'rental-agreement', requestId);
             
-            // Update request with PDF URL
             await documentAPI.updatePDFUrl(requestId, {
                 pdfUrl: uploadResult.url,
                 cloudinaryPublicId: uploadResult.publicId
@@ -150,7 +148,7 @@ export default function RentalAgreements() {
             .from(element)
             .set({
                 filename: "Rental_Agreement.pdf",
-                margin: [0.5, 0.5, 0.5, 0.5],
+                margin: [0.3, 0.3, 0.3, 0.3],
                 image: { type: "jpeg", quality: 0.98 },
                 html2canvas: {
                     scale: 2,
@@ -163,7 +161,7 @@ export default function RentalAgreements() {
                     format: "a4",
                     orientation: "portrait",
                 },
-                pagebreak: { mode: [] },
+                pagebreak: { mode: ['css', 'legacy'] },
             })
             .save();
     };
@@ -172,7 +170,7 @@ export default function RentalAgreements() {
         <div className="min-h-screen bg-[#f3f1fa] p-6">
             <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6">
 
-                {/* ================= FORM SECTION ================= */}
+                {/* FORM SECTION */}
                 <div className="bg-white p-6 rounded-xl shadow border border-purple-200">
                     <h2 className="text-xl font-semibold text-purple-700 mb-4">
                         Rental Agreement
@@ -264,22 +262,21 @@ export default function RentalAgreements() {
                     </div>
                 </div>
 
-                {/* ================= PDF PREVIEW SECTION ================= */}
-                <div className="bg-gray-100 rounded-xl shadow overflow-y-auto flex justify-center p-4" style={{ height: "90vh" }}>
+                {/* PDF PREVIEW SECTION - FIXED LAYOUT */}
+                <div className="bg-gray-100 rounded-xl shadow overflow-auto flex justify-center p-4" style={{ height: "90vh" }}>
                     <div
                         ref={pdfRef}
                         style={{
-                            width: "210mm",
-                            minHeight: "297mm",
+                            width: "100%",
+                            maxWidth: "100%",
                             backgroundColor: "#ffffff",
                             color: "#000000",
                             fontFamily: "'Times New Roman', Times, serif",
                             fontSize: "12pt",
-                            lineHeight: "1.55",
-                            padding: "25px",
+                            lineHeight: "1.5",
+                            padding: "20px",
                             boxSizing: "border-box",
                             boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
-                            margin: "0 auto",
                         }}
                     >
                         {/* TITLE */}
@@ -289,7 +286,6 @@ export default function RentalAgreements() {
                             fontSize: "14pt",
                             fontWeight: "bold",
                             textDecoration: "underline",
-                            letterSpacing: "0.4px",
                         }}>
                             RENTAL AGREEMENT
                         </div>
@@ -318,7 +314,7 @@ export default function RentalAgreements() {
 
                         {/* Second Party */}
                         <div style={{ marginTop: "20px", textAlign: "justify" }}>
-                            <div className="text-center font-bold mb-3">AND</div>
+                            <div style={{ textAlign: "center", fontWeight: "bold", marginBottom: "12px" }}>AND</div>
 
                             <div>
                                 <b>{data.secondPartyName || "_____________"} S/o {data.secondPartyFatherName || "_____________"}</b>
@@ -335,13 +331,12 @@ export default function RentalAgreements() {
                         </div>
 
                         {/* Property & License Details */}
-                        <div className="mt-8">
-                            <p className="text-center">
+                        <div style={{ marginTop: "20px" }}>
+                            <p style={{ textAlign: "center" }}>
                                 <b>HEREINAFTER referred to as the "{data.secondPartyName || "____________"}"</b>
                             </p>
-                            <br />
 
-                            <p>
+                            <p style={{ marginTop: "12px" }}>
                                 WHEREAS the Licensor is the lawful Owner of flat situated at{" "}
                                 <b>{data.propertyAddress || "____________"}</b> admeasuring about area{" "}
                                 <b>{data.propertyArea || "____________"}</b> sq.ft.{" "}
@@ -349,47 +344,47 @@ export default function RentalAgreements() {
                                 within jurisdiction of Sub-Registrar <b>{data.subRegistrarOffice || "____________"}</b>.
                             </p>
 
-                            <p className="mt-4">
+                            <p style={{ marginTop: "12px" }}>
                                 The Licensee has approached the Licensor with request to permit him/her to use & occupy the said premises on{" "}
                                 <b>{data.secondlicenseType || "____________"}</b> basis as{" "}
                                 <b>{data.licensePurpose || "____________"}</b> Purpose for a period of{" "}
                                 <b>{data.licenseDurationMonths || "____"}</b> months.
                             </p>
 
-                            <h2 className="font-bold my-6 text-center text-[13pt]">
+                            <h2 style={{ fontWeight: "bold", margin: "20px 0", textAlign: "center", fontSize: "13pt" }}>
                                 NOW THEREFORE THESE PRESENT WITNESSTH THIS AGREEMENT AND IT IS HEREBY AGREED BY AND BETWEEN THE PARTIES HERETO AS FOLLOWS:
                             </h2>
                         </div>
 
                         {/* Terms & Conditions */}
-                        <div style={{ marginLeft: "12px" }}>
-                            <div style={{ margin: "12px 0", textIndent: "-12px" }}>
+                        <div style={{ marginLeft: "0px" }}>
+                            <div style={{ margin: "10px 0" }}>
                                 1. The Licensor agrees to demise unto the Licensee and the Licensee hereby accepts the said premises... for a period of <b>{data.licenseDurationMonths || "____"} Months</b> with effect from <b>{formatDateForDisplay(data.licenseStartDate)}</b> to <b>{formatDateForDisplay(data.licenseEndDate)}</b> on Leave and License basis.
                             </div>
 
-                            <div style={{ margin: "12px 0", textIndent: "-12px" }}>
+                            <div style={{ margin: "10px 0" }}>
                                 2. During the tenure of the license period, the Licensee shall pay to the Licensor an amount of Rs. <b>{data.monthlyRent || "____"}</b>/- (Rupees <b>{data.monthlyRentWords || "________"}</b> Only) per month by way of <b>{data.paymentMode || "________"}</b> on or before <b>{data.paymentDueDay || "__"}</b> of every month.
                             </div>
 
-                            <div style={{ margin: "12px 0", textIndent: "-12px" }}>
+                            <div style={{ margin: "10px 0" }}>
                                 3. Electricity bills shall be paid and cleared by the Licensee.
                             </div>
 
-                            <div style={{ margin: "12px 0", textIndent: "-12px" }}>
+                            <div style={{ margin: "10px 0" }}>
                                 4. It is agreed between the parties that at all times the judicial possession of the said premises shall be of Licensor and the Licensee has been merely granted the License to make use of the said premises for a limited period only.
                             </div>
 
-                            <div style={{ margin: "12px 0", textIndent: "-12px" }}>
+                            <div style={{ margin: "10px 0" }}>
                                 5. It is hereby agreed between the parties here to that if the Licensee commits any default in payments of the monthly compensation as agreed aforesaid or non-payment of Electric bills, or commits breach of any of the terms, covenant contained in this Agreement the Licensor shall be entitled to revoke this License.
                             </div>
 
-                            <div style={{ marginTop: "40px", textAlign: "right", fontWeight: "bold" }}>
-                                LICENSOR<br />
+                            <div style={{ marginTop: "40px", textAlign: "right" }}>
+                                <b>LICENSOR</b><br />
                                 <b>{data.name || "______________"}</b>
                             </div>
 
-                            <div style={{ marginTop: "30px", textAlign: "right", fontWeight: "bold" }}>
-                                LICENSEE<br />
+                            <div style={{ marginTop: "30px", textAlign: "right" }}>
+                                <b>LICENSEE</b><br />
                                 <b>{data.secondPartyName || "______________"}</b>
                             </div>
 

@@ -47,7 +47,7 @@ export default function AddressProof() {
     }
     
     const opt = {
-      margin: [0.5, 0.5, 0.5, 0.5],
+      margin: [0.3, 0.3, 0.3, 0.3], // Smaller margins
       filename: "Address_Proof_Affidavit.pdf",
       image: { type: "jpeg", quality: 0.98 },
       html2canvas: { 
@@ -62,7 +62,7 @@ export default function AddressProof() {
         format: "a4", 
         orientation: "portrait" 
       },
-      pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
+      pagebreak: { mode: ['css', 'legacy'] },
     };
     
     try {
@@ -92,7 +92,6 @@ export default function AddressProof() {
         throw new Error('Generated PDF is empty');
       }
       
-      // Create document request
       const response = await documentAPI.createRequest({
         documentType: 'address-proof',
         formData: data,
@@ -101,10 +100,8 @@ export default function AddressProof() {
       
       const requestId = response.data.requestId;
       
-      // Upload PDF to Cloudinary
       const uploadResult = await uploadPDFToCloudinary(pdfBlob, 'address-proof', requestId);
       
-      // Update request with PDF URL
       await documentAPI.updatePDFUrl(requestId, {
         pdfUrl: uploadResult.url,
         cloudinaryPublicId: uploadResult.publicId
@@ -132,11 +129,11 @@ export default function AddressProof() {
       .from(element)
       .set({
         filename: "Address_Proof_Affidavit.pdf",
-        margin: [0.5, 0.5, 0.5, 0.5],
+        margin: [0.3, 0.3, 0.3, 0.3],
         image: { type: "jpeg", quality: 0.98 },
         html2canvas: { scale: 2, scrollY: 0, backgroundColor: "#ffffff" },
         jsPDF: { unit: "in", format: "a4", orientation: "portrait" },
-        pagebreak: { mode: [] },
+        pagebreak: { mode: ['css', 'legacy'] },
       })
       .save();
   };
@@ -145,7 +142,7 @@ export default function AddressProof() {
     <div className="min-h-screen bg-[#f3f1fa] p-6">
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6">
 
-        {/* ================= FORM ================= */}
+        {/* FORM SECTION */}
         <div className="bg-white p-6 rounded-xl shadow border border-purple-200">
           <h2 className="text-xl font-semibold text-purple-700 mb-4">
             Address Proof Affidavit
@@ -189,85 +186,70 @@ export default function AddressProof() {
           </div>
         </div>
 
-        {/* ================= PDF PREVIEW ================= */}
-        <div className="bg-gray-100 rounded shadow overflow-y-auto flex justify-center p-4" style={{ height: "90vh" }}>
+        {/* PDF PREVIEW SECTION - FIXED LAYOUT */}
+        <div className="bg-gray-100 rounded-xl shadow overflow-auto flex justify-center p-4" style={{ height: "90vh" }}>
           <div
             ref={pdfRef}
             style={{
-              width: "210mm",
-              minHeight: "297mm",
-              backgroundColor: "#fff",
-              color: "#000",
+              width: "100%",
+              maxWidth: "100%",
+              backgroundColor: "#ffffff",
+              color: "#000000",
               fontFamily: "'Times New Roman', Times, serif",
               fontSize: "12pt",
-              lineHeight: "1.55",
-              padding: "25px",
+              lineHeight: "1.5",
+              padding: "20px",
               boxSizing: "border-box",
               boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
-              margin: "0 auto",
             }}
           >
             {/* TITLE */}
             <div style={{
               textAlign: "center",
-              marginBottom: "24px",
-              fontSize: "14pt",
+              marginBottom: "25px",
+              fontSize: "16pt",
               fontWeight: "bold",
               textDecoration: "underline",
-              letterSpacing: "0.4px",
             }}>
               AFFIDAVIT
             </div>
 
             {/* INTRO */}
-            <p style={{ margin: "0 0 16px 0", textAlign: "justify" }}>
-              I,{" "}
-              <b>{data.name || "________________________"}</b>{" "}
-              <b>{data.relationType || "S/D/W/O"}</b>{" "}
-              <b>{data.relationName || "________________________"}</b>{" "}
-              R/O{" "}
-              <b>{data.residentOf || "________________________"}</b>{" "}
-              do hereby solemnly affirm and declare as under:
+            <p style={{ margin: "0 0 15px 0", textAlign: "justify" }}>
+              I, <b>{data.name || "________________________"}</b> <b>{data.relationType || "S/D/W/O"}</b> <b>{data.relationName || "________________________"}</b> R/O <b>{data.residentOf || "________________________"}</b> do hereby solemnly affirm and declare as under:
             </p>
 
             {/* POINTS */}
-            <div style={{ marginLeft: "12px" }}>
-              <p style={{ margin: "12px 0", textIndent: "-12px" }}>
-                1. That I was previously residing at{" "}
-                <b>{data.oldAddress || "__________________________________________________"}</b>.
+            <div style={{ marginLeft: "0px" }}>
+              <p style={{ margin: "10px 0" }}>
+                1. That I was previously residing at <b>{data.oldAddress || "__________________________________________________"}</b>.
               </p>
-              <p style={{ margin: "12px 0", textIndent: "-12px" }}>
-                2. That now I have shifted my new address i.e.{" "}
-                <b>{data.newAddress || "__________________________________________________"}</b>.
+              <p style={{ margin: "10px 0" }}>
+                2. That now I have shifted my new address i.e. <b>{data.newAddress || "__________________________________________________"}</b>.
               </p>
-              <p style={{ margin: "12px 0", textIndent: "-12px" }}>
-                3. That I have no any documentary proof so I am swearing this affidavit to proof my present residential address.
+              <p style={{ margin: "10px 0" }}>
+                3. That I have no documentary proof so I am swearing this affidavit to prove my present residential address.
               </p>
-              <p style={{ margin: "12px 0", textIndent: "-12px" }}>
-                4. That it is my true and correct statement.
+              <p style={{ margin: "10px 0" }}>
+                4. That the above statements are true and correct to the best of my knowledge and belief.
               </p>
             </div>
 
             {/* DEPONENT */}
-            <div style={{ marginTop: "50px", textAlign: "right", fontWeight: "bold" }}>
-              DEPONENT
+            <div style={{ marginTop: "40px", textAlign: "right" }}>
+              <b>DEPONENT</b>
             </div>
 
             {/* VERIFICATION */}
-            <div style={{ marginTop: "45px" }}>
-              <div style={{ fontWeight: "bold", marginBottom: "12px" }}>
+            <div style={{ marginTop: "40px" }}>
+              <div style={{ fontWeight: "bold", marginBottom: "10px", textDecoration: "underline" }}>
                 VERIFICATION
               </div>
-              <p style={{ margin: "0 0 16px 0", textAlign: "justify" }}>
-                Verified at{" "}
-                <b>{data.verificationPlace || "________"}</b>{" "}
-                on this{" "}
-                <b>{formatDateForDisplay(data.verificationDate)}</b> that the contents of the
-                above affidavit are true and correct to the best of my knowledge and belief
-                and nothing material has been concealed therefrom.
+              <p style={{ margin: "0 0 15px 0", textAlign: "justify" }}>
+                Verified at <b>{data.verificationPlace || "________"}</b> on this <b>{formatDateForDisplay(data.verificationDate)}</b> that the contents of the above affidavit are true and correct to the best of my knowledge and belief and nothing material has been concealed therefrom.
               </p>
-              <div style={{ marginTop: "50px", textAlign: "right", fontWeight: "bold" }}>
-                DEPONENT
+              <div style={{ marginTop: "40px", textAlign: "right" }}>
+                <b>DEPONENT</b>
               </div>
             </div>
           </div>

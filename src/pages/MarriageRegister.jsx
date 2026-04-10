@@ -64,7 +64,7 @@ export default function MarriageRegister() {
     }
     
     const opt = {
-      margin: [0.5, 0.5, 0.5, 0.5],
+      margin: [0.3, 0.3, 0.3, 0.3], // Smaller margins to prevent cutting
       filename: "Marriage_Registration_Affidavit.pdf",
       image: { type: "jpeg", quality: 0.98 },
       html2canvas: { 
@@ -79,7 +79,7 @@ export default function MarriageRegister() {
         format: "a4", 
         orientation: "portrait" 
       },
-      pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
+      pagebreak: { mode: ['css', 'legacy'] },
     };
     
     try {
@@ -145,11 +145,11 @@ export default function MarriageRegister() {
       .from(element)
       .set({
         filename: "Marriage_Registration_Affidavit.pdf",
-        margin: [0.5, 0.5, 0.5, 0.5],
+        margin: [0.3, 0.3, 0.3, 0.3],
         image: { type: "jpeg", quality: 0.98 },
         html2canvas: { scale: 2, scrollY: 0, backgroundColor: "#ffffff" },
         jsPDF: { unit: "in", format: "a4", orientation: "portrait" },
-        pagebreak: { mode: [] },
+        pagebreak: { mode: ['css', 'legacy'] },
       })
       .save();
   };
@@ -176,7 +176,6 @@ export default function MarriageRegister() {
 
           <hr className="my-4" />
 
-          {/* Date Fields with Calendar */}
           <DateInput 
             label="Marriage Date" 
             name="marriageDate" 
@@ -206,7 +205,6 @@ export default function MarriageRegister() {
             name="verificationDate" 
             value={data.verificationDate} 
             onChange={update} 
-            placeholder="Select verification date"
           />
 
           <div className="flex gap-3 mt-6">
@@ -226,22 +224,21 @@ export default function MarriageRegister() {
           </div>
         </div>
 
-        {/* PDF Preview Section */}
-        <div className="bg-gray-100 rounded-xl shadow overflow-y-auto flex justify-center p-4" style={{ height: "90vh" }}>
+        {/* PDF Preview Section - FIXED LAYOUT */}
+        <div className="bg-gray-100 rounded-xl shadow overflow-auto flex justify-center p-4" style={{ height: "90vh" }}>
           <div
             ref={pdfRef}
             style={{
-              width: "210mm",
-              minHeight: "297mm",
-              backgroundColor: "#fff",
-              color: "#000",
+              width: "100%",
+              maxWidth: "100%",
+              backgroundColor: "#ffffff",
+              color: "#000000",
               fontFamily: "'Times New Roman', Times, serif",
               fontSize: "12pt",
-              lineHeight: "1.55",
-              padding: "25px",
+              lineHeight: "1.5",
+              padding: "20px",
               boxSizing: "border-box",
               boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
-              margin: "0 auto",
             }}
           >
             {/* TITLE */}
@@ -258,66 +255,48 @@ export default function MarriageRegister() {
             </div>
 
             {/* INTRO */}
-            <p style={{ textAlign: "justify", marginBottom: "16px" }}>
-              I, <b>{data.groomName || "____________________"}</b> Son of Shri{" "}
-              <b>{data.groomFather || "____________________"}</b> R/O{" "}
-              <b>{data.groomAddress || "____________________"}</b>, do hereby
-              take oath and solemnly affirm and declare as under:-
+            <p style={{ textAlign: "justify", marginBottom: "15px" }}>
+              I, <b>{data.groomName || "____________________"}</b> Son of Shri <b>{data.groomFather || "____________________"}</b> R/O <b>{data.groomAddress || "____________________"}</b>, do hereby take oath and solemnly affirm and declare as under:-
             </p>
 
             {/* POINTS */}
-            <div style={{ marginLeft: "20px" }}>
-              <p style={{ textIndent: "-20px", marginBottom: "12px" }}>
-                I. That I got married to{" "}
-                <b>{data.brideName || "____________________"}</b> D/O Shri{" "}
-                <b>{data.brideFather || "____________________"}</b> R/O{" "}
-                <b>{data.brideAddress || "____________________"}</b> on{" "}
-                <b>{formatDateForDisplay(data.marriageDate)}</b> at{" "}
-                <b>{data.marriagePlace || "____________________"}</b>.
+            <div style={{ marginLeft: "0px" }}>
+              <p style={{ margin: "10px 0" }}>
+                I. That I got married to <b>{data.brideName || "____________________"}</b> D/O Shri <b>{data.brideFather || "____________________"}</b> R/O <b>{data.brideAddress || "____________________"}</b> on <b>{formatDateForDisplay(data.marriageDate)}</b> at <b>{data.marriagePlace || "____________________"}</b>.
               </p>
 
-              <p style={{ textIndent: "-20px", marginBottom: "12px" }}>
-                II. That my date of Birth is <b>{formatDateForDisplay(data.dob)}</b>{" "}
-                and I have completed <b>{data.ageAtMarriage || "__"}</b> years
-                of age at the time of marriage.
+              <p style={{ margin: "10px 0" }}>
+                II. That my date of Birth is <b>{formatDateForDisplay(data.dob)}</b> and I have completed <b>{data.ageAtMarriage || "__"}</b> years of age at the time of marriage.
               </p>
 
-              <p style={{ textIndent: "-20px", marginBottom: "12px" }}>
-                III. That I was unmarried till the time of marriage on{" "}
-                <b>{formatDateForDisplay(data.marriageDate)}</b> and I did not have a
-                spouse living at the time of marriage.
+              <p style={{ margin: "10px 0" }}>
+                III. That I was unmarried till the time of marriage on <b>{formatDateForDisplay(data.marriageDate)}</b> and I did not have a spouse living at the time of marriage.
               </p>
 
-              <p style={{ textIndent: "-20px", marginBottom: "12px" }}>
+              <p style={{ margin: "10px 0" }}>
                 IV. That the marriage was conducted as per <b>Hindu</b> Rites.
               </p>
 
-              <p style={{ textIndent: "-20px", marginBottom: "12px" }}>
+              <p style={{ margin: "10px 0" }}>
                 V. That I belong to <b>Hindu</b> religion.
               </p>
 
-              <p style={{ textIndent: "-20px", marginBottom: "12px" }}>
-                VI. That at the time of marriage, I was capable of giving valid
-                consent and of sound mind, not suffering from any mental
-                disorder/insanity.
+              <p style={{ margin: "10px 0" }}>
+                VI. That at the time of marriage, I was capable of giving valid consent and of sound mind, not suffering from any mental disorder/insanity.
               </p>
 
-              <p style={{ textIndent: "-20px", marginBottom: "12px" }}>
-                VII. That until the time of marriage I was not related to{" "}
-                <b>{data.brideName || "____________________"}</b> D/O Shri{" "}
-                <b>{data.brideFather || "____________________"}</b> within the
-                prohibited degree of relationship and not spinals as per{" "}
-                <b>Hindu Marriage Act</b>.
+              <p style={{ margin: "10px 0" }}>
+                VII. That until the time of marriage I was not related to <b>{data.brideName || "____________________"}</b> D/O Shri <b>{data.brideFather || "____________________"}</b> within the prohibited degree of relationship and not spinals as per <b>Hindu Marriage Act</b>.
               </p>
 
-              <p style={{ textIndent: "-20px", marginBottom: "12px" }}>
+              <p style={{ margin: "10px 0" }}>
                 VIII. That I am an Indian citizen.
               </p>
             </div>
 
             {/* DEPONENT */}
-            <div style={{ marginTop: "40px", textAlign: "right", fontWeight: "bold" }}>
-              DEPONENT
+            <div style={{ marginTop: "40px", textAlign: "right" }}>
+              <b>DEPONENT</b>
             </div>
 
             {/* VERIFICATION */}
@@ -326,15 +305,12 @@ export default function MarriageRegister() {
                 <b>Verification:-</b>
               </p>
               <p style={{ textAlign: "justify", marginTop: "10px" }}>
-                Verified at <b>{data.verificationPlace}</b> on{" "}
-                <b>{formatDateForDisplay(data.verificationDate)}</b> that the above
-                content are true and correct to the best of my knowledge and
-                belief and nothing has been concealed therein.
+                Verified at <b>{data.verificationPlace}</b> on <b>{formatDateForDisplay(data.verificationDate)}</b> that the above content are true and correct to the best of my knowledge and belief and nothing has been concealed therein.
               </p>
             </div>
 
-            <div style={{ marginTop: "35px", textAlign: "right", fontWeight: "bold" }}>
-              DEPONENT
+            <div style={{ marginTop: "35px", textAlign: "right" }}>
+              <b>DEPONENT</b>
             </div>
           </div>
         </div>

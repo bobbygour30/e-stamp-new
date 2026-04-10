@@ -53,7 +53,7 @@ export default function SingleGirl() {
     }
     
     const opt = {
-      margin: [0.5, 0.5, 0.5, 0.5],
+      margin: [0.3, 0.3, 0.3, 0.3], // Smaller margins to prevent cutting
       filename: "Single_Girl_Child_Affidavit.pdf",
       image: { type: "jpeg", quality: 0.98 },
       html2canvas: { 
@@ -68,7 +68,7 @@ export default function SingleGirl() {
         format: "a4", 
         orientation: "portrait" 
       },
-      pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
+      pagebreak: { mode: ['css', 'legacy'] },
     };
     
     try {
@@ -106,10 +106,8 @@ export default function SingleGirl() {
       
       const requestId = response.data.requestId;
       
-      // Upload PDF to Cloudinary
       const uploadResult = await uploadPDFToCloudinary(pdfBlob, 'single-girl', requestId);
       
-      // Update request with PDF URL
       await documentAPI.updatePDFUrl(requestId, {
         pdfUrl: uploadResult.url,
         cloudinaryPublicId: uploadResult.publicId
@@ -137,7 +135,7 @@ export default function SingleGirl() {
       .from(element)
       .set({
         filename: "Single_Girl_Child_Affidavit.pdf",
-        margin: [0.5, 0.5, 0.5, 0.5],
+        margin: [0.3, 0.3, 0.3, 0.3],
         image: { type: "jpeg", quality: 0.98 },
         html2canvas: {
           scale: 2,
@@ -149,7 +147,7 @@ export default function SingleGirl() {
           format: "a4",
           orientation: "portrait",
         },
-        pagebreak: { mode: [] },
+        pagebreak: { mode: ['css', 'legacy'] },
       })
       .save();
   };
@@ -200,22 +198,21 @@ export default function SingleGirl() {
           </div>
         </div>
 
-        {/* PDF Preview Section */}
-        <div className="bg-gray-100 rounded-xl shadow overflow-y-auto flex justify-center p-4" style={{ height: "90vh" }}>
+        {/* PDF Preview Section - FIXED LAYOUT */}
+        <div className="bg-gray-100 rounded-xl shadow overflow-auto flex justify-center p-4" style={{ height: "90vh" }}>
           <div
             ref={pdfRef}
             style={{
-              width: "210mm",
-              minHeight: "297mm",
-              backgroundColor: "#fff",
-              color: "#000",
+              width: "100%",
+              maxWidth: "100%",
+              backgroundColor: "#ffffff",
+              color: "#000000",
               fontFamily: "'Times New Roman', Times, serif",
               fontSize: "12pt",
-              lineHeight: "1.55",
-              padding: "25px",
+              lineHeight: "1.5",
+              padding: "20px",
               boxSizing: "border-box",
               boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
-              margin: "0 auto",
             }}
           >
             {/* TITLE */}
@@ -231,35 +228,17 @@ export default function SingleGirl() {
             </div>
 
             {/* BODY */}
-            <p style={{ textAlign: "justify", marginBottom: "16px" }}>
-              I, <b>{data.applicantName || "____________________"}</b>{" "}
-              <b>{data.relationType}</b>{" "}
-              <b>{data.fatherName || "____________________"}</b>{" "}
-              aged <b>{data.age || "__"}</b> years, Indian Inhabitant, occupation{" "}
-              <b>{data.occupation || "____________________"}</b>, Service
-              Resident of <b>{data.address || "____________________"}</b> is
-              mother/father of{" "}
-              <b>{data.childName || "____________________"}</b> Date of Birth{" "}
-              <b>{formatDateForDisplay(data.dob)}</b> submitting my undertaking to the
-              Head of the Institution in Class{" "}
-              <b>{data.className || "__"}</b>th vide{" "}
-              <b>{data.admissionGuidelines}</b>.
+            <p style={{ textAlign: "justify", marginBottom: "15px" }}>
+              I, <b>{data.applicantName || "____________________"}</b> <b>{data.relationType}</b> <b>{data.fatherName || "____________________"}</b> aged <b>{data.age || "__"}</b> years, Indian Inhabitant, occupation <b>{data.occupation || "____________________"}</b>, Resident of <b>{data.address || "____________________"}</b> is mother/father of <b>{data.childName || "____________________"}</b> Date of Birth <b>{formatDateForDisplay(data.dob)}</b> submitting my undertaking to the Head of the Institution in Class <b>{data.className || "__"}</b>th vide <b>{data.admissionGuidelines}</b>.
             </p>
 
-            <div style={{ marginTop: "18px" }}>
-              <p style={{ marginBottom: "12px" }}>
-                1) I hereby declare that Miss{" "}
-                <b>{data.childName || "____________________"}</b> is the only
-                girl child in my family (with no male/female sibling). I
-                understand that it shall be my sole responsibility to inform
-                you about any change in status of single girl child in the
-                family immediately, if and when it occurs.
+            <div style={{ marginTop: "15px" }}>
+              <p style={{ marginBottom: "10px" }}>
+                1) I hereby declare that Miss <b>{data.childName || "____________________"}</b> is the only girl child in my family (with no male/female sibling). I understand that it shall be my sole responsibility to inform you about any change in status of single girl child in the family immediately, if and when it occurs.
               </p>
 
-              <p style={{ marginBottom: "12px" }}>
-                2) I am also aware that in case it is detected at any time that
-                the affidavit sworn by me is false, appropriate action will be
-                taken by the school authorities and KVS against me.
+              <p style={{ marginBottom: "10px" }}>
+                2) I am also aware that in case it is detected at any time that the affidavit sworn by me is false, appropriate action will be taken by the school authorities and KVS against me.
               </p>
             </div>
 
@@ -268,7 +247,7 @@ export default function SingleGirl() {
               style={{
                 display: "flex",
                 justifyContent: "space-between",
-                marginTop: "35px",
+                marginTop: "30px",
               }}
             >
               <div>Signature of father</div>
@@ -276,28 +255,23 @@ export default function SingleGirl() {
             </div>
 
             {/* ADDRESS & CONTACT */}
-            <p style={{ marginTop: "25px" }}>
-              Residential address with{" "}
-              <b>{data.address || "____________________"}</b>
+            <p style={{ marginTop: "20px" }}>
+              Residential address: <b>{data.address || "____________________"}</b>
             </p>
             <p>
-              with Contact number:{" "}
-              <b>{data.contact1 || "__________"}</b>{" "}
-              {data.contact2 && ` / ${data.contact2}`}
+              Contact number: <b>{data.contact1 || "__________"}</b> {data.contact2 && ` / ${data.contact2}`}
             </p>
 
             {/* VERIFICATION */}
-            <div style={{ marginTop: "25px" }}>
-              <p>
-                Solemnly affirmed at <b>{data.verificationPlace}</b>
-              </p>
+            <div style={{ marginTop: "20px" }}>
+              <p>Solemnly affirmed at <b>{data.verificationPlace}</b></p>
               <p>This 1st day of December 2020.</p>
 
               <div
                 style={{
                   display: "flex",
                   justifyContent: "space-between",
-                  marginTop: "18px",
+                  marginTop: "15px",
                   fontWeight: "bold",
                 }}
               >
@@ -306,13 +280,10 @@ export default function SingleGirl() {
               </div>
 
               <p style={{ marginTop: "10px" }}>
-                Verified at <b>{data.verificationPlace}</b> on this{" "}
-                <b>{formatDateForDisplay(data.verificationDate)}</b>, that the contents
-                of this affidavit are true and correct to the best of my
-                knowledge and belief.
+                Verified at <b>{data.verificationPlace}</b> on this <b>{formatDateForDisplay(data.verificationDate)}</b>, that the contents of this affidavit are true and correct to the best of my knowledge and belief.
               </p>
 
-              <div style={{ textAlign: "right", marginTop: "25px", fontWeight: "bold" }}>
+              <div style={{ textAlign: "right", marginTop: "20px", fontWeight: "bold" }}>
                 DEPONENT
               </div>
             </div>

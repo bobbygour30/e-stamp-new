@@ -49,7 +49,7 @@ export default function GapYear() {
     }
     
     const opt = {
-      margin: [0.5, 0.5, 0.5, 0.5],
+      margin: [0.3, 0.3, 0.3, 0.3], // Smaller margins to prevent cutting
       filename: "Gap_Year_Affidavit.pdf",
       image: { type: "jpeg", quality: 0.98 },
       html2canvas: { 
@@ -64,7 +64,7 @@ export default function GapYear() {
         format: "a4", 
         orientation: "portrait" 
       },
-      pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
+      pagebreak: { mode: ['css', 'legacy'] },
     };
     
     try {
@@ -94,7 +94,6 @@ export default function GapYear() {
         throw new Error('Generated PDF is empty');
       }
       
-      // Create document request
       const response = await documentAPI.createRequest({
         documentType: 'gap-year',
         formData: data,
@@ -103,10 +102,8 @@ export default function GapYear() {
       
       const requestId = response.data.requestId;
       
-      // Upload PDF to Cloudinary
       const uploadResult = await uploadPDFToCloudinary(pdfBlob, 'gap-year', requestId);
       
-      // Update request with PDF URL
       await documentAPI.updatePDFUrl(requestId, {
         pdfUrl: uploadResult.url,
         cloudinaryPublicId: uploadResult.publicId
@@ -134,11 +131,11 @@ export default function GapYear() {
       .from(element)
       .set({
         filename: "Gap_Year_Affidavit.pdf",
-        margin: [0.5, 0.5, 0.5, 0.5],
+        margin: [0.3, 0.3, 0.3, 0.3],
         image: { type: "jpeg", quality: 0.98 },
         html2canvas: { scale: 2, scrollY: 0, backgroundColor: "#ffffff" },
         jsPDF: { unit: "in", format: "a4", orientation: "portrait" },
-        pagebreak: { mode: [] },
+        pagebreak: { mode: ['css', 'legacy'] },
       })
       .save();
   };
@@ -147,7 +144,7 @@ export default function GapYear() {
     <div className="min-h-screen bg-[#f3f1fa] p-6">
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6">
 
-        {/* ================= FORM SECTION ================= */}
+        {/* FORM SECTION */}
         <div className="bg-white p-6 rounded-xl shadow border border-purple-200">
           <h2 className="text-xl font-semibold text-purple-700 mb-4">
             Gap Year Affidavit
@@ -189,22 +186,21 @@ export default function GapYear() {
           </div>
         </div>
 
-        {/* ================= PDF PREVIEW SECTION ================= */}
-        <div className="bg-gray-100 rounded-xl shadow overflow-y-auto flex justify-center p-4" style={{ height: "90vh" }}>
+        {/* PDF PREVIEW SECTION - FIXED LAYOUT */}
+        <div className="bg-gray-100 rounded-xl shadow overflow-auto flex justify-center p-4" style={{ height: "90vh" }}>
           <div
             ref={pdfRef}
             style={{
-              width: "210mm",
-              minHeight: "297mm",
-              backgroundColor: "#fff",
-              color: "#000",
+              width: "100%",
+              maxWidth: "100%",
+              backgroundColor: "#ffffff",
+              color: "#000000",
               fontFamily: "'Times New Roman', Times, serif",
               fontSize: "12pt",
-              lineHeight: "1.55",
-              padding: "25px",
+              lineHeight: "1.5",
+              padding: "20px",
               boxSizing: "border-box",
               boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
-              margin: "0 auto",
             }}
           >
             {/* TITLE */}
@@ -221,52 +217,40 @@ export default function GapYear() {
             </div>
 
             {/* INTRO */}
-            <p style={{ textAlign: "justify" }}>
-              I, <b>{data.name || "____________________"}</b>{" "}
-              {data.relationType}{" "}
-              <b>{data.fatherName || "____________________"}</b>{" "}
-              R/O <b>{data.address || "____________________"}</b>, do hereby
-              solemnly affirm and declare as under:-
+            <p style={{ textAlign: "justify", marginBottom: "15px" }}>
+              I, <b>{data.name || "____________________"}</b> {data.relationType} <b>{data.fatherName || "____________________"}</b> R/O <b>{data.address || "____________________"}</b>, do hereby solemnly affirm and declare as under:-
             </p>
 
             {/* POINTS */}
-            <div style={{ marginLeft: "20px", marginTop: "16px" }}>
-              <p style={{ textIndent: "-20px", marginBottom: "10px" }}>
-                1. That I am citizen of India.
+            <div style={{ marginLeft: "0px", marginTop: "10px" }}>
+              <p style={{ margin: "8px 0" }}>
+                1. That I am a citizen of India.
               </p>
 
-              <p style={{ textIndent: "-20px", marginBottom: "10px" }}>
-                2. That I have passed 12<sup>th</sup> class Examination in the
-                year <b>{data.passedYear || "______"}</b> from CBSE board Delhi.
+              <p style={{ margin: "8px 0" }}>
+                2. That I have passed 12<sup>th</sup> class Examination in the year <b>{data.passedYear || "______"}</b> from CBSE board Delhi.
               </p>
 
-              <p style={{ textIndent: "-20px", marginBottom: "10px" }}>
-                3. That after passing{" "}
-                <b>{data.gapClass || "__"}</b> class examination I did not taken
-                admission in any other college/Institution in Delhi or anywhere
-                in India.
+              <p style={{ margin: "8px 0" }}>
+                3. That after passing <b>{data.gapClass || "__"}</b> class examination I did not take admission in any other college/Institution in Delhi or anywhere in India.
               </p>
 
-              <p style={{ textIndent: "-20px", marginBottom: "10px" }}>
-                4. That during the Gap period of{" "}
-                <b>{data.gapFrom || "______"}</b> to{" "}
-                <b>{data.gapTo || "______"}</b> I was at home and preparing for
-                competition exam.
+              <p style={{ margin: "8px 0" }}>
+                4. That during the Gap period of <b>{data.gapFrom || "______"}</b> to <b>{data.gapTo || "______"}</b> I was at home and preparing for competitive exams.
               </p>
 
-              <p style={{ textIndent: "-20px", marginBottom: "10px" }}>
-                5. That during the Gap Period I was not involved in any
-                civil/criminal activities.
+              <p style={{ margin: "8px 0" }}>
+                5. That during the Gap Period I was not involved in any civil/criminal activities.
               </p>
 
-              <p style={{ textIndent: "-20px", marginBottom: "10px" }}>
-                6. That it is my true and correct statement.
+              <p style={{ margin: "8px 0" }}>
+                6. That the above statements are true and correct to the best of my knowledge and belief.
               </p>
             </div>
 
             {/* DEPONENT */}
-            <div style={{ marginTop: "40px", textAlign: "right", fontWeight: "bold" }}>
-              DEPONENT
+            <div style={{ marginTop: "40px", textAlign: "right" }}>
+              <b>DEPONENT</b>
             </div>
 
             {/* VERIFICATION */}
@@ -275,15 +259,12 @@ export default function GapYear() {
                 <b>VERIFICATION:-</b>
               </p>
               <p style={{ textAlign: "justify", marginTop: "10px" }}>
-                Verified at <b>{data.verificationPlace}</b> on{" "}
-                <b>{formatDateForDisplay(data.verificationDate)}</b>, that the contents
-                of this affidavit are true and correct to the best of my
-                knowledge and belief.
+                Verified at <b>{data.verificationPlace}</b> on <b>{formatDateForDisplay(data.verificationDate)}</b>, that the contents of this affidavit are true and correct to the best of my knowledge and belief.
               </p>
             </div>
 
-            <div style={{ marginTop: "35px", textAlign: "right", fontWeight: "bold" }}>
-              DEPONENT
+            <div style={{ marginTop: "35px", textAlign: "right" }}>
+              <b>DEPONENT</b>
             </div>
           </div>
         </div>

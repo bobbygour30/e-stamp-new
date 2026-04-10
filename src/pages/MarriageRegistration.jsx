@@ -53,7 +53,7 @@ export default function MarriageRegistration() {
     }
     
     const opt = {
-      margin: [0.5, 0.5, 0.5, 0.5],
+      margin: [0.3, 0.3, 0.3, 0.3], // Smaller margins to prevent cutting
       filename: "Marriage_Registration_Affidavit.pdf",
       image: { type: "jpeg", quality: 0.98 },
       html2canvas: { 
@@ -68,7 +68,7 @@ export default function MarriageRegistration() {
         format: "a4", 
         orientation: "portrait" 
       },
-      pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
+      pagebreak: { mode: ['css', 'legacy'] },
     };
     
     try {
@@ -106,10 +106,8 @@ export default function MarriageRegistration() {
       
       const requestId = response.data.requestId;
       
-      // Upload PDF to Cloudinary
       const uploadResult = await uploadPDFToCloudinary(pdfBlob, 'marriage-registration', requestId);
       
-      // Update request with PDF URL
       await documentAPI.updatePDFUrl(requestId, {
         pdfUrl: uploadResult.url,
         cloudinaryPublicId: uploadResult.publicId
@@ -137,11 +135,11 @@ export default function MarriageRegistration() {
       .from(element)
       .set({
         filename: "Marriage_Registration_Affidavit.pdf",
-        margin: [0.5, 0.5, 0.5, 0.5],
+        margin: [0.3, 0.3, 0.3, 0.3],
         image: { type: "jpeg", quality: 0.98 },
         html2canvas: { scale: 2, scrollY: 0, backgroundColor: "#ffffff" },
         jsPDF: { unit: "in", format: "a4", orientation: "portrait" },
-        pagebreak: { mode: [] },
+        pagebreak: { mode: ['css', 'legacy'] },
       })
       .save();
   };
@@ -150,7 +148,7 @@ export default function MarriageRegistration() {
     <div className="min-h-screen bg-[#f3f1fa] p-6">
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6">
 
-        {/* ================= FORM SECTION ================= */}
+        {/* FORM SECTION */}
         <div className="bg-white p-6 rounded-xl shadow border border-purple-200">
           <h2 className="text-xl font-semibold text-purple-700 mb-4">
             Marriage Registration Affidavit
@@ -213,30 +211,29 @@ export default function MarriageRegistration() {
           </div>
         </div>
 
-        {/* ================= FIXED PDF PREVIEW SECTION ================= */}
-        <div className="bg-gray-100 rounded-xl shadow overflow-y-auto flex justify-center p-4" style={{ height: "90vh" }}>
+        {/* PDF PREVIEW SECTION - FIXED LAYOUT */}
+        <div className="bg-gray-100 rounded-xl shadow overflow-auto flex justify-center p-4" style={{ height: "90vh" }}>
           <div
             ref={pdfRef}
             style={{
-              width: "210mm",
-              minHeight: "594mm",
-              backgroundColor: "#fff",
-              color: "#000",
+              width: "100%",
+              maxWidth: "100%",
+              backgroundColor: "#ffffff",
+              color: "#000000",
               fontFamily: "'Times New Roman', Times, serif",
               fontSize: "12pt",
-              lineHeight: "1.55",
+              lineHeight: "1.5",
               padding: "0",
               boxSizing: "border-box",
-              margin: "0 auto",
               boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
             }}
           >
-            {/* ================= PAGE 1 ================= */}
+            {/* PAGE 1 */}
             <div
               style={{
-                width: "210mm",
+                width: "100%",
                 minHeight: "297mm",
-                padding: "25px",
+                padding: "20px",
                 boxSizing: "border-box",
               }}
             >
@@ -244,74 +241,59 @@ export default function MarriageRegistration() {
                 AFFIDAVIT
               </div>
 
-              <p style={{ textAlign: "justify" }}>
-                I, <b>{data.name || "____________________"}</b> S/O{" "}
-                <b>{data.fatherName || "____________________"}</b> Resident of{" "}
-                <b>{data.residentOf || "____________________"}</b> do hereby
-                solemnly affirm and declare as under:-
+              <p style={{ textAlign: "justify", marginBottom: "15px" }}>
+                I, <b>{data.name || "____________________"}</b> S/O <b>{data.fatherName || "____________________"}</b> Resident of <b>{data.residentOf || "____________________"}</b> do hereby solemnly affirm and declare as under:-
               </p>
 
-              <p style={{ marginTop: "14px", textAlign: "justify" }}>
-                1. That I got married to <b>{data.spouseName || "____________________"}</b>{" "}
-                D/O <b>{data.spouseFatherName || "____________________"}</b>{" "}
-                R/O <b>{data.spouseResidentOf || "____________________"}</b>{" "}
-                on <b>{formatDateForDisplay(data.marriageDate)}</b> at{" "}
-                <b>{data.marriagePlace || "____________________"}</b>{" "}
-                according to <b>{data.marriageAccordingTo || "__________"}</b>.
+              <p style={{ margin: "10px 0", textAlign: "justify" }}>
+                1. That I got married to <b>{data.spouseName || "____________________"}</b> D/O <b>{data.spouseFatherName || "____________________"}</b> R/O <b>{data.spouseResidentOf || "____________________"}</b> on <b>{formatDateForDisplay(data.marriageDate)}</b> at <b>{data.marriagePlace || "____________________"}</b> according to <b>{data.marriageAccordingTo || "__________"}</b>.
               </p>
 
-              <p style={{ marginTop: "10px" }}>
+              <p style={{ margin: "10px 0" }}>
                 2. That my date of birth is <b>{formatDateForDisplay(data.dob)}</b>.
               </p>
 
-              <p style={{ marginTop: "10px" }}>
-                3. That I was <b>{data.maritalStatusBefore || "__________"}</b>{" "}
-                till the time of marriage and I did not have any other living
-                spouse at the time of marriage.
+              <p style={{ margin: "10px 0" }}>
+                3. That I was <b>{data.maritalStatusBefore || "__________"}</b> till the time of marriage and I did not have any other living spouse at the time of marriage.
               </p>
 
-              <p style={{ marginTop: "10px" }}>
-                4. That at the time of marriage I was not related to the bride/groom
-                within the prohibited degree of relationship as per Hindu Marriage Act.
+              <p style={{ margin: "10px 0" }}>
+                4. That at the time of marriage I was not related to the bride/groom within the prohibited degree of relationship as per Hindu Marriage Act.
               </p>
 
-              <p style={{ marginTop: "10px" }}>
+              <p style={{ margin: "10px 0" }}>
                 5. That I belong to <b>{data.religion || "__________"}</b> religion.
               </p>
 
-              <p style={{ marginTop: "10px" }}>
+              <p style={{ margin: "10px 0" }}>
                 6. That I am a citizen of India.
               </p>
 
-              <div style={{ marginTop: "50px", textAlign: "right", fontWeight: "bold" }}>
-                DEPONENT
+              <div style={{ marginTop: "40px", textAlign: "right" }}>
+                <b>DEPONENT</b>
               </div>
             </div>
 
-            {/* ================= PAGE 2 ================= */}
+            {/* PAGE 2 */}
             <div
               style={{
-                width: "210mm",
+                width: "100%",
                 minHeight: "297mm",
-                padding: "25px",
+                padding: "20px",
                 boxSizing: "border-box",
                 borderTop: "1px solid #ddd",
               }}
             >
-              <div style={{ fontWeight: "bold", textDecoration: "underline", marginBottom: "12px" }}>
+              <div style={{ fontWeight: "bold", textDecoration: "underline", marginBottom: "15px" }}>
                 VERIFICATION:
               </div>
 
               <p style={{ textAlign: "justify" }}>
-                Verified at <b>{data.verificationPlace || "__________"}</b> on{" "}
-                <b>{formatDateForDisplay(data.verificationDate)}</b> that the
-                contents of this above affidavit are true and correct to the best
-                of my knowledge and belief and nothing has been concealed
-                therefrom.
+                Verified at <b>{data.verificationPlace || "__________"}</b> on <b>{formatDateForDisplay(data.verificationDate)}</b> that the contents of this above affidavit are true and correct to the best of my knowledge and belief and nothing has been concealed therefrom.
               </p>
 
-              <div style={{ marginTop: "80px", textAlign: "right", fontWeight: "bold" }}>
-                DEPONENT
+              <div style={{ marginTop: "60px", textAlign: "right" }}>
+                <b>DEPONENT</b>
               </div>
             </div>
           </div>
