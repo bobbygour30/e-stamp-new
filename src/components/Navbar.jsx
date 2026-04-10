@@ -182,22 +182,24 @@ export default function Navbar() {
                         )}
                       </div>
                       
-                      {/* User Dashboard Link */}
-                      <Link
-                        to="/dashboard"
-                        onClick={() => setAuthDropdown(false)}
-                        className="flex items-center gap-2 px-5 py-3 text-sm text-slate-700 hover:bg-purple-50 hover:text-purple-700 transition"
-                      >
-                        <LayoutDashboard size={16} />
-                        My Dashboard
-                      </Link>
+                      {/* Only show My Dashboard for non-admin users */}
+                      {user.role !== 'admin' && (
+                        <Link
+                          to="/dashboard"
+                          onClick={() => setAuthDropdown(false)}
+                          className="flex items-center gap-2 px-5 py-3 text-sm text-slate-700 hover:bg-purple-50 hover:text-purple-700 transition"
+                        >
+                          <LayoutDashboard size={16} />
+                          My Dashboard
+                        </Link>
+                      )}
                       
                       {/* Admin Dashboard Link - Only for admin users */}
                       {user.role === 'admin' && (
                         <Link
                           to="/admin"
                           onClick={() => setAuthDropdown(false)}
-                          className="flex items-center gap-2 px-5 py-3 text-sm text-purple-600 hover:bg-purple-50 transition border-t border-slate-100"
+                          className="flex items-center gap-2 px-5 py-3 text-sm text-purple-600 hover:bg-purple-50 transition"
                         >
                           <Shield size={16} />
                           Admin Dashboard
@@ -233,21 +235,22 @@ export default function Navbar() {
                 </div>
               </div>
 
-              {!user && (
-                <Link
-                  to="/get-started"
-                  className="px-5 py-2 rounded-lg bg-purple-700 text-white font-medium hover:bg-purple-800 transition shadow-sm"
-                >
-                  Get Started
-                </Link>
-              )}
-              
-              {user && (
+              {/* Dashboard/Admin Panel Button - Only shown when user is logged in */}
+              {user && user.role !== 'admin' && (
                 <Link
                   to="/dashboard"
                   className="px-5 py-2 rounded-lg bg-purple-700 text-white font-medium hover:bg-purple-800 transition shadow-sm"
                 >
                   Dashboard
+                </Link>
+              )}
+              
+              {user && user.role === 'admin' && (
+                <Link
+                  to="/admin"
+                  className="px-5 py-2 rounded-lg bg-purple-700 text-white font-medium hover:bg-purple-800 transition shadow-sm"
+                >
+                  Admin Panel
                 </Link>
               )}
             </div>
@@ -332,16 +335,19 @@ export default function Navbar() {
             {/* MOBILE AUTH SECTION - Updated with user context and admin link */}
             {user ? (
               <>
-                <Link
-                  to="/dashboard"
-                  onClick={() => setMenuOpen(false)}
-                  className="flex items-center gap-2 text-slate-700 font-medium hover:text-purple-700 transition py-2"
-                >
-                  <LayoutDashboard size={18} />
-                  My Dashboard
-                </Link>
+                {/* Only show My Dashboard for non-admin users */}
+                {user.role !== 'admin' && (
+                  <Link
+                    to="/dashboard"
+                    onClick={() => setMenuOpen(false)}
+                    className="flex items-center gap-2 text-slate-700 font-medium hover:text-purple-700 transition py-2"
+                  >
+                    <LayoutDashboard size={18} />
+                    My Dashboard
+                  </Link>
+                )}
                 
-                {/* Admin Dashboard Link for Mobile */}
+                {/* Admin Dashboard Link for Mobile - Only for admin users */}
                 {user.role === 'admin' && (
                   <Link
                     to="/admin"
@@ -384,13 +390,26 @@ export default function Navbar() {
               </>
             )}
 
-            <Link
-              to={user ? "/dashboard" : "/get-started"}
-              onClick={() => setMenuOpen(false)}
-              className="mt-4 px-4 py-3 rounded-lg bg-purple-700 text-white text-center font-medium hover:bg-purple-800 transition"
-            >
-              {user ? "Go to Dashboard" : "Get Started"}
-            </Link>
+            {/* Mobile Dashboard/Admin Panel Button */}
+            {user && user.role !== 'admin' && (
+              <Link
+                to="/dashboard"
+                onClick={() => setMenuOpen(false)}
+                className="mt-4 px-4 py-3 rounded-lg bg-purple-700 text-white text-center font-medium hover:bg-purple-800 transition"
+              >
+                Go to Dashboard
+              </Link>
+            )}
+            
+            {user && user.role === 'admin' && (
+              <Link
+                to="/admin"
+                onClick={() => setMenuOpen(false)}
+                className="mt-4 px-4 py-3 rounded-lg bg-purple-700 text-white text-center font-medium hover:bg-purple-800 transition"
+              >
+                Go to Admin Panel
+              </Link>
+            )}
           </div>
         </div>
       </nav>
