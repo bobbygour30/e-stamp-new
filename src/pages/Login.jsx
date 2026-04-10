@@ -27,8 +27,15 @@ export default function Login() {
     setLoading(true);
 
     try {
-      await login(formData.email, formData.password);
-      navigate("/dashboard");
+      const response = await login(formData.email, formData.password);
+      const userRole = response.user?.role || response.data?.user?.role;
+      
+      // Redirect based on user role
+      if (userRole === 'admin') {
+        navigate("/admin");
+      } else {
+        navigate("/dashboard");
+      }
     } catch (err) {
       setError(err.response?.data?.msg || "Login failed. Please try again.");
     } finally {
