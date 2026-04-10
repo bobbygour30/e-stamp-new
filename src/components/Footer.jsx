@@ -15,6 +15,9 @@ import {
   Scale,
   Heart,
   ChevronRight,
+  HelpCircle,
+  BookOpen,
+  MessageCircle,
 } from "lucide-react";
 
 export default function Footer() {
@@ -34,6 +37,47 @@ export default function Footer() {
     </svg>
   );
 
+  // Navigation items from navbar
+  const stampPapersLinks = [
+    { name: "Buy e-Stamp", path: "#" },
+    { name: "State-wise e-Stamp", path: "#" },
+    { name: "Stamp Duty Guide", path: "#" },
+  ];
+
+  const legalDocumentsLinks = [
+    { name: "Address Proof", path: "/address-proof" },
+    { name: "Lost Document", path: "/lost-document" },
+    { name: "Marriage Registration", path: "/marriage-registration" },
+    { name: "Name Addition (Birth Certificate)", path: "/name-addition-birth-certificate" },
+    { name: "Name Correction", path: "/name-correction" },
+    { name: "After Marriage Name Change", path: "/after-marriage-name-change" },
+    { name: "Signature Change", path: "/signature" },
+    { name: "First Baby", path: "/first-baby" },
+    { name: "Single Girl Child", path: "/single-girl" },
+    { name: "Additional Name", path: "/additional-name" },
+    { name: "Birth Certificate", path: "/birth-certificate" },
+    { name: "Short Attendance", path: "/short-attendence" },
+    { name: "Anti Ragging", path: "/anti-ragging" },
+    { name: "Education Loan", path: "/education-loan" },
+    { name: "Gap Year", path: "/gap-year" },
+    { name: "Income Certificate", path: "/income" },
+    { name: "Name Change", path: "/name-change" },
+    { name: "Marriage Register", path: "/marriage-register" },
+    { name: "Rental Agreements", path: "/rental-agreements" },
+  ];
+
+  const servicesLinks = [
+    { name: "Document Drafting", path: "#" },
+    { name: "Notary Support", path: "#" },
+    { name: "Consultation", path: "#" },
+  ];
+
+  const contactLinks = [
+    { name: "Contact Information", path: "/contact" },
+    { name: "FAQs", path: "#" },
+    { name: "Legal Guides", path: "#" },
+  ];
+
   return (
     <footer className="relative bg-slate-900 text-slate-300 overflow-hidden">
       {/* Decorative gradient with purple color */}
@@ -41,9 +85,9 @@ export default function Footer() {
 
       <div className="relative max-w-7xl mx-auto px-6 pt-24 pb-12">
         {/* Top Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-14">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10">
           {/* Brand */}
-          <div className="space-y-6">
+          <div className="space-y-6 lg:col-span-1">
             <div className="flex items-center gap-2">
               <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-purple-700 to-purple-500 flex items-center justify-center text-white font-bold shadow-lg">
                 E
@@ -90,143 +134,135 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Legal Documents Menu */}
-          <div className="space-y-5">
+          {/* Stamp Papers Links */}
+          <div className="space-y-4">
             <h4 className="text-white font-semibold flex items-center gap-2">
-              <FileText size={16} className="text-purple-400" />
-              Legal Documents
+              <Stamp size={16} className="text-purple-400" />
+              Stamp Papers
             </h4>
-            <ul className="space-y-3 text-sm">
-              {[
-                "Rental Agreements",
-                "Affidavits",
-                "Name Change",
-                "Marriage Registration",
-                "Property Documents",
-                "Gift Deed",
-              ].map((item, i) => (
+            <ul className="space-y-2 text-sm">
+              {stampPapersLinks.map((item, i) => (
                 <li key={i}>
                   <a
-                    href="#"
-                    className="hover:text-purple-400 transition-colors duration-300 flex items-center gap-1 group"
+                    href={item.path}
+                    className="hover:text-purple-400 transition-colors duration-300 flex items-center gap-1 group text-slate-400"
                   >
                     <ChevronRight size={12} className="opacity-0 group-hover:opacity-100 transition" />
-                    {item}
+                    {item.name}
                   </a>
                 </li>
               ))}
             </ul>
           </div>
 
-          {/* Quick Links */}
-          <div className="space-y-5">
+          {/* Services Links */}
+          <div className="space-y-4">
             <h4 className="text-white font-semibold flex items-center gap-2">
-              <Heart size={16} className="text-purple-400" />
-              Quick Links
+              <HelpCircle size={16} className="text-purple-400" />
+              Services
             </h4>
-            <ul className="space-y-3 text-sm">
-              {[
-                "Home",
-                "Agreement",
-                "Affidavit",
-                "Deed",
-                "Property",
-                "e-Stamp Paper Buy",
-                "Contact",
-              ].map((item, i) => (
+            <ul className="space-y-2 text-sm">
+              {servicesLinks.map((item, i) => (
                 <li key={i}>
                   <a
-                    href="#"
-                    className="hover:text-purple-400 transition-colors duration-300 flex items-center gap-1 group"
+                    href={item.path}
+                    className="hover:text-purple-400 transition-colors duration-300 flex items-center gap-1 group text-slate-400"
                   >
                     <ChevronRight size={12} className="opacity-0 group-hover:opacity-100 transition" />
-                    {item}
+                    {item.name}
                   </a>
                 </li>
               ))}
             </ul>
           </div>
 
-          {/* Contact & Trust */}
-          <div className="space-y-6">
-            <h4 className="text-white font-semibold">Get in Touch</h4>
-
-            <div className="space-y-4 text-sm">
-              <div className="flex items-start gap-3 group">
-                <Phone size={16} className="mt-1 text-purple-400 group-hover:scale-110 transition" />
-                <div>
-                  <p className="text-slate-400 text-xs">Phone Numbers</p>
-                  <span>9711149319 / 9711149666</span>
-                </div>
+          {/* Contact Links */}
+          <div className="space-y-4">
+            <h4 className="text-white font-semibold flex items-center gap-2">
+              <MessageCircle size={16} className="text-purple-400" />
+              Contact
+            </h4>
+            <ul className="space-y-2 text-sm">
+              {contactLinks.map((item, i) => (
+                <li key={i}>
+                  <a
+                    href={item.path}
+                    className="hover:text-purple-400 transition-colors duration-300 flex items-center gap-1 group text-slate-400"
+                  >
+                    <ChevronRight size={12} className="opacity-0 group-hover:opacity-100 transition" />
+                    {item.name}
+                  </a>
+                </li>
+              ))}
+            </ul>
+            <div className="mt-4 pt-4 border-t border-white/10">
+              <div className="flex items-center gap-2 text-sm text-slate-400 bg-white/5 p-3 rounded-lg">
+                <ShieldCheck size={16} className="text-purple-400" />
+                <span>DMCA.com Protection Status</span>
               </div>
-              <div className="flex items-start gap-3 group">
-                <Mail size={16} className="mt-1 text-purple-400 group-hover:scale-110 transition" />
-                <div>
-                  <p className="text-slate-400 text-xs">Email</p>
-                  <span>info@easyestamp.com</span>
-                </div>
-              </div>
-              <div className="flex items-start gap-3 group">
-                <MapPin size={16} className="mt-1 text-purple-400 group-hover:scale-110 transition" />
-                <div>
-                  <p className="text-slate-400 text-xs">Address</p>
-                  <span className="text-xs">A90 sector 2, Noida, Uttar Pradesh - 201301</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2 text-sm text-slate-400 bg-white/5 p-3 rounded-lg">
-              <ShieldCheck size={16} className="text-purple-400" />
-              <span>DMCA.com Protection Status</span>
             </div>
           </div>
         </div>
 
-        {/* Other Links Section */}
+        {/* Legal Documents Section - Full Width */}
         <div className="mt-12 pt-8 border-t border-white/10">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            <div>
-              <h5 className="text-white text-sm font-semibold mb-3">Links</h5>
-              <ul className="space-y-2 text-xs text-slate-400">
-                <li><a href="#" className="hover:text-purple-400 transition">Home</a></li>
-                <li><a href="#" className="hover:text-purple-400 transition">Agreement</a></li>
-                <li><a href="#" className="hover:text-purple-400 transition">Affidavit</a></li>
-                <li><a href="#" className="hover:text-purple-400 transition">Deed</a></li>
-                <li><a href="#" className="hover:text-purple-400 transition">Property</a></li>
-                <li><a href="#" className="hover:text-purple-400 transition">eStamp Paper Buy</a></li>
-                <li><a href="#" className="hover:text-purple-400 transition">Contact</a></li>
-              </ul>
+          <h4 className="text-white font-semibold flex items-center gap-2 mb-6">
+            <FileText size={16} className="text-purple-400" />
+            Legal Documents
+          </h4>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+            {legalDocumentsLinks.map((item, i) => (
+              <a
+                key={i}
+                href={item.path}
+                className="text-sm text-slate-400 hover:text-purple-400 transition-colors duration-300 flex items-center gap-1 group"
+              >
+                <ChevronRight size={12} className="opacity-0 group-hover:opacity-100 transition" />
+                {item.name}
+              </a>
+            ))}
+          </div>
+        </div>
+
+        {/* Contact & Trust Info */}
+        <div className="mt-12 pt-8 border-t border-white/10">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="flex items-start gap-3 group">
+              <Phone size={18} className="mt-1 text-purple-400 group-hover:scale-110 transition" />
+              <div>
+                <p className="text-white text-sm font-semibold mb-1">Phone Numbers</p>
+                <p className="text-slate-400 text-sm">9711149319 / 9711149666</p>
+                <p className="text-xs text-slate-500 mt-1">Mon-Sat, 9 AM to 7 PM</p>
+              </div>
             </div>
-            <div>
-              <h5 className="text-white text-sm font-semibold mb-3">Other Links</h5>
-              <ul className="space-y-2 text-xs text-slate-400">
-                <li><a href="#" className="hover:text-purple-400 transition">Legal Documents</a></li>
-                <li><a href="#" className="hover:text-purple-400 transition">Affidavits</a></li>
-                <li><a href="#" className="hover:text-purple-400 transition">Rental Agreement</a></li>
-                <li><a href="#" className="hover:text-purple-400 transition">Request for Customized Document</a></li>
-                <li><a href="#" className="hover:text-purple-400 transition">Gift Deed</a></li>
-                <li><a href="#" className="hover:text-purple-400 transition">Make your Will</a></li>
-                <li><a href="#" className="hover:text-purple-400 transition">Partnership Deed</a></li>
-                <li><a href="#" className="hover:text-purple-400 transition">Non Disclosure Agreement</a></li>
-              </ul>
+            <div className="flex items-start gap-3 group">
+              <Mail size={18} className="mt-1 text-purple-400 group-hover:scale-110 transition" />
+              <div>
+                <p className="text-white text-sm font-semibold mb-1">Email Address</p>
+                <p className="text-slate-400 text-sm">info@easyestamp.com</p>
+                <p className="text-slate-400 text-sm">support@easyestamp.com</p>
+              </div>
             </div>
-            <div>
-              <h5 className="text-white text-sm font-semibold mb-3">Resources</h5>
-              <ul className="space-y-2 text-xs text-slate-400">
-                <li><a href="#" className="hover:text-purple-400 transition">Help Center</a></li>
-                <li><a href="#" className="hover:text-purple-400 transition">FAQs</a></li>
-                <li><a href="#" className="hover:text-purple-400 transition">Blogs</a></li>
-                <li><a href="#" className="hover:text-purple-400 transition">Legal Guides</a></li>
-              </ul>
+            <div className="flex items-start gap-3 group">
+              <MapPin size={18} className="mt-1 text-purple-400 group-hover:scale-110 transition" />
+              <div>
+                <p className="text-white text-sm font-semibold mb-1">Office Address</p>
+                <p className="text-slate-400 text-sm">A90 sector 2, Noida</p>
+                <p className="text-slate-400 text-sm">Uttar Pradesh - 201301</p>
+              </div>
             </div>
-            <div>
-              <h5 className="text-white text-sm font-semibold mb-3">Legal</h5>
-              <ul className="space-y-2 text-xs text-slate-400">
-                <li><a href="#" className="hover:text-purple-400 transition">Terms & Conditions</a></li>
-                <li><a href="#" className="hover:text-purple-400 transition">Refund Policy</a></li>
-                <li><a href="#" className="hover:text-purple-400 transition">Privacy Policy</a></li>
-              </ul>
-            </div>
+          </div>
+        </div>
+
+        {/* Bottom Links */}
+        <div className="mt-12 pt-8 border-t border-white/10">
+          <div className="flex flex-wrap justify-center gap-x-8 gap-y-3 text-sm">
+            <a href="#" className="text-slate-400 hover:text-purple-400 transition">Home</a>
+            <a href="#" className="text-slate-400 hover:text-purple-400 transition">Terms & Conditions</a>
+            <a href="#" className="text-slate-400 hover:text-purple-400 transition">Refund Policy</a>
+            <a href="#" className="text-slate-400 hover:text-purple-400 transition">Privacy Policy</a>
+            <a href="#" className="text-slate-400 hover:text-purple-400 transition">FAQs</a>
+            <a href="#" className="text-slate-400 hover:text-purple-400 transition">Blogs</a>
           </div>
         </div>
 
