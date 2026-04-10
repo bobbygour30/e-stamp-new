@@ -68,9 +68,9 @@ export default function Navbar() {
       ],
     },
     {
-      label: "Resources",
+      label: "Contact Us",
       submenu: [
-        { name: "Blogs", path: "#" },
+        { name: "Contact Information", path: "/contact" },
         { name: "FAQs", path: "#" },
         { name: "Legal Guides", path: "#" },
       ],
