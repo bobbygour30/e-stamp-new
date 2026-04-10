@@ -124,12 +124,7 @@ export default function DocumentRibbon() {
         </div>
       </div>
 
-      {/* Scroll indicator */}
-      <div className="flex justify-center gap-1 mt-3">
-        <div className="w-1.5 h-1.5 rounded-full bg-purple-400" />
-        <div className="w-1.5 h-1.5 rounded-full bg-purple-600" />
-        <div className="w-1.5 h-1.5 rounded-full bg-purple-400" />
-      </div>
+      
     </div>
   );
 }
