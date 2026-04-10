@@ -4,6 +4,7 @@ import { useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Menu, X, ChevronDown, User, LogOut, LayoutDashboard, Shield } from "lucide-react";
 import { AuthContext } from "../context/AuthContext";
+import assets from "../assets/assets";
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -95,14 +96,15 @@ export default function Navbar() {
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
-            <Link to="/" className="flex items-center gap-2">
-              <div className="h-9 w-9 rounded-lg bg-gradient-to-br from-indigo-600 to-blue-500 text-white flex items-center justify-center font-bold">
-                L
-              </div>
-              <span className="text-lg font-semibold text-slate-900">
-                LexDraft
-              </span>
-            </Link>
+<Link to="/" className="flex items-center">
+  <img
+    src={assets.logo} // place your logo inside public folder
+    alt="LexDraft Logo"
+    className="h-10 w-auto object-contain 
+               sm:h-9 md:h-10 lg:h-11 
+               max-w-[140px]"
+  />
+</Link>
 
             {/* Desktop Menu */}
             <div className="hidden lg:flex items-center gap-8">
@@ -113,7 +115,7 @@ export default function Navbar() {
                   onMouseEnter={() => setActiveDropdown(idx)}
                   onMouseLeave={() => setActiveDropdown(null)}
                 >
-                  <button className="flex items-center gap-1 text-slate-700 font-medium hover:text-indigo-600 transition">
+                  <button className="flex items-center gap-1 text-slate-700 font-medium hover:text-[#60AF70] transition">
                     {item.label}
                     <ChevronDown size={16} />
                   </button>
@@ -132,7 +134,7 @@ export default function Navbar() {
                       <Link
                         key={subIdx}
                         to={sub.path}
-                        className="block px-5 py-3 text-sm text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition"
+                        className="block px-5 py-3 text-sm text-slate-700 hover:bg-[#60AF70]/10 hover:text-[#60AF70] transition"
                         onClick={() => setActiveDropdown(null)}
                       >
                         {sub.name}
@@ -148,9 +150,9 @@ export default function Navbar() {
                 onMouseEnter={() => setAuthDropdown(true)}
                 onMouseLeave={() => setAuthDropdown(false)}
               >
-                <button className="flex items-center gap-2 text-slate-700 hover:text-indigo-600 transition">
-                  <div className="h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center">
-                    <User size={18} className="text-indigo-600" />
+                <button className="flex items-center gap-2 text-slate-700 hover:text-[#60AF70] transition">
+                  <div className="h-8 w-8 rounded-full bg-[#60AF70]/10 flex items-center justify-center">
+                    <User size={18} className="text-[#60AF70]" />
                   </div>
                   {user && (
                     <span className="text-sm font-medium text-slate-700">
@@ -184,7 +186,7 @@ export default function Navbar() {
                       <Link
                         to="/dashboard"
                         onClick={() => setAuthDropdown(false)}
-                        className="flex items-center gap-2 px-5 py-3 text-sm text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition"
+                        className="flex items-center gap-2 px-5 py-3 text-sm text-slate-700 hover:bg-[#60AF70]/10 hover:text-[#60AF70] transition"
                       >
                         <LayoutDashboard size={16} />
                         My Dashboard
@@ -215,14 +217,14 @@ export default function Navbar() {
                       <Link
                         to="/login"
                         onClick={() => setAuthDropdown(false)}
-                        className="block px-5 py-3 text-sm text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition"
+                        className="block px-5 py-3 text-sm text-slate-700 hover:bg-[#60AF70]/10 hover:text-[#60AF70] transition"
                       >
                         Login
                       </Link>
                       <Link
                         to="/signup"
                         onClick={() => setAuthDropdown(false)}
-                        className="block px-5 py-3 text-sm text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 transition"
+                        className="block px-5 py-3 text-sm text-slate-700 hover:bg-[#60AF70]/10 hover:text-[#60AF70] transition"
                       >
                         Sign Up
                       </Link>
@@ -234,7 +236,7 @@ export default function Navbar() {
               {!user && (
                 <Link
                   to="/get-started"
-                  className="px-5 py-2 rounded-lg bg-indigo-600 text-white font-medium hover:bg-indigo-700 transition shadow-sm"
+                  className="px-5 py-2 rounded-lg bg-[#60AF70] text-white font-medium hover:bg-[#4a8c58] transition shadow-sm"
                 >
                   Get Started
                 </Link>
@@ -243,7 +245,7 @@ export default function Navbar() {
               {user && (
                 <Link
                   to="/dashboard"
-                  className="px-5 py-2 rounded-lg bg-indigo-600 text-white font-medium hover:bg-indigo-700 transition shadow-sm"
+                  className="px-5 py-2 rounded-lg bg-[#60AF70] text-white font-medium hover:bg-[#4a8c58] transition shadow-sm"
                 >
                   Dashboard
                 </Link>
@@ -285,10 +287,10 @@ export default function Navbar() {
 
             {/* User Info for Mobile */}
             {user && (
-              <div className="bg-indigo-50 rounded-lg p-4 mb-2">
+              <div className="bg-[#60AF70]/10 rounded-lg p-4 mb-2">
                 <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-full bg-indigo-200 flex items-center justify-center">
-                    <User size={20} className="text-indigo-700" />
+                  <div className="h-10 w-10 rounded-full bg-[#60AF70]/20 flex items-center justify-center">
+                    <User size={20} className="text-[#60AF70]" />
                   </div>
                   <div className="flex-1">
                     <p className="font-medium text-slate-900">{user.name}</p>
@@ -315,7 +317,7 @@ export default function Navbar() {
                       key={subIdx}
                       to={sub.path}
                       onClick={() => setMenuOpen(false)}
-                      className="text-sm text-slate-600 hover:text-indigo-600 transition py-1"
+                      className="text-sm text-slate-600 hover:text-[#60AF70] transition py-1"
                     >
                       {sub.name}
                     </Link>
@@ -333,7 +335,7 @@ export default function Navbar() {
                 <Link
                   to="/dashboard"
                   onClick={() => setMenuOpen(false)}
-                  className="flex items-center gap-2 text-slate-700 font-medium hover:text-indigo-600 transition py-2"
+                  className="flex items-center gap-2 text-slate-700 font-medium hover:text-[#60AF70] transition py-2"
                 >
                   <LayoutDashboard size={18} />
                   My Dashboard
@@ -367,7 +369,7 @@ export default function Navbar() {
                 <Link
                   to="/login"
                   onClick={() => setMenuOpen(false)}
-                  className="text-slate-700 font-medium hover:text-indigo-600 transition py-2"
+                  className="text-slate-700 font-medium hover:text-[#60AF70] transition py-2"
                 >
                   Login
                 </Link>
@@ -375,7 +377,7 @@ export default function Navbar() {
                 <Link
                   to="/signup"
                   onClick={() => setMenuOpen(false)}
-                  className="text-slate-700 font-medium hover:text-indigo-600 transition py-2"
+                  className="text-slate-700 font-medium hover:text-[#60AF70] transition py-2"
                 >
                   Sign Up
                 </Link>
@@ -385,7 +387,7 @@ export default function Navbar() {
             <Link
               to={user ? "/dashboard" : "/get-started"}
               onClick={() => setMenuOpen(false)}
-              className="mt-4 px-4 py-3 rounded-lg bg-indigo-600 text-white text-center font-medium hover:bg-indigo-700 transition"
+              className="mt-4 px-4 py-3 rounded-lg bg-[#60AF70] text-white text-center font-medium hover:bg-[#4a8c58] transition"
             >
               {user ? "Go to Dashboard" : "Get Started"}
             </Link>
