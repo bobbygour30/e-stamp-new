@@ -79,35 +79,35 @@ export default function Testimonials() {
   );
 
   const stats = [
-    { icon: ThumbsUp, value: "98%", label: "Satisfaction Rate", color: "text-[#60AF70]" },
-    { icon: Clock, value: "24/7", label: "Customer Support", color: "text-emerald-600" },
-    { icon: ShieldCheck, value: "10K+", label: "Happy Clients", color: "text-[#60AF70]" },
+    { icon: ThumbsUp, value: "98%", label: "Satisfaction Rate", color: "text-purple-700" },
+    { icon: Clock, value: "24/7", label: "Customer Support", color: "text-purple-600" },
+    { icon: ShieldCheck, value: "10K+", label: "Happy Clients", color: "text-purple-700" },
   ];
 
   return (
-    <section className="relative py-28 bg-gradient-to-br from-slate-50 via-white to-emerald-50/30 overflow-hidden">
+    <section className="relative py-28 bg-gradient-to-br from-slate-50 via-white to-purple-50/30 overflow-hidden">
       {/* Decorative background elements */}
-      <div className="absolute -top-40 -left-40 h-96 w-96 bg-[#60AF70]/10 rounded-full blur-3xl" />
-      <div className="absolute -bottom-40 -right-40 h-96 w-96 bg-emerald-300/20 rounded-full blur-3xl" />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[#60AF70]/5 rounded-full blur-3xl" />
+      <div className="absolute -top-40 -left-40 h-96 w-96 bg-purple-200/20 rounded-full blur-3xl" />
+      <div className="absolute -bottom-40 -right-40 h-96 w-96 bg-purple-300/20 rounded-full blur-3xl" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-purple-100/30 rounded-full blur-3xl" />
 
       {/* Floating quote decorations */}
       <div className="absolute top-20 left-10 opacity-10 animate-pulse">
-        <Quote size={80} className="text-[#60AF70]" />
+        <Quote size={80} className="text-purple-700" />
       </div>
       <div className="absolute bottom-20 right-10 opacity-10 animate-pulse">
-        <Quote size={80} className="text-[#60AF70]" />
+        <Quote size={80} className="text-purple-700" />
       </div>
 
       <div className="relative max-w-7xl mx-auto px-6">
         {/* Heading Section */}
         <div className="text-center mb-16 space-y-4">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#60AF70]/10 text-[#60AF70] text-sm font-semibold tracking-wide mb-4">
-            <Star size={14} fill="#60AF70" />
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-purple-100 text-purple-700 text-sm font-semibold tracking-wide mb-4">
+            <Star size={14} fill="#9333EA" />
             TESTIMONIALS
           </div>
           <h2 className="text-4xl md:text-5xl font-bold text-slate-900">
-            What Our <span className="text-[#60AF70]">Clients Say</span>
+            What Our <span className="text-purple-700">Clients Say</span>
           </h2>
           <p className="text-slate-600 max-w-2xl mx-auto text-lg">
             Join thousands of satisfied customers who trust us for their legal documentation needs
@@ -123,7 +123,7 @@ export default function Testimonials() {
                 key={idx}
                 className="flex items-center gap-3 px-6 py-3 bg-white rounded-full shadow-md border border-slate-100"
               >
-                <div className={`${stat.color} bg-[#60AF70]/10 p-2 rounded-full`}>
+                <div className={`${stat.color} bg-purple-100 p-2 rounded-full`}>
                   <Icon size={20} />
                 </div>
                 <div>
@@ -144,7 +144,7 @@ export default function Testimonials() {
               style={{ animationDelay: `${i * 0.1}s` }}
             >
               {/* Gradient border effect on hover */}
-              <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-[#60AF70]/20 to-emerald-400/20 opacity-0 group-hover:opacity-100 transition duration-500 -z-10" />
+              <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-purple-200 to-purple-300 opacity-0 group-hover:opacity-100 transition duration-500 -z-10" />
 
               {/* Quote icon */}
               <div className="absolute top-4 right-4 opacity-10 group-hover:opacity-20 transition">
@@ -158,18 +158,18 @@ export default function Testimonials() {
                     <img
                       src={review.avatar}
                       alt={review.name}
-                      className="h-14 w-14 rounded-full object-cover ring-3 ring-[#60AF70]/20"
+                      className="h-14 w-14 rounded-full object-cover ring-3 ring-purple-200"
                     />
-                    <div className="absolute -bottom-1 -right-1 h-5 w-5 bg-[#60AF70] rounded-full flex items-center justify-center">
+                    <div className="absolute -bottom-1 -right-1 h-5 w-5 bg-purple-700 rounded-full flex items-center justify-center">
                       <Star size={10} fill="white" className="text-white" />
                     </div>
                   </div>
                 ) : (
                   <div className="relative">
-                    <div className="h-14 w-14 rounded-full bg-gradient-to-br from-[#60AF70] to-emerald-600 text-white flex items-center justify-center text-xl font-bold shadow-lg">
+                    <div className="h-14 w-14 rounded-full bg-gradient-to-br from-purple-700 to-purple-500 text-white flex items-center justify-center text-xl font-bold shadow-lg">
                       {review.initial}
                     </div>
-                    <div className="absolute -bottom-1 -right-1 h-5 w-5 bg-[#60AF70] rounded-full flex items-center justify-center">
+                    <div className="absolute -bottom-1 -right-1 h-5 w-5 bg-purple-700 rounded-full flex items-center justify-center">
                       <Star size={10} fill="white" className="text-white" />
                     </div>
                   </div>
@@ -179,7 +179,7 @@ export default function Testimonials() {
                   <p className="font-bold text-slate-900 text-lg">
                     {review.name}
                   </p>
-                  <p className="text-xs text-[#60AF70] font-medium">{review.role}</p>
+                  <p className="text-xs text-purple-700 font-medium">{review.role}</p>
                   <p className="text-xs text-slate-400 mt-0.5">{review.date}</p>
                 </div>
               </div>
@@ -207,7 +207,7 @@ export default function Testimonials() {
 
               {/* Verified Badge */}
               <div className="mt-4 pt-3 border-t border-slate-100 flex items-center gap-2">
-                <div className="h-2 w-2 rounded-full bg-[#60AF70] animate-pulse" />
+                <div className="h-2 w-2 rounded-full bg-purple-700 animate-pulse" />
                 <span className="text-xs text-slate-400">Verified Purchase</span>
               </div>
             </div>
@@ -220,7 +220,7 @@ export default function Testimonials() {
             <button
               onClick={() => setCurrentPage((prev) => Math.max(0, prev - 1))}
               disabled={currentPage === 0}
-              className="p-2 rounded-full bg-white border border-slate-200 text-slate-600 hover:bg-[#60AF70] hover:text-white hover:border-[#60AF70] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="p-2 rounded-full bg-white border border-slate-200 text-slate-600 hover:bg-purple-700 hover:text-white hover:border-purple-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <ChevronLeft size={20} />
             </button>
@@ -231,8 +231,8 @@ export default function Testimonials() {
                   onClick={() => setCurrentPage(idx)}
                   className={`w-2.5 h-2.5 rounded-full transition-all ${
                     currentPage === idx
-                      ? "bg-[#60AF70] w-8"
-                      : "bg-slate-300 hover:bg-[#60AF70]/50"
+                      ? "bg-purple-700 w-8"
+                      : "bg-slate-300 hover:bg-purple-400"
                   }`}
                 />
               ))}
@@ -240,7 +240,7 @@ export default function Testimonials() {
             <button
               onClick={() => setCurrentPage((prev) => Math.min(totalPages - 1, prev + 1))}
               disabled={currentPage === totalPages - 1}
-              className="p-2 rounded-full bg-white border border-slate-200 text-slate-600 hover:bg-[#60AF70] hover:text-white hover:border-[#60AF70] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="p-2 rounded-full bg-white border border-slate-200 text-slate-600 hover:bg-purple-700 hover:text-white hover:border-purple-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <ChevronRight size={20} />
             </button>
@@ -251,17 +251,17 @@ export default function Testimonials() {
         <div className="text-center mt-16 pt-8 border-t border-slate-200">
           <div className="flex flex-wrap justify-center items-center gap-8">
             <div className="flex items-center gap-2 text-sm text-slate-500">
-              <ShieldCheck size={16} className="text-[#60AF70]" />
+              <ShieldCheck size={16} className="text-purple-700" />
               <span>100% Legal Compliant</span>
             </div>
             <div className="w-px h-4 bg-slate-300" />
             <div className="flex items-center gap-2 text-sm text-slate-500">
-              <Star size={16} className="text-[#60AF70]" fill="#60AF70" />
+              <Star size={16} className="text-purple-700" fill="#9333EA" />
               <span>4.9/5 Average Rating</span>
             </div>
             <div className="w-px h-4 bg-slate-300" />
             <div className="flex items-center gap-2 text-sm text-slate-500">
-              <ThumbsUp size={16} className="text-[#60AF70]" />
+              <ThumbsUp size={16} className="text-purple-700" />
               <span>10,000+ Happy Customers</span>
             </div>
           </div>

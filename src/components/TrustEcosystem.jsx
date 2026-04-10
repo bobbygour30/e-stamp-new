@@ -106,22 +106,22 @@ export default function TrustEcosystem() {
   };
 
   return (
-    <section className="relative py-28 bg-gradient-to-br from-slate-50 via-white to-emerald-50/30 overflow-hidden">
+    <section className="relative py-28 bg-gradient-to-br from-slate-50 via-white to-purple-50/30 overflow-hidden">
       {/* Ambient glow */}
-      <div className="absolute -top-48 -left-48 w-[500px] h-[500px] bg-[#60AF70]/20 rounded-full blur-3xl" />
-      <div className="absolute -bottom-48 -right-48 w-[500px] h-[500px] bg-emerald-300/20 rounded-full blur-3xl" />
+      <div className="absolute -top-48 -left-48 w-[500px] h-[500px] bg-purple-200/20 rounded-full blur-3xl" />
+      <div className="absolute -bottom-48 -right-48 w-[500px] h-[500px] bg-purple-300/20 rounded-full blur-3xl" />
 
       <div className="relative max-w-7xl mx-auto px-6 space-y-28">
         {/* Heading */}
         <div className="text-center space-y-6">
-          <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#60AF70]/10 text-[#60AF70] text-sm font-semibold backdrop-blur">
+          <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-purple-100 text-purple-700 text-sm font-semibold backdrop-blur">
             <ShieldCheck size={14} />
             Built for Nationwide Compliance
           </span>
 
           <h2 className="text-4xl md:text-5xl font-bold leading-tight text-slate-900">
             Simplifying Legal Compliance with{" "}
-            <span className="text-[#60AF70]">Instant e-Stamping</span>
+            <span className="text-purple-700">Instant e-Stamping</span>
           </h2>
 
           <p className="max-w-2xl mx-auto text-slate-600 text-lg">
@@ -139,8 +139,8 @@ export default function TrustEcosystem() {
                 key={i}
                 className="group rounded-2xl bg-white p-6 text-center shadow-lg border border-slate-100 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300"
               >
-                <div className="h-12 w-12 rounded-xl bg-[#60AF70]/10 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition">
-                  <Icon size={24} className="text-[#60AF70]" />
+                <div className="h-12 w-12 rounded-xl bg-purple-100 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition">
+                  <Icon size={24} className="text-purple-700" />
                 </div>
                 <p className="text-3xl md:text-4xl font-bold text-slate-900">
                   {stat.value}
@@ -154,7 +154,7 @@ export default function TrustEcosystem() {
         {/* About Us Section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <div className="space-y-6">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#60AF70]/10 text-[#60AF70] text-sm font-semibold">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-purple-100 text-purple-700 text-sm font-semibold">
               <Globe size={14} />
               About Easy eStamp
             </div>
@@ -172,20 +172,20 @@ export default function TrustEcosystem() {
             </p>
             <div className="flex flex-wrap gap-4">
               <div className="flex items-center gap-2">
-                <Lock size={16} className="text-[#60AF70]" />
+                <Lock size={16} className="text-purple-700" />
                 <span className="text-sm text-slate-600">Tamper-Proof</span>
               </div>
               <div className="flex items-center gap-2">
-                <Zap size={16} className="text-[#60AF70]" />
+                <Zap size={16} className="text-purple-700" />
                 <span className="text-sm text-slate-600">Instant Delivery</span>
               </div>
               <div className="flex items-center gap-2">
-                <Award size={16} className="text-[#60AF70]" />
+                <Award size={16} className="text-purple-700" />
                 <span className="text-sm text-slate-600">Govt. Approved</span>
               </div>
             </div>
           </div>
-          <div className="bg-gradient-to-br from-[#60AF70]/5 to-emerald-500/5 rounded-2xl p-8 border border-[#60AF70]/20">
+          <div className="bg-gradient-to-br from-purple-100 to-purple-50 rounded-2xl p-8 border border-purple-200">
             <div className="space-y-4">
               <h4 className="text-xl font-bold text-slate-900">Security Notice</h4>
               <p className="text-slate-600 text-sm">
@@ -214,13 +214,13 @@ export default function TrustEcosystem() {
                 key={i}
                 className="group relative rounded-2xl bg-white p-8 shadow-lg border border-slate-100 hover:shadow-2xl hover:-translate-y-2 transition-all duration-500"
               >
-                <span className="absolute -top-4 -right-4 h-10 w-10 rounded-xl bg-[#60AF70] text-white flex items-center justify-center text-sm font-bold shadow-lg">
+                <span className="absolute -top-4 -right-4 h-10 w-10 rounded-xl bg-purple-700 text-white flex items-center justify-center text-sm font-bold shadow-lg">
                   {i + 1}
                 </span>
 
                 <div className="space-y-5">
-                  <div className="h-14 w-14 rounded-xl bg-[#60AF70]/10 flex items-center justify-center group-hover:scale-110 transition">
-                    <Icon size={28} className="text-[#60AF70]" />
+                  <div className="h-14 w-14 rounded-xl bg-purple-100 flex items-center justify-center group-hover:scale-110 transition">
+                    <Icon size={28} className="text-purple-700" />
                   </div>
 
                   <h3 className="text-xl font-semibold text-slate-900">
@@ -239,8 +239,8 @@ export default function TrustEcosystem() {
         {/* Testimonials Slider */}
         <div className="space-y-8">
           <div className="text-center space-y-4">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#60AF70]/10 text-[#60AF70] text-sm font-semibold">
-              <Star size={14} fill="#60AF70" />
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-purple-100 text-purple-700 text-sm font-semibold">
+              <Star size={14} fill="#9333EA" />
               Client Testimonials
             </div>
             <h3 className="text-3xl font-bold text-slate-900">
@@ -258,7 +258,7 @@ export default function TrustEcosystem() {
                     className="bg-white rounded-xl p-6 shadow-md border border-slate-100"
                   >
                     <div className="flex items-center gap-3 mb-4">
-                      <div className="h-10 w-10 rounded-full bg-gradient-to-br from-[#60AF70] to-emerald-600 text-white flex items-center justify-center font-bold">
+                      <div className="h-10 w-10 rounded-full bg-gradient-to-br from-purple-700 to-purple-500 text-white flex items-center justify-center font-bold">
                         {testimonial.initial}
                       </div>
                       <div>
@@ -288,13 +288,13 @@ export default function TrustEcosystem() {
               <div className="flex justify-center gap-3 mt-8">
                 <button
                   onClick={prevSlide}
-                  className="p-2 rounded-full bg-white border border-slate-200 text-slate-600 hover:bg-[#60AF70] hover:text-white transition"
+                  className="p-2 rounded-full bg-white border border-slate-200 text-slate-600 hover:bg-purple-700 hover:text-white transition"
                 >
                   <ChevronLeft size={20} />
                 </button>
                 <button
                   onClick={nextSlide}
-                  className="p-2 rounded-full bg-white border border-slate-200 text-slate-600 hover:bg-[#60AF70] hover:text-white transition"
+                  className="p-2 rounded-full bg-white border border-slate-200 text-slate-600 hover:bg-purple-700 hover:text-white transition"
                 >
                   <ChevronRight size={20} />
                 </button>
@@ -304,7 +304,7 @@ export default function TrustEcosystem() {
         </div>
 
         {/* CTA Section */}
-        <div className="relative bg-gradient-to-r from-[#60AF70] to-emerald-600 rounded-3xl overflow-hidden shadow-2xl">
+        <div className="relative bg-gradient-to-r from-purple-700 to-purple-500 rounded-3xl overflow-hidden shadow-2xl">
           <div className="absolute inset-0 bg-black/10" />
           <div className="absolute -top-24 -right-24 w-64 h-64 bg-white/10 rounded-full blur-3xl" />
           <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-white/10 rounded-full blur-3xl" />
@@ -319,7 +319,7 @@ export default function TrustEcosystem() {
               documentation needs. Get your e-stamp paper in minutes.
             </p>
             <div className="flex flex-wrap justify-center gap-4">
-              <button className="px-8 py-3 rounded-xl bg-white text-[#60AF70] font-semibold hover:bg-slate-50 hover:scale-105 transition-all shadow-lg">
+              <button className="px-8 py-3 rounded-xl bg-white text-purple-700 font-semibold hover:bg-slate-50 hover:scale-105 transition-all shadow-lg">
                 Get Started Now
                 <ArrowRight size={18} className="inline ml-2" />
               </button>
@@ -358,7 +358,7 @@ export default function TrustEcosystem() {
               key={i}
               className="flex items-center gap-2 px-4 py-2 rounded-full bg-white shadow-md border border-slate-100 text-sm text-slate-700"
             >
-              <CheckCircle2 size={14} className="text-[#60AF70]" />
+              <CheckCircle2 size={14} className="text-purple-700" />
               {point}
             </div>
           ))}

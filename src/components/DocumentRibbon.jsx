@@ -76,7 +76,7 @@ export default function DocumentRibbon() {
     let scrollAmount = 0;
 
     const smoothScroll = () => {
-      scrollAmount += 0.5; // 🔥 smoother than interval
+      scrollAmount += 0.5;
       if (scrollAmount >= el.scrollWidth / 2) {
         scrollAmount = 0;
       }
@@ -93,7 +93,7 @@ export default function DocumentRibbon() {
   const duplicatedItems = [...legalDocuments, ...legalDocuments];
 
   return (
-    <div className="w-full bg-gradient-to-r from-[#60AF70]/10 via-white to-[#60AF70]/10 py-4 border-y border-[#60AF70]/20">
+    <div className="w-full bg-gradient-to-r from-purple-100 via-white to-purple-100 py-4 border-y border-purple-200">
       <div className="relative overflow-hidden">
 
         {/* Gradient fade edges */}
@@ -110,12 +110,12 @@ export default function DocumentRibbon() {
             return (
               <div
                 key={`${doc.name}-${idx}`}
-                className="flex-shrink-0 flex items-center gap-2 px-4 py-2 rounded-full bg-white shadow-sm border border-[#60AF70]/20 hover:shadow-md hover:border-[#60AF70]/40 transition-all duration-300 cursor-pointer group"
+                className="flex-shrink-0 flex items-center gap-2 px-4 py-2 rounded-full bg-white shadow-sm border border-purple-200 hover:shadow-md hover:border-purple-400 transition-all duration-300 cursor-pointer group"
               >
-                <div className="text-[#60AF70] group-hover:scale-110 transition-transform duration-300">
+                <div className="text-purple-700 group-hover:scale-110 transition-transform duration-300">
                   <Icon size={18} />
                 </div>
-                <span className="text-sm font-medium text-slate-700 whitespace-nowrap group-hover:text-[#60AF70] transition-colors">
+                <span className="text-sm font-medium text-slate-700 whitespace-nowrap group-hover:text-purple-700 transition-colors">
                   {doc.name}
                 </span>
               </div>
@@ -126,9 +126,9 @@ export default function DocumentRibbon() {
 
       {/* Scroll indicator */}
       <div className="flex justify-center gap-1 mt-3">
-        <div className="w-1.5 h-1.5 rounded-full bg-[#60AF70]/40" />
-        <div className="w-1.5 h-1.5 rounded-full bg-[#60AF70]/60" />
-        <div className="w-1.5 h-1.5 rounded-full bg-[#60AF70]/40" />
+        <div className="w-1.5 h-1.5 rounded-full bg-purple-400" />
+        <div className="w-1.5 h-1.5 rounded-full bg-purple-600" />
+        <div className="w-1.5 h-1.5 rounded-full bg-purple-400" />
       </div>
     </div>
   );
