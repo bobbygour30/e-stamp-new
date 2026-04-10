@@ -204,25 +204,7 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* Quick Actions */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
-            <Link
-              to="/marriage-register"
-              className="bg-indigo-50 p-4 rounded-xl hover:bg-indigo-100 transition text-center group"
-            >
-              <FileText className="mx-auto mb-2 text-indigo-600 group-hover:scale-110 transition" size={28} />
-              <span className="font-medium text-indigo-700">Create New Document Request</span>
-              <p className="text-xs text-indigo-500 mt-1">Start a new application</p>
-            </Link>
-            <Link
-              to="/profile"
-              className="bg-gray-50 p-4 rounded-xl hover:bg-gray-100 transition text-center group"
-            >
-              <User className="mx-auto mb-2 text-gray-600 group-hover:scale-110 transition" size={28} />
-              <span className="font-medium text-gray-700">Update Profile</span>
-              <p className="text-xs text-gray-500 mt-1">Manage your account details</p>
-            </Link>
-          </div>
+          
 
           {/* My Requests Section */}
           <div className="border-t border-slate-200 pt-6">
