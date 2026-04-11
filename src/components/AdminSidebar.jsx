@@ -6,10 +6,12 @@ import {
   Upload, 
   LogOut,
   UserPlus,
-  Truck
+  Truck,
+  Briefcase,
+  UserCog
 } from 'lucide-react';
 
-export default function AdminSidebar({ activeTab, onTabChange }) {
+export default function AdminSidebar({ activeTab, onTabChange, userRole, permissions }) {
   const navigate = useNavigate();
 
   const menuItems = [
@@ -17,21 +19,50 @@ export default function AdminSidebar({ activeTab, onTabChange }) {
       id: 'stamp-paper-orders',
       label: 'Stamp Paper Orders',
       icon: ShoppingCart,
-      description: 'View and manage orders'
+      description: 'View and manage orders',
+      requiredPermission: 'stampPaperOrders'
     },
     {
       id: 'vendor-management',
       label: 'Vendor Management',
       icon: Users,
-      description: 'Manage existing vendors'
+      description: 'Manage existing vendors',
+      requiredPermission: 'vendorManagement'
+    },
+    {
+      id: 'create-vendor',
+      label: 'Create Vendor',
+      icon: UserPlus,
+      description: 'Register new vendor',
+      requiredPermission: 'createVendor'
     },
     {
       id: 'upload-stamp-paper',
       label: 'Upload Stamp Paper',
       icon: Upload,
-      description: 'Upload stamp paper inventory'
+      description: 'Upload stamp paper inventory',
+      requiredPermission: 'uploadStampPaper'
+    },
+    {
+      id: 'employee-management',
+      label: 'Employee Management',
+      icon: Briefcase,
+      description: 'Manage employees',
+      requiredPermission: 'employeeManagement'
+    },
+    {
+      id: 'create-employee',
+      label: 'Create Employee',
+      icon: UserCog,
+      description: 'Register new employee',
+      requiredPermission: 'createEmployee'
     }
   ];
+
+  // Filter menu items based on user role and permissions
+  const visibleMenuItems = userRole === 'admin' 
+    ? menuItems 
+    : menuItems.filter(item => permissions?.[item.requiredPermission]);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -49,7 +80,9 @@ export default function AdminSidebar({ activeTab, onTabChange }) {
           </div>
           <div>
             <h2 className="text-xl font-bold">LexDraft</h2>
-            <p className="text-xs text-indigo-300">Admin Portal</p>
+            <p className="text-xs text-indigo-300">
+              {userRole === 'admin' ? 'Admin Portal' : 'Employee Portal'}
+            </p>
           </div>
         </div>
       </div>
@@ -60,7 +93,7 @@ export default function AdminSidebar({ activeTab, onTabChange }) {
           <p className="text-xs text-indigo-300 uppercase tracking-wider">Main Menu</p>
         </div>
         
-        {menuItems.map((item) => {
+        {visibleMenuItems.map((item) => {
           const Icon = item.icon;
           const isActive = activeTab === item.id;
           

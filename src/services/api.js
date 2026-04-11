@@ -89,6 +89,15 @@ export const authAPI = {
   getVendorById: (id) => api.get(`/auth/vendors/${id}`),
   updateVendor: (id, data) => api.put(`/auth/vendors/${id}`, data),
   deleteVendor: (id) => api.delete(`/auth/vendors/${id}`),
+    // Admin - Employee Management
+  registerEmployee: (data) => api.post('/auth/register-employee', data),
+  getAllEmployees: () => api.get('/auth/employees'),
+  getEmployeeById: (id) => api.get(`/auth/employees/${id}`),
+  updateEmployee: (id, data) => api.put(`/auth/employees/${id}`, data),
+  deleteEmployee: (id) => api.delete(`/auth/employees/${id}`),
+  
+  // Get current user's permissions
+  getMyPermissions: () => api.get('/auth/me').then(res => res.data.employeeDetails?.permissions),
   
   // Vendor self-registration
   registerAsVendor: (data) => api.post('/auth/register', { ...data, role: 'vendor' })

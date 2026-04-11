@@ -21,27 +21,30 @@ export default function Login() {
     });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError("");
-    setLoading(true);
+  // Update the handleSubmit function
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setError("");
+  setLoading(true);
 
-    try {
-      const response = await login(formData.email, formData.password);
-      const userRole = response.user?.role || response.data?.user?.role;
-      
-      // Redirect based on user role
-      if (userRole === 'admin') {
-        navigate("/admin");
-      } else {
-        navigate("/dashboard");
-      }
-    } catch (err) {
-      setError(err.response?.data?.msg || "Login failed. Please try again.");
-    } finally {
-      setLoading(false);
+  try {
+    const response = await login(formData.email, formData.password);
+    const userRole = response.user?.role;
+    
+    // Redirect based on user role
+    if (userRole === 'admin') {
+      navigate("/admin");
+    } else if (userRole === 'employee') {
+      navigate("/admin"); // Employees also go to admin dashboard (with limited permissions)
+    } else {
+      navigate("/dashboard");
     }
-  };
+  } catch (err) {
+    setError(err.response?.data?.msg || "Login failed. Please try again.");
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <section className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-indigo-50 to-white px-6">

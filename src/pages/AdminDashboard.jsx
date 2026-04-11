@@ -1,13 +1,25 @@
-import React, { useState } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
+import { AuthContext } from '../context/AuthContext';
 import AdminSidebar from '../components/AdminSidebar';
 import StampPaperOrders from '../components/StampPaperOrders';
 import VendorManagement from '../components/VendorManagement';
-// import CreateVendor from '../components/CreateVendor';
+import CreateVendor from '../components/CreateVendor';
 import UploadStampPaper from '../components/UploadStampPaper';
+import EmployeeManagement from '../components/EmployeeManagement';
+import CreateEmployee from '../components/CreateEmployee';
 
 export default function AdminDashboard() {
+  const { user } = useContext(AuthContext);
   const [activeTab, setActiveTab] = useState('stamp-paper-orders');
+  const [permissions, setPermissions] = useState({});
   const [preselectedOrder, setPreselectedOrder] = useState(null);
+
+  useEffect(() => {
+    // Load employee permissions if user is employee
+    if (user?.role === 'employee') {
+      setPermissions(user.employeeDetails?.permissions || {});
+    }
+  }, [user]);
 
   const handleUploadClick = (order) => {
     setPreselectedOrder(order);
@@ -20,10 +32,14 @@ export default function AdminDashboard() {
         return <StampPaperOrders onUploadClick={handleUploadClick} />;
       case 'vendor-management':
         return <VendorManagement />;
-      // case 'create-vendor':
-      //   return <CreateVendor onVendorCreated={() => setActiveTab('vendor-management')} />;
+      case 'create-vendor':
+        return <CreateVendor onVendorCreated={() => setActiveTab('vendor-management')} />;
       case 'upload-stamp-paper':
         return <UploadStampPaper preselectedOrder={preselectedOrder} />;
+      case 'employee-management':
+        return <EmployeeManagement />;
+      case 'create-employee':
+        return <CreateEmployee onEmployeeCreated={() => setActiveTab('employee-management')} />;
       default:
         return <StampPaperOrders onUploadClick={handleUploadClick} />;
     }
@@ -31,8 +47,14 @@ export default function AdminDashboard() {
 
   return (
     <div className="flex min-h-screen bg-gray-50">
-      <AdminSidebar activeTab={activeTab} onTabChange={setActiveTab} />
+      <AdminSidebar 
+        activeTab={activeTab} 
+        onTabChange={setActiveTab}
+        userRole={user?.role}
+        permissions={permissions}
+      />
       
+      {/* Main Content Area */}
       <div className="flex-1 overflow-auto">
         <div className="p-8">
           {renderContent()}
