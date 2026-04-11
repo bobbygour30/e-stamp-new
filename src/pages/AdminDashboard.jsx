@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import AdminSidebar from '../components/AdminSidebar';
 import StampPaperOrders from '../components/StampPaperOrders';
 import VendorManagement from '../components/VendorManagement';
-import CreateVendor from '../components/CreateVendor';
+// import CreateVendor from '../components/CreateVendor';
 import UploadStampPaper from '../components/UploadStampPaper';
 
 export default function AdminDashboard() {
@@ -20,8 +20,8 @@ export default function AdminDashboard() {
         return <StampPaperOrders onUploadClick={handleUploadClick} />;
       case 'vendor-management':
         return <VendorManagement />;
-      case 'create-vendor':
-        return <CreateVendor onVendorCreated={() => setActiveTab('vendor-management')} />;
+      // case 'create-vendor':
+      //   return <CreateVendor onVendorCreated={() => setActiveTab('vendor-management')} />;
       case 'upload-stamp-paper':
         return <UploadStampPaper preselectedOrder={preselectedOrder} />;
       default:

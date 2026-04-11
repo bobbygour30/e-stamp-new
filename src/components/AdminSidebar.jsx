@@ -26,12 +26,6 @@ export default function AdminSidebar({ activeTab, onTabChange }) {
       description: 'Manage existing vendors'
     },
     {
-      id: 'create-vendor',
-      label: 'Create Vendor',
-      icon: UserPlus,
-      description: 'Register new vendor'
-    },
-    {
       id: 'upload-stamp-paper',
       label: 'Upload Stamp Paper',
       icon: Upload,
