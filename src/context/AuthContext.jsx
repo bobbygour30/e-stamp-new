@@ -25,6 +25,7 @@ export const AuthProvider = ({ children }) => {
     } catch (err) {
       console.error('Failed to fetch user:', err);
       localStorage.removeItem('token');
+      localStorage.removeItem('user');
     } finally {
       setLoading(false);
     }
@@ -36,6 +37,7 @@ export const AuthProvider = ({ children }) => {
       const { user, token } = response.data;
       
       localStorage.setItem('token', token);
+      localStorage.setItem('user', JSON.stringify(user));
       setUser(user);
       setError(null);
       
@@ -46,12 +48,26 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const signup = async (name, email, password) => {
+  const signup = async (name, email, password, phone, role, vendorDetails) => {
     try {
-      const response = await api.post('/auth/register', { name, email, password });
+      const requestData = {
+        name,
+        email,
+        password,
+        phone: phone || '',
+        role: role || 'user'
+      };
+      
+      // Add vendor details if signing up as vendor
+      if (role === 'vendor' && vendorDetails) {
+        requestData.vendorDetails = vendorDetails;
+      }
+      
+      const response = await api.post('/auth/register', requestData);
       const { user, token } = response.data;
       
       localStorage.setItem('token', token);
+      localStorage.setItem('user', JSON.stringify(user));
       setUser(user);
       setError(null);
       
@@ -64,6 +80,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('user');
     setUser(null);
     api.post('/auth/logout').catch(console.error);
   };

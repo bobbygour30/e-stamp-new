@@ -65,7 +65,7 @@ export const paymentAPI = {
   getPaymentStatus: (txnId) => api.get(`/payments/status/${txnId}`)
 };
 
-// Auth API - User Management
+// Add this to the authAPI object
 export const authAPI = {
   // User operations
   register: (data) => api.post('/auth/register', data),
@@ -88,7 +88,10 @@ export const authAPI = {
   getAllVendors: () => api.get('/auth/vendors'),
   getVendorById: (id) => api.get(`/auth/vendors/${id}`),
   updateVendor: (id, data) => api.put(`/auth/vendors/${id}`, data),
-  deleteVendor: (id) => api.delete(`/auth/vendors/${id}`)
+  deleteVendor: (id) => api.delete(`/auth/vendors/${id}`),
+  
+  // Vendor self-registration
+  registerAsVendor: (data) => api.post('/auth/register', { ...data, role: 'vendor' })
 };
 
 export default api;
