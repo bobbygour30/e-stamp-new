@@ -30,13 +30,6 @@ export default function AdminSidebar({ activeTab, onTabChange, userRole, permiss
       requiredPermission: 'vendorManagement'
     },
     {
-      id: 'create-vendor',
-      label: 'Create Vendor',
-      icon: UserPlus,
-      description: 'Register new vendor',
-      requiredPermission: 'createVendor'
-    },
-    {
       id: 'upload-stamp-paper',
       label: 'Upload Stamp Paper',
       icon: Upload,
