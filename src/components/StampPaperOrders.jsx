@@ -15,6 +15,7 @@ import {
   Upload
 } from 'lucide-react';
 import InvoiceModal from './InvoiceModal';
+import OrderDetailsModal from './OrderDetailsModal'; // Add this import
 
 export default function StampPaperOrders({ onUploadClick }) {
   const [requests, setRequests] = useState([]);
@@ -22,6 +23,7 @@ export default function StampPaperOrders({ onUploadClick }) {
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [showInvoice, setShowInvoice] = useState(false);
+  const [showOrderDetails, setShowOrderDetails] = useState(false); // Add this
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [adminRemarks, setAdminRemarks] = useState('');
   const [filter, setFilter] = useState({ status: '', documentType: '' });
@@ -94,6 +96,11 @@ export default function StampPaperOrders({ onUploadClick }) {
   const viewInvoice = (order) => {
     setSelectedOrder(order);
     setShowInvoice(true);
+  };
+
+  const viewOrderDetails = (order) => {
+    setSelectedOrder(order);
+    setShowOrderDetails(true);
   };
 
   const handleUploadClick = (order) => {
@@ -289,18 +296,18 @@ export default function StampPaperOrders({ onUploadClick }) {
                     <td className="px-6 py-4 text-sm">
                       <div className="flex gap-2">
                         <button 
+                          onClick={() => viewOrderDetails(request)} 
+                          className="text-indigo-600 hover:text-indigo-900" 
+                          title="View Order Details"
+                        >
+                          <Eye size={18} />
+                        </button>
+                        <button 
                           onClick={() => viewInvoice(request)} 
                           className="text-purple-600 hover:text-purple-900" 
                           title="View Invoice"
                         >
                           <Info size={18} />
-                        </button>
-                        <button 
-                          onClick={() => openStatusModal(request)} 
-                          className="text-indigo-600 hover:text-indigo-900" 
-                          title="View Details"
-                        >
-                          <Eye size={18} />
                         </button>
                         {request.status === 'pending' && request.paymentStatus === 'completed' && (
                           <>
@@ -442,6 +449,14 @@ export default function StampPaperOrders({ onUploadClick }) {
         <InvoiceModal 
           order={selectedOrder} 
           onClose={() => setShowInvoice(false)} 
+        />
+      )}
+
+      {/* Order Details Modal */}
+      {showOrderDetails && selectedOrder && (
+        <OrderDetailsModal 
+          order={selectedOrder} 
+          onClose={() => setShowOrderDetails(false)} 
         />
       )}
     </div>
