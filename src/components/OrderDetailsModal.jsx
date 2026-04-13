@@ -390,78 +390,76 @@ export default function OrderDetailsModal({ order, onClose }) {
           )}
 
           {/* ==================== RENTAL AGREEMENTS / RENT AGREEMENT ==================== */}
-          {(docType === 'rental-agreements' || docType === 'rent-agreement') && (
-            <>
-              <div className="mb-6">
-                <SectionTitle title="Owner/Licensor Details" icon={User} />
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <FieldRow label="Owner Name" value={formData.name || formData.ownerName} />
-                  <FieldRow label="Relation Type" value={formData.relationType || formData.ownerRelation} />
-                  <FieldRow label="Relation Name" value={formData.relationName || formData.ownerRelationName} />
-                  <FieldRow label="Occupation" value={formData.firstPartyOccupation} />
-                  <FieldRow label="Restricted At" value={formData.restrictedAt} />
-                  <FieldRow label="First Referred Party" value={formData.firstReferredParty} />
-                  <FieldRow label="Aadhaar Number" value={formData.ownerAadhaar} />
-                </div>
-              </div>
+{(docType === 'rental-agreements' || docType === 'rent-agreement') && (
+  <>
+    <div className="mb-6">
+      <SectionTitle title="Owner/Licensor Details" icon={User} />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <FieldRow label="Owner Name" value={formData.name || formData.ownerName} />
+        <FieldRow label="Relation Type" value={formData.relationType || formData.ownerRelation} />
+        <FieldRow label="Relation Name" value={formData.relationName || formData.ownerRelationName} />
+        <FieldRow label="Occupation" value={formData.firstPartyOccupation} />
+        <FieldRow label="Restricted At" value={formData.restrictedAt} />
+        <FieldRow label="First Referred Party" value={formData.firstReferredParty} />
+        <FieldRow label="Aadhaar Number" value={formData.ownerAadhaar} />
+      </div>
+    </div>
 
-              <div className="mb-6">
-                <SectionTitle title="Tenant/Licensee Details" icon={Users} />
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <FieldRow label="Tenant Name" value={formData.tenantName || formData.secondPartyName} />
-                  <FieldRow label="Relation" value={formData.tenantRelation || formData.relationType} />
-                  <FieldRow label="Relation Name" value={formData.tenantRelationName} />
-                  <FieldRow label="Father's Name" value={formData.secondPartyFatherName} />
-                  <FieldRow label="Age" value={formData.secondPartyAge} />
-                  <FieldRow label="Occupation" value={formData.secondPartyOccupation} />
-                  <FieldRow label="Address" value={formData.tenantAddress || formData.secondPartyAddress} />
-                  <FieldRow label="Aadhaar Number" value={formData.tenantAadhaar} />
-                </div>
-              </div>
+    <div className="mb-6">
+      <SectionTitle title="Tenant/Licensee Details" icon={Users} />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <FieldRow label="Tenant Name" value={formData.tenantName || formData.secondPartyName} />
+        <FieldRow label="Relation" value={formData.tenantRelation || formData.relationType} />
+        <FieldRow label="Relation Name" value={formData.tenantRelationName} />
+        <FieldRow label="Father's Name" value={formData.secondPartyFatherName} />
+        <FieldRow label="Age" value={formData.secondPartyAge} />
+        <FieldRow label="Occupation" value={formData.secondPartyOccupation} />
+        <FieldRow label="Address" value={formData.tenantAddress || formData.secondPartyAddress} />
+        <FieldRow label="Aadhaar Number" value={formData.tenantAadhaar} />
+      </div>
+    </div>
 
-              <div className="mb-6">
-                <SectionTitle title="Property Details" icon={Home} />
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <FieldRow label="Property Address" value={formData.propertyAddress} />
-                  <FieldRow label="Property Area" value={formData.propertyArea} />
-                  <FieldRow label="Property Type" value={formData.propertyType} />
-                  <FieldRow label="Sub-Registrar Office" value={formData.subRegistrarOffice} />
-                </div>
-              </div>
+    <div className="mb-6">
+      <SectionTitle title="Property Details" icon={Home} />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <FieldRow label="Property Address" value={formData.propertyAddress} />
+        <FieldRow label="Property Area" value={formData.propertyArea} />
+        <FieldRow label="Property Type" value={formData.propertyType} />
+        <FieldRow label="Sub-Registrar Office" value={formData.subRegistrarOffice} />
+      </div>
+    </div>
 
-              <div className="mb-6">
-                <SectionTitle title="License/Rent Details" icon={FileText} />
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <FieldRow label="License Type" value={formData.secondlicenseType} />
-                  <FieldRow label="License Purpose" value={formData.licensePurpose} />
-                  <FieldRow label="License Duration" value={formData.licenseDurationMonths ? `${formData.licenseDurationMonths} months` : formData.duration ? `${formData.duration} months` : 'N/A'} />
-                  <FieldRow label="License Start Date" value={formatDate(formData.licenseStartDate || formData.startDate)} />
-                  <FieldRow label="License End Date" value={formatDate(formData.licenseEndDate || formData.endDate)} />
-                  <FieldRow label="Monthly Rent" value={formData.monthlyRent ? `₹${formData.monthlyRent}` : 'N/A'} />
-                  <FieldRow label="Monthly Rent (Words)" value={formData.monthlyRentWords} />
-                  <FieldRow label="Maintenance Charges" value={formData.maintenance ? `₹${formData.maintenance}` : 'N/A'} />
-                  <FieldRow label="Security Amount" value={formData.securityAmount ? `₹${formData.securityAmount}` : 'N/A'} />
-                  <FieldRow label="Rent Payable Day" value={formData.rentDay} />
-                  <FieldRow label="Payment Mode" value={formData.paymentMode} />
-                  <FieldRow label="Payment Due Day" value={formData.paymentDueDay} />
-                  <FieldRow label="Notice Period" value={formData.noticePeriod ? `${formData.noticePeriod} months` : 'N/A'} />
-                  <FieldRow label="Rent Increment" value={formData.increment ? `${formData.increment}%` : 'N/A'} />
-                  <FieldRow label="Purpose of Rent" value={formData.purpose} />
-                </div>
-              </div>
+    <div className="mb-6">
+      <SectionTitle title="License/Rent Details" icon={FileText} />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <FieldRow label="License Duration" value="11 months" />
+        <FieldRow label="License Start Date" value={formatDate(formData.licenseStartDate)} />
+        <FieldRow label="License End Date" value={formatDate(formData.licenseEndDate)} />
+        <FieldRow label="Monthly Rent" value={formData.monthlyRent ? `₹${formData.monthlyRent}` : 'N/A'} />
+        <FieldRow label="Monthly Rent (Words)" value={formData.monthlyRentWords} />
+        <FieldRow label="Maintenance Charges" value={formData.maintenance ? `₹${formData.maintenance}` : 'N/A'} />
+        <FieldRow label="Security Amount" value={formData.securityAmount ? `₹${formData.securityAmount}` : 'N/A'} />
+        <FieldRow label="Rent Payable Day" value={formData.rentDay} />
+        <FieldRow label="Payment Mode" value={formData.paymentMode} />
+        <FieldRow label="Payment Due Day" value={formData.paymentDueDay} />
+        <FieldRow label="Notice Period" value={formData.noticePeriod ? `${formData.noticePeriod} months` : 'N/A'} />
+        <FieldRow label="Rent Increment" value={formData.increment ? `${formData.increment}%` : 'N/A'} />
+        <FieldRow label="Purpose of Rent" value={formData.purpose} />
+      </div>
+    </div>
 
-              {/* Witness Details */}
-              {(formData.witnessName || formData.witnessAddress) && (
-                <div className="mb-6">
-                  <SectionTitle title="Witness Details" icon={Users} />
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <FieldRow label="Witness Name" value={formData.witnessName} />
-                    <FieldRow label="Witness Address" value={formData.witnessAddress} />
-                  </div>
-                </div>
-              )}
-            </>
-          )}
+    {/* Witness Details */}
+    {(formData.witnessName || formData.witnessAddress) && (
+      <div className="mb-6">
+        <SectionTitle title="Witness Details" icon={Users} />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <FieldRow label="Witness Name" value={formData.witnessName} />
+          <FieldRow label="Witness Address" value={formData.witnessAddress} />
+        </div>
+      </div>
+    )}
+  </>
+)}
 
           {/* Admin Remarks */}
           {order.adminRemarks && (

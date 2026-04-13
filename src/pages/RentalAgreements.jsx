@@ -1,4 +1,4 @@
-import { useRef, useState, useContext } from "react";
+import { useRef, useState, useContext, useEffect } from "react";
 import html2pdf from "html2pdf.js";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
@@ -22,11 +22,7 @@ const initialData = {
     propertyArea: "",
     propertyType: "",
     subRegistrarOffice: "",
-    secondlicenseType: "",
-    licensePurpose: "",
-    licenseDurationMonths: "",
     licenseStartDate: "",
-    licenseEndDate: "",
     monthlyRent: "",
     monthlyRentWords: "",
     paymentMode: "",
@@ -42,9 +38,23 @@ export default function RentalAgreements() {
     const [requestId, setRequestId] = useState(null);
     const [loading, setLoading] = useState(false);
     const [uploading, setUploading] = useState(false);
+    const [calculatedEndDate, setCalculatedEndDate] = useState("");
     const pdfRef = useRef(null);
     const navigate = useNavigate();
     const { user } = useContext(AuthContext);
+
+    // Calculate end date (11 months from start date)
+    useEffect(() => {
+        if (data.licenseStartDate) {
+            const startDate = new Date(data.licenseStartDate);
+            const endDate = new Date(startDate);
+            endDate.setMonth(endDate.getMonth() + 11);
+            const formattedEndDate = endDate.toISOString().split('T')[0];
+            setCalculatedEndDate(formattedEndDate);
+        } else {
+            setCalculatedEndDate("");
+        }
+    }, [data.licenseStartDate]);
 
     const update = (e) => {
         const { name, value } = e.target;
@@ -66,7 +76,7 @@ export default function RentalAgreements() {
         }
         
         const opt = {
-            margin: [0.3, 0.3, 0.3, 0.3], // Smaller margins to prevent cutting
+            margin: [0.3, 0.3, 0.3, 0.3],
             filename: "Rental_Agreement.pdf",
             image: { type: "jpeg", quality: 0.98 },
             html2canvas: { 
@@ -111,9 +121,16 @@ export default function RentalAgreements() {
                 throw new Error('Generated PDF is empty');
             }
             
+            // Prepare data with calculated end date
+            const submitData = {
+                ...data,
+                licenseDurationMonths: "11",
+                licenseEndDate: calculatedEndDate
+            };
+            
             const response = await documentAPI.createRequest({
                 documentType: 'rental-agreement',
-                formData: data,
+                formData: submitData,
                 paymentAmount: 1,
             });
 
@@ -206,13 +223,22 @@ export default function RentalAgreements() {
                         <Input label="Sub-Registrar Office" name="subRegistrarOffice" value={data.subRegistrarOffice} onChange={update} />
                     </div>
 
-                    {/* License Details */}
-                    <div className="grid grid-cols-2 gap-3 mt-6">
-                        <Input label="License Type" name="secondlicenseType" value={data.secondlicenseType} onChange={update} />
-                        <Input label="License Purpose" name="licensePurpose" value={data.licensePurpose} onChange={update} />
-                        <Input label="License Duration (Months)" name="licenseDurationMonths" value={data.licenseDurationMonths} onChange={update} />
-                        <DateInput label="License Start Date" name="licenseStartDate" value={data.licenseStartDate} onChange={update} />
-                        <DateInput label="License End Date" name="licenseEndDate" value={data.licenseEndDate} onChange={update} />
+                    {/* License Details - Removed Type and Purpose, Added Auto-calculation */}
+                    <div className="grid grid-cols-1 gap-3 mt-6">
+                        <DateInput 
+                            label="License Start Date" 
+                            name="licenseStartDate" 
+                            value={data.licenseStartDate} 
+                            onChange={update} 
+                        />
+                        {calculatedEndDate && (
+                            <div className="mb-3 p-3 bg-green-50 rounded-lg">
+                                <label className="block text-sm font-medium text-green-700 mb-1">
+                                    License End Date (Auto-calculated - 11 months)
+                                </label>
+                                <p className="text-green-800 font-medium">{formatDateForDisplay(calculatedEndDate)}</p>
+                            </div>
+                        )}
                     </div>
 
                     {/* Rent Details */}
@@ -262,7 +288,7 @@ export default function RentalAgreements() {
                     </div>
                 </div>
 
-                {/* PDF PREVIEW SECTION - FIXED LAYOUT */}
+                {/* PDF PREVIEW SECTION */}
                 <div className="bg-gray-100 rounded-xl shadow overflow-auto flex justify-center p-4" style={{ height: "90vh" }}>
                     <div
                         ref={pdfRef}
@@ -345,10 +371,7 @@ export default function RentalAgreements() {
                             </p>
 
                             <p style={{ marginTop: "12px" }}>
-                                The Licensee has approached the Licensor with request to permit him/her to use & occupy the said premises on{" "}
-                                <b>{data.secondlicenseType || "____________"}</b> basis as{" "}
-                                <b>{data.licensePurpose || "____________"}</b> Purpose for a period of{" "}
-                                <b>{data.licenseDurationMonths || "____"}</b> months.
+                                The Licensee has approached the Licensor with request to permit him/her to use & occupy the said premises on Leave and License basis for a period of <b>11 months</b>.
                             </p>
 
                             <h2 style={{ fontWeight: "bold", margin: "20px 0", textAlign: "center", fontSize: "13pt" }}>
@@ -359,7 +382,7 @@ export default function RentalAgreements() {
                         {/* Terms & Conditions */}
                         <div style={{ marginLeft: "0px" }}>
                             <div style={{ margin: "10px 0" }}>
-                                1. The Licensor agrees to demise unto the Licensee and the Licensee hereby accepts the said premises... for a period of <b>{data.licenseDurationMonths || "____"} Months</b> with effect from <b>{formatDateForDisplay(data.licenseStartDate)}</b> to <b>{formatDateForDisplay(data.licenseEndDate)}</b> on Leave and License basis.
+                                1. The Licensor agrees to demise unto the Licensee and the Licensee hereby accepts the said premises... for a period of <b>11 Months</b> with effect from <b>{formatDateForDisplay(data.licenseStartDate)}</b> to <b>{formatDateForDisplay(calculatedEndDate)}</b> on Leave and License basis.
                             </div>
 
                             <div style={{ margin: "10px 0" }}>
