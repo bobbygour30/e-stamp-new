@@ -96,9 +96,6 @@ export default function HeroSection() {
           <div className="relative animate-slide-up">
             {/* Main Card - Redesigned */}
             <div className="relative rounded-3xl bg-white shadow-2xl overflow-hidden border border-slate-100">
-              
-             
-
               {/* Stats Grid - Enhanced */}
               <div className="p-6 space-y-6">
                 <div className="grid grid-cols-2 gap-4">
