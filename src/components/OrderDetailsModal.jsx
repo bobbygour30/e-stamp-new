@@ -1,19 +1,36 @@
-import React from 'react';
-import { X, Calendar, MapPin, User, FileText, Download, GraduationCap, Home, Building, Users, Phone, Mail, Briefcase, Truck, DollarSign, AlertCircle } from 'lucide-react';
+import React from "react";
+import {
+  X,
+  Calendar,
+  MapPin,
+  User,
+  FileText,
+  Download,
+  GraduationCap,
+  Home,
+  Building,
+  Users,
+  Phone,
+  Mail,
+  Briefcase,
+  Truck,
+  DollarSign,
+  AlertCircle,
+} from "lucide-react";
 
 export default function OrderDetailsModal({ order, onClose }) {
   if (!order) return null;
 
   const formData = order.formData || {};
-  
+
   // Format date for display
   const formatDate = (dateString) => {
-    if (!dateString) return 'N/A';
+    if (!dateString) return "N/A";
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-IN', {
-      day: '2-digit',
-      month: 'long',
-      year: 'numeric'
+    return date.toLocaleDateString("en-IN", {
+      day: "2-digit",
+      month: "long",
+      year: "numeric",
     });
   };
 
@@ -21,7 +38,7 @@ export default function OrderDetailsModal({ order, onClose }) {
   const FieldRow = ({ label, value }) => (
     <div className="py-3 border-b border-gray-100">
       <p className="text-xs text-gray-500 mb-1">{label}</p>
-      <p className="text-sm text-gray-900 font-medium">{value || 'N/A'}</p>
+      <p className="text-sm text-gray-900 font-medium">{value || "N/A"}</p>
     </div>
   );
 
@@ -44,7 +61,7 @@ export default function OrderDetailsModal({ order, onClose }) {
             <FileText size={24} className="text-indigo-600" />
             <h2 className="text-xl font-bold text-gray-900">Order Details</h2>
             <span className="ml-2 px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-700 capitalize">
-              {docType?.replace(/-/g, ' ')}
+              {docType?.replace(/-/g, " ")}
             </span>
           </div>
           <button
@@ -62,54 +79,81 @@ export default function OrderDetailsModal({ order, onClose }) {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <p className="text-xs text-gray-500">Order ID</p>
-                <p className="text-sm font-mono font-medium text-gray-900">{order.orderId || order._id.slice(-8)}</p>
+                <p className="text-sm font-mono font-medium text-gray-900">
+                  {order.orderId || order._id.slice(-8)}
+                </p>
               </div>
               <div>
                 <p className="text-xs text-gray-500">Document Type</p>
-                <p className="text-sm font-medium text-gray-900 capitalize">{docType?.replace(/-/g, ' ') || 'N/A'}</p>
+                <p className="text-sm font-medium text-gray-900 capitalize">
+                  {docType?.replace(/-/g, " ") || "N/A"}
+                </p>
               </div>
               <div>
                 <p className="text-xs text-gray-500">Order Status</p>
-                <span className={`inline-block px-2 py-1 text-xs rounded-full ${
-                  order.status === 'completed' ? 'bg-green-100 text-green-800' :
-                  order.status === 'approved' ? 'bg-blue-100 text-blue-800' :
-                  order.status === 'rejected' ? 'bg-red-100 text-red-800' :
-                  'bg-yellow-100 text-yellow-800'
-                }`}>
-                  {order.status?.toUpperCase() || 'PENDING'}
+                <span
+                  className={`inline-block px-2 py-1 text-xs rounded-full ${
+                    order.status === "completed"
+                      ? "bg-green-100 text-green-800"
+                      : order.status === "approved"
+                        ? "bg-blue-100 text-blue-800"
+                        : order.status === "rejected"
+                          ? "bg-red-100 text-red-800"
+                          : "bg-yellow-100 text-yellow-800"
+                  }`}
+                >
+                  {order.status?.toUpperCase() || "PENDING"}
                 </span>
               </div>
               <div>
                 <p className="text-xs text-gray-500">Payment Status</p>
-                <span className={`inline-block px-2 py-1 text-xs rounded-full ${
-                  order.paymentStatus === 'completed' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
-                }`}>
-                  {order.paymentStatus?.toUpperCase() || 'PENDING'}
+                <span
+                  className={`inline-block px-2 py-1 text-xs rounded-full ${
+                    order.paymentStatus === "completed"
+                      ? "bg-green-100 text-green-800"
+                      : "bg-yellow-100 text-yellow-800"
+                  }`}
+                >
+                  {order.paymentStatus?.toUpperCase() || "PENDING"}
                 </span>
               </div>
               <div>
                 <p className="text-xs text-gray-500">Amount Paid</p>
-                <p className="text-sm font-medium text-gray-900">₹{order.paymentAmount || 0}</p>
+                <p className="text-sm font-medium text-gray-900">
+                  ₹{order.paymentAmount || 0}
+                </p>
               </div>
               <div>
                 <p className="text-xs text-gray-500">Submitted On</p>
-                <p className="text-sm text-gray-900">{formatDate(order.createdAt)}</p>
+                <p className="text-sm text-gray-900">
+                  {formatDate(order.createdAt)}
+                </p>
               </div>
             </div>
           </div>
 
           {/* ==================== MARRIAGE REGISTER / MARRIAGE REGISTRATION ==================== */}
-          {(docType === 'marriage-register' || docType === 'marriage-registration') && (
+          {(docType === "marriage-register" ||
+            docType === "marriage-registration") && (
             <>
               {/* Groom Details */}
               {(formData.groomName || formData.name) && (
                 <div className="mb-6">
                   <SectionTitle title="Groom Details" icon={User} />
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <FieldRow label="Groom Name" value={formData.groomName || formData.name} />
-                    <FieldRow label="Groom Father Name" value={formData.groomFather || formData.fatherName} />
+                    <FieldRow
+                      label="Groom Name"
+                      value={formData.groomName || formData.name}
+                    />
+                    <FieldRow
+                      label="Groom Father Name"
+                      value={formData.groomFather || formData.fatherName}
+                    />
                     <div className="col-span-2">
-                      <FieldRow label="Groom Address" value={formData.groomAddress || formData.residentOf} />
+                      <FieldRow
+                        label="Groom Address"
+                        value={formData.groomAddress || formData.residentOf}
+                      />
                     </div>
                   </div>
                 </div>
@@ -121,9 +165,15 @@ export default function OrderDetailsModal({ order, onClose }) {
                   <SectionTitle title="Bride Details" icon={User} />
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <FieldRow label="Bride Name" value={formData.brideName} />
-                    <FieldRow label="Bride Father Name" value={formData.brideFather} />
+                    <FieldRow
+                      label="Bride Father Name"
+                      value={formData.brideFather}
+                    />
                     <div className="col-span-2">
-                      <FieldRow label="Bride Address" value={formData.brideAddress} />
+                      <FieldRow
+                        label="Bride Address"
+                        value={formData.brideAddress}
+                      />
                     </div>
                   </div>
                 </div>
@@ -135,9 +185,15 @@ export default function OrderDetailsModal({ order, onClose }) {
                   <SectionTitle title="Spouse Details" icon={User} />
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <FieldRow label="Spouse Name" value={formData.spouseName} />
-                    <FieldRow label="Spouse Father Name" value={formData.spouseFatherName} />
+                    <FieldRow
+                      label="Spouse Father Name"
+                      value={formData.spouseFatherName}
+                    />
                     <div className="col-span-2">
-                      <FieldRow label="Spouse Address" value={formData.spouseResidentOf} />
+                      <FieldRow
+                        label="Spouse Address"
+                        value={formData.spouseResidentOf}
+                      />
                     </div>
                   </div>
                 </div>
@@ -148,11 +204,26 @@ export default function OrderDetailsModal({ order, onClose }) {
                 <div className="mb-6">
                   <SectionTitle title="Marriage Details" icon={Calendar} />
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <FieldRow label="Marriage Date" value={formatDate(formData.marriageDate)} />
-                    <FieldRow label="Marriage Place" value={formData.marriagePlace} />
-                    <FieldRow label="Marriage According To" value={formData.marriageAccordingTo} />
-                    <FieldRow label="Verification Place" value={formData.verificationPlace || 'Delhi'} />
-                    <FieldRow label="Verification Date" value={formatDate(formData.verificationDate)} />
+                    <FieldRow
+                      label="Marriage Date"
+                      value={formatDate(formData.marriageDate)}
+                    />
+                    <FieldRow
+                      label="Marriage Place"
+                      value={formData.marriagePlace}
+                    />
+                    <FieldRow
+                      label="Marriage According To"
+                      value={formData.marriageAccordingTo}
+                    />
+                    <FieldRow
+                      label="Verification Place"
+                      value={formData.verificationPlace || "Delhi"}
+                    />
+                    <FieldRow
+                      label="Verification Date"
+                      value={formatDate(formData.verificationDate)}
+                    />
                   </div>
                 </div>
               )}
@@ -162,9 +233,18 @@ export default function OrderDetailsModal({ order, onClose }) {
                 <div className="mb-6">
                   <SectionTitle title="Personal Details" icon={Calendar} />
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <FieldRow label="Date of Birth" value={formatDate(formData.dob)} />
-                    <FieldRow label="Age at Marriage" value={formData.ageAtMarriage} />
-                    <FieldRow label="Marital Status Before" value={formData.maritalStatusBefore} />
+                    <FieldRow
+                      label="Date of Birth"
+                      value={formatDate(formData.dob)}
+                    />
+                    <FieldRow
+                      label="Age at Marriage"
+                      value={formData.ageAtMarriage}
+                    />
+                    <FieldRow
+                      label="Marital Status Before"
+                      value={formData.maritalStatusBefore}
+                    />
                     <FieldRow label="Religion" value={formData.religion} />
                   </div>
                 </div>
@@ -173,7 +253,7 @@ export default function OrderDetailsModal({ order, onClose }) {
           )}
 
           {/* ==================== AFTER MARRIAGE NAME CHANGE ==================== */}
-          {docType === 'after-marriage-name-change' && (
+          {docType === "after-marriage-name-change" && (
             <div className="mb-6">
               <SectionTitle title="Name Change Details" icon={User} />
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -181,107 +261,208 @@ export default function OrderDetailsModal({ order, onClose }) {
                 <FieldRow label="Relation Type" value={formData.relationType} />
                 <FieldRow label="Relation Name" value={formData.relationName} />
                 <FieldRow label="Resident Of" value={formData.residentOf} />
-                <FieldRow label="Name Before Marriage" value={formData.nameBeforeMarriage} />
-                <FieldRow label="Name After Marriage" value={formData.nameAfterMarriage} />
-                <FieldRow label="Verification Place" value={formData.verificationPlace} />
-                <FieldRow label="Verification Date" value={formatDate(formData.verificationDate)} />
+                <FieldRow
+                  label="Name Before Marriage"
+                  value={formData.nameBeforeMarriage}
+                />
+                <FieldRow
+                  label="Name After Marriage"
+                  value={formData.nameAfterMarriage}
+                />
+                <FieldRow
+                  label="Verification Place"
+                  value={formData.verificationPlace}
+                />
+                <FieldRow
+                  label="Verification Date"
+                  value={formatDate(formData.verificationDate)}
+                />
               </div>
             </div>
           )}
 
           {/* ==================== NAME CHANGE / CORRECTION ==================== */}
-          {(docType === 'name-change' || docType === 'name-correction') && (
+          {(docType === "name-change" || docType === "name-correction") && (
             <div className="mb-6">
-              <SectionTitle title="Name Change/Correction Details" icon={User} />
+              <SectionTitle
+                title="Name Change/Correction Details"
+                icon={User}
+              />
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <FieldRow label="Name" value={formData.name} />
                 <FieldRow label="Relation Type" value={formData.relationType} />
-                <FieldRow label="Husband/Father Name" value={formData.husbandName || formData.relationName} />
-                <FieldRow label="Address" value={formData.address || formData.residentOf} />
+                <FieldRow
+                  label="Husband/Father Name"
+                  value={formData.husbandName || formData.relationName}
+                />
+                <FieldRow
+                  label="Address"
+                  value={formData.address || formData.residentOf}
+                />
                 <FieldRow label="Correct Name" value={formData.correctName} />
                 <FieldRow label="Wrong Name" value={formData.wrongName} />
                 {formData.documentType1 && (
                   <>
-                    <FieldRow label="Document Type 1" value={formData.documentType1} />
-                    <FieldRow label="Name As Per Document 1" value={formData.nameAsPerDoc1} />
-                    <FieldRow label="Document Type 2" value={formData.documentType2} />
-                    <FieldRow label="Name As Per Document 2" value={formData.nameAsPerDoc2} />
+                    <FieldRow
+                      label="Document Type 1"
+                      value={formData.documentType1}
+                    />
+                    <FieldRow
+                      label="Name As Per Document 1"
+                      value={formData.nameAsPerDoc1}
+                    />
+                    <FieldRow
+                      label="Document Type 2"
+                      value={formData.documentType2}
+                    />
+                    <FieldRow
+                      label="Name As Per Document 2"
+                      value={formData.nameAsPerDoc2}
+                    />
                     <FieldRow label="Old Name" value={formData.oldName} />
                     <FieldRow label="New Name" value={formData.newName} />
                   </>
                 )}
-                <FieldRow label="Verification Place" value={formData.verificationPlace || 'Delhi'} />
-                <FieldRow label="Verification Date" value={formatDate(formData.verificationDate)} />
+                <FieldRow
+                  label="Verification Place"
+                  value={formData.verificationPlace || "Delhi"}
+                />
+                <FieldRow
+                  label="Verification Date"
+                  value={formatDate(formData.verificationDate)}
+                />
               </div>
             </div>
           )}
 
           {/* ==================== ADDITIONAL NAME ==================== */}
-          {docType === 'additional-name' && (
+          {docType === "additional-name" && (
             <div className="mb-6">
               <SectionTitle title="Additional Name Details" icon={User} />
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <FieldRow label="Applicant Name" value={formData.applicantName} />
+                <FieldRow
+                  label="Applicant Name"
+                  value={formData.applicantName}
+                />
                 <FieldRow label="Relation Type" value={formData.relationType} />
                 <FieldRow label="Father Name" value={formData.fatherName} />
                 <FieldRow label="Address" value={formData.address} />
                 <FieldRow label="Son Name" value={formData.sonName} />
-                <FieldRow label="Date of Birth" value={formatDate(formData.dob)} />
+                <FieldRow
+                  label="Date of Birth"
+                  value={formatDate(formData.dob)}
+                />
                 <FieldRow label="Old Name" value={formData.oldName} />
                 <FieldRow label="New Name" value={formData.newName} />
-                <FieldRow label="Verification Place" value={formData.verificationPlace || 'Delhi'} />
-                <FieldRow label="Verification Date" value={formatDate(formData.verificationDate)} />
+                <FieldRow
+                  label="Verification Place"
+                  value={formData.verificationPlace || "Delhi"}
+                />
+                <FieldRow
+                  label="Verification Date"
+                  value={formatDate(formData.verificationDate)}
+                />
               </div>
             </div>
           )}
 
           {/* ==================== SINGLE GIRL CHILD ==================== */}
-          {docType === 'single-girl' && (
+          {docType === "single-girl" && (
             <div className="mb-6">
               <SectionTitle title="Single Girl Child Details" icon={Users} />
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <FieldRow label="Applicant Name" value={formData.applicantName} />
+                <FieldRow
+                  label="Applicant Name"
+                  value={formData.applicantName}
+                />
                 <FieldRow label="Relation Type" value={formData.relationType} />
                 <FieldRow label="Father Name" value={formData.fatherName} />
                 <FieldRow label="Age" value={formData.age} />
                 <FieldRow label="Occupation" value={formData.occupation} />
                 <FieldRow label="Address" value={formData.address} />
                 <FieldRow label="Girl Child Name" value={formData.childName} />
-                <FieldRow label="Date of Birth" value={formatDate(formData.dob)} />
-                <FieldRow label="Class Applied For" value={formData.className} />
+                <FieldRow
+                  label="Date of Birth"
+                  value={formatDate(formData.dob)}
+                />
+                <FieldRow
+                  label="Class Applied For"
+                  value={formData.className}
+                />
                 <FieldRow label="Contact Number 1" value={formData.contact1} />
                 <FieldRow label="Contact Number 2" value={formData.contact2} />
-                <FieldRow label="Verification Place" value={formData.verificationPlace || 'Delhi'} />
-                <FieldRow label="Verification Date" value={formatDate(formData.verificationDate)} />
+                <FieldRow
+                  label="Verification Place"
+                  value={formData.verificationPlace || "Delhi"}
+                />
+                <FieldRow
+                  label="Verification Date"
+                  value={formatDate(formData.verificationDate)}
+                />
               </div>
             </div>
           )}
 
           {/* ==================== FIRST BABY / BIRTH CERTIFICATE ==================== */}
-          {(docType === 'first-baby' || docType === 'birth-certificate' || docType === 'name-addition-birth-certificate') && (
+          {(docType === "first-baby" ||
+            docType === "birth-certificate" ||
+            docType === "name-addition-birth-certificate") && (
             <div className="mb-6">
               <SectionTitle title="Birth/Child Details" icon={Users} />
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {formData.fatherName && <FieldRow label="Father Name" value={formData.fatherName} />}
-                {formData.motherName && <FieldRow label="Mother Name" value={formData.motherName} />}
-                {formData.name && <FieldRow label="Name" value={formData.name} />}
-                {formData.applicantName && <FieldRow label="Applicant Name" value={formData.applicantName} />}
-                <FieldRow label="Child Name" value={formData.childName || formData.firstBornName} />
-                <FieldRow label="Date of Birth" value={formatDate(formData.birthDate || formData.dob)} />
+                {formData.fatherName && (
+                  <FieldRow label="Father Name" value={formData.fatherName} />
+                )}
+                {formData.motherName && (
+                  <FieldRow label="Mother Name" value={formData.motherName} />
+                )}
+                {formData.name && (
+                  <FieldRow label="Name" value={formData.name} />
+                )}
+                {formData.applicantName && (
+                  <FieldRow
+                    label="Applicant Name"
+                    value={formData.applicantName}
+                  />
+                )}
+                <FieldRow
+                  label="Child Name"
+                  value={formData.childName || formData.firstBornName}
+                />
+                <FieldRow
+                  label="Date of Birth"
+                  value={formatDate(formData.birthDate || formData.dob)}
+                />
                 <FieldRow label="Place of Birth" value={formData.birthPlace} />
                 <FieldRow label="Class" value={formData.className} />
                 <FieldRow label="School Name" value={formData.schoolName} />
                 <FieldRow label="Category" value={formData.category} />
-                {formData.certificateNumber && <FieldRow label="Certificate Number" value={formData.certificateNumber} />}
-                {formData.certificateDate && <FieldRow label="Certificate Date" value={formatDate(formData.certificateDate)} />}
-                <FieldRow label="Verification Place" value={formData.verificationPlace || 'Delhi'} />
-                <FieldRow label="Verification Date" value={formatDate(formData.verificationDate)} />
+                {formData.certificateNumber && (
+                  <FieldRow
+                    label="Certificate Number"
+                    value={formData.certificateNumber}
+                  />
+                )}
+                {formData.certificateDate && (
+                  <FieldRow
+                    label="Certificate Date"
+                    value={formatDate(formData.certificateDate)}
+                  />
+                )}
+                <FieldRow
+                  label="Verification Place"
+                  value={formData.verificationPlace || "Delhi"}
+                />
+                <FieldRow
+                  label="Verification Date"
+                  value={formatDate(formData.verificationDate)}
+                />
               </div>
             </div>
           )}
 
           {/* ==================== ADDRESS PROOF ==================== */}
-          {docType === 'address-proof' && (
+          {docType === "address-proof" && (
             <div className="mb-6">
               <SectionTitle title="Address Details" icon={Home} />
               <div className="grid grid-cols-1 gap-3">
@@ -289,16 +470,25 @@ export default function OrderDetailsModal({ order, onClose }) {
                 <FieldRow label="Relation Type" value={formData.relationType} />
                 <FieldRow label="Relation Name" value={formData.relationName} />
                 <FieldRow label="Resident Of" value={formData.residentOf} />
-                <FieldRow label="Previous Address" value={formData.oldAddress} />
+                <FieldRow
+                  label="Previous Address"
+                  value={formData.oldAddress}
+                />
                 <FieldRow label="New Address" value={formData.newAddress} />
-                <FieldRow label="Verification Place" value={formData.verificationPlace} />
-                <FieldRow label="Verification Date" value={formatDate(formData.verificationDate)} />
+                <FieldRow
+                  label="Verification Place"
+                  value={formData.verificationPlace}
+                />
+                <FieldRow
+                  label="Verification Date"
+                  value={formatDate(formData.verificationDate)}
+                />
               </div>
             </div>
           )}
 
           {/* ==================== SIGNATURE CHANGE ==================== */}
-          {docType === 'signature' && (
+          {docType === "signature" && (
             <div className="mb-6">
               <SectionTitle title="Signature Change Details" icon={FileText} />
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -306,8 +496,14 @@ export default function OrderDetailsModal({ order, onClose }) {
                 <FieldRow label="Relation Type" value={formData.relationType} />
                 <FieldRow label="Relation Name" value={formData.relationName} />
                 <FieldRow label="Resident Of" value={formData.residentOf} />
-                <FieldRow label="Verification Place" value={formData.verificationPlace} />
-                <FieldRow label="Verification Date" value={formatDate(formData.verificationDate)} />
+                <FieldRow
+                  label="Verification Place"
+                  value={formData.verificationPlace}
+                />
+                <FieldRow
+                  label="Verification Date"
+                  value={formatDate(formData.verificationDate)}
+                />
               </div>
               <div className="mt-4 p-4 bg-gray-50 rounded-lg">
                 <p className="text-sm text-gray-600 mb-2">Signature Lines:</p>
@@ -332,7 +528,7 @@ export default function OrderDetailsModal({ order, onClose }) {
           )}
 
           {/* ==================== LOST DOCUMENT ==================== */}
-          {docType === 'lost-document' && (
+          {docType === "lost-document" && (
             <div className="mb-6">
               <SectionTitle title="Lost Document Details" icon={AlertCircle} />
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -340,126 +536,337 @@ export default function OrderDetailsModal({ order, onClose }) {
                 <FieldRow label="Relation Type" value={formData.relationType} />
                 <FieldRow label="Relation Name" value={formData.relationName} />
                 <FieldRow label="Resident Of" value={formData.residentOf} />
-                <FieldRow label="Lost Document Name" value={formData.lostDocument} />
-                <FieldRow label="Document Number" value={formData.documentNumber} />
+                <FieldRow
+                  label="Lost Document Name"
+                  value={formData.lostDocument}
+                />
+                <FieldRow
+                  label="Document Number"
+                  value={formData.documentNumber}
+                />
                 <FieldRow label="Issued By" value={formData.issuedBy} />
-                <FieldRow label="Issued Date" value={formatDate(formData.issuedDate)} />
-                <FieldRow label="Verification Place" value={formData.verificationPlace} />
-                <FieldRow label="Verification Date" value={formatDate(formData.verificationDate)} />
+                <FieldRow
+                  label="Issued Date"
+                  value={formatDate(formData.issuedDate)}
+                />
+                <FieldRow
+                  label="Verification Place"
+                  value={formData.verificationPlace}
+                />
+                <FieldRow
+                  label="Verification Date"
+                  value={formatDate(formData.verificationDate)}
+                />
               </div>
             </div>
           )}
 
           {/* ==================== SHORT ATTENDANCE / GAP YEAR / ANTI RAGGING / EDUCATION LOAN ==================== */}
-          {(docType === 'short-attendence' || docType === 'gap-year' || docType === 'anti-ragging' || docType === 'education-loan' || docType === 'income') && (
+          {(docType === "short-attendence" ||
+            docType === "gap-year" ||
+            docType === "anti-ragging" ||
+            docType === "education-loan" ||
+            docType === "income") && (
             <div className="mb-6">
-              <SectionTitle title="Student/Education Details" icon={GraduationCap} />
+              <SectionTitle
+                title="Student/Education Details"
+                icon={GraduationCap}
+              />
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <FieldRow label="Student Name" value={formData.name || formData.studentName} />
+                <FieldRow
+                  label="Student Name"
+                  value={formData.name || formData.studentName}
+                />
                 <FieldRow label="Father Name" value={formData.fatherName} />
                 <FieldRow label="Relation Type" value={formData.relationType} />
                 <FieldRow label="Address" value={formData.address} />
                 {formData.age && <FieldRow label="Age" value={formData.age} />}
-                {formData.collegeName && <FieldRow label="College Name" value={formData.collegeName} />}
-                {formData.universityName && <FieldRow label="University Name" value={formData.universityName} />}
-                {formData.course && <FieldRow label="Course" value={formData.course} />}
-                {formData.year && <FieldRow label="Year" value={formData.year} />}
-                {formData.section && <FieldRow label="Section" value={formData.section} />}
-                {formData.hostelName && <FieldRow label="Hostel Name" value={formData.hostelName} />}
-                {formData.guardianName && <FieldRow label="Guardian Name" value={formData.guardianName} />}
-                {formData.guardianRelation && <FieldRow label="Guardian Relation" value={formData.guardianRelation} />}
-                {formData.guardianAddress && <FieldRow label="Guardian Address" value={formData.guardianAddress} />}
-                {formData.passedYear && <FieldRow label="12th Passed Year" value={formData.passedYear} />}
-                {formData.gapClass && <FieldRow label="Gap After Class" value={formData.gapClass} />}
-                {formData.gapFrom && <FieldRow label="Gap From" value={formData.gapFrom} />}
-                {formData.gapTo && <FieldRow label="Gap To" value={formData.gapTo} />}
-                {formData.deponent1Name && <FieldRow label="Deponent 1 Name" value={formData.deponent1Name} />}
-                {formData.deponent1Father && <FieldRow label="Deponent 1 Father" value={formData.deponent1Father} />}
-                {formData.deponent2Name && <FieldRow label="Deponent 2 Name" value={formData.deponent2Name} />}
-                {formData.deponent2Father && <FieldRow label="Deponent 2 Father" value={formData.deponent2Father} />}
-                {formData.institute && <FieldRow label="Institute Name" value={formData.institute} />}
-                {formData.income && <FieldRow label="Annual Family Income" value={`₹${formData.income}`} />}
-                {formData.category && <FieldRow label="Category" value={formData.category} />}
-                {formData.childName && <FieldRow label="Child Name" value={formData.childName} />}
-                {formData.className && <FieldRow label="Class" value={formData.className} />}
-                {formData.schoolName && <FieldRow label="School Name" value={formData.schoolName} />}
-                <FieldRow label="Verification Place" value={formData.verificationPlace || 'Delhi'} />
-                <FieldRow label="Verification Date" value={formatDate(formData.verificationDate || formData.date)} />
+                {formData.collegeName && (
+                  <FieldRow label="College Name" value={formData.collegeName} />
+                )}
+                {formData.universityName && (
+                  <FieldRow
+                    label="University Name"
+                    value={formData.universityName}
+                  />
+                )}
+                {formData.course && (
+                  <FieldRow label="Course" value={formData.course} />
+                )}
+                {formData.year && (
+                  <FieldRow label="Year" value={formData.year} />
+                )}
+                {formData.section && (
+                  <FieldRow label="Section" value={formData.section} />
+                )}
+                {formData.hostelName && (
+                  <FieldRow label="Hostel Name" value={formData.hostelName} />
+                )}
+                {formData.guardianName && (
+                  <FieldRow
+                    label="Guardian Name"
+                    value={formData.guardianName}
+                  />
+                )}
+                {formData.guardianRelation && (
+                  <FieldRow
+                    label="Guardian Relation"
+                    value={formData.guardianRelation}
+                  />
+                )}
+                {formData.guardianAddress && (
+                  <FieldRow
+                    label="Guardian Address"
+                    value={formData.guardianAddress}
+                  />
+                )}
+                {formData.passedYear && (
+                  <FieldRow
+                    label="12th Passed Year"
+                    value={formData.passedYear}
+                  />
+                )}
+                {formData.gapClass && (
+                  <FieldRow label="Gap After Class" value={formData.gapClass} />
+                )}
+                {formData.gapFrom && (
+                  <FieldRow label="Gap From" value={formData.gapFrom} />
+                )}
+                {formData.gapTo && (
+                  <FieldRow label="Gap To" value={formData.gapTo} />
+                )}
+                {formData.deponent1Name && (
+                  <FieldRow
+                    label="Deponent 1 Name"
+                    value={formData.deponent1Name}
+                  />
+                )}
+                {formData.deponent1Father && (
+                  <FieldRow
+                    label="Deponent 1 Father"
+                    value={formData.deponent1Father}
+                  />
+                )}
+                {formData.deponent2Name && (
+                  <FieldRow
+                    label="Deponent 2 Name"
+                    value={formData.deponent2Name}
+                  />
+                )}
+                {formData.deponent2Father && (
+                  <FieldRow
+                    label="Deponent 2 Father"
+                    value={formData.deponent2Father}
+                  />
+                )}
+                {formData.institute && (
+                  <FieldRow label="Institute Name" value={formData.institute} />
+                )}
+                {formData.income && (
+                  <FieldRow
+                    label="Annual Family Income"
+                    value={`₹${formData.income}`}
+                  />
+                )}
+                {formData.category && (
+                  <FieldRow label="Category" value={formData.category} />
+                )}
+                {formData.childName && (
+                  <FieldRow label="Child Name" value={formData.childName} />
+                )}
+                {formData.className && (
+                  <FieldRow label="Class" value={formData.className} />
+                )}
+                {formData.schoolName && (
+                  <FieldRow label="School Name" value={formData.schoolName} />
+                )}
+                <FieldRow
+                  label="Verification Place"
+                  value={formData.verificationPlace || "Delhi"}
+                />
+                <FieldRow
+                  label="Verification Date"
+                  value={formatDate(formData.verificationDate || formData.date)}
+                />
               </div>
             </div>
           )}
 
           {/* ==================== RENTAL AGREEMENTS / RENT AGREEMENT ==================== */}
-{(docType === 'rental-agreements' || docType === 'rent-agreement') && (
-  <>
-    <div className="mb-6">
-      <SectionTitle title="Owner/Licensor Details" icon={User} />
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <FieldRow label="Owner Name" value={formData.name || formData.ownerName} />
-        <FieldRow label="Relation Type" value={formData.relationType || formData.ownerRelation} />
-        <FieldRow label="Relation Name" value={formData.relationName || formData.ownerRelationName} />
-        <FieldRow label="Occupation" value={formData.firstPartyOccupation} />
-        <FieldRow label="Restricted At" value={formData.restrictedAt} />
-        <FieldRow label="First Referred Party" value={formData.firstReferredParty} />
-        <FieldRow label="Aadhaar Number" value={formData.ownerAadhaar} />
-      </div>
-    </div>
+          {(docType === "rental-agreements" ||
+            docType === "rent-agreement") && (
+            <>
+              <div className="mb-6">
+                <SectionTitle title="Owner/Licensor Details" icon={User} />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <FieldRow
+                    label="Owner Name"
+                    value={formData.name || formData.ownerName}
+                  />
+                  <FieldRow
+                    label="Relation Type"
+                    value={formData.relationType || formData.ownerRelation}
+                  />
+                  <FieldRow
+                    label="Relation Name"
+                    value={formData.relationName || formData.ownerRelationName}
+                  />
+                  <FieldRow
+                    label="Occupation"
+                    value={formData.firstPartyOccupation}
+                  />
+                  <FieldRow
+                    label="Restricted At"
+                    value={formData.restrictedAt}
+                  />
+                  <FieldRow
+                    label="First Referred Party"
+                    value={formData.firstReferredParty}
+                  />
+                  <FieldRow
+                    label="Aadhaar Number"
+                    value={formData.ownerAadhaar}
+                  />
+                </div>
+              </div>
 
-    <div className="mb-6">
-      <SectionTitle title="Tenant/Licensee Details" icon={Users} />
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <FieldRow label="Tenant Name" value={formData.tenantName || formData.secondPartyName} />
-        <FieldRow label="Relation" value={formData.tenantRelation || formData.relationType} />
-        <FieldRow label="Relation Name" value={formData.tenantRelationName} />
-        <FieldRow label="Father's Name" value={formData.secondPartyFatherName} />
-        <FieldRow label="Age" value={formData.secondPartyAge} />
-        <FieldRow label="Occupation" value={formData.secondPartyOccupation} />
-        <FieldRow label="Address" value={formData.tenantAddress || formData.secondPartyAddress} />
-        <FieldRow label="Aadhaar Number" value={formData.tenantAadhaar} />
-      </div>
-    </div>
+              <div className="mb-6">
+                <SectionTitle title="Tenant/Licensee Details" icon={Users} />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <FieldRow
+                    label="Tenant Name"
+                    value={formData.tenantName || formData.secondPartyName}
+                  />
+                  <FieldRow
+                    label="Relation"
+                    value={formData.tenantRelation || formData.relationType}
+                  />
+                  <FieldRow
+                    label="Relation Name"
+                    value={formData.tenantRelationName}
+                  />
+                  <FieldRow
+                    label="Father's Name"
+                    value={formData.secondPartyFatherName}
+                  />
+                  <FieldRow label="Age" value={formData.secondPartyAge} />
+                  <FieldRow
+                    label="Occupation"
+                    value={formData.secondPartyOccupation}
+                  />
+                  <FieldRow
+                    label="Address"
+                    value={
+                      formData.tenantAddress || formData.secondPartyAddress
+                    }
+                  />
+                  <FieldRow
+                    label="Aadhaar Number"
+                    value={formData.tenantAadhaar}
+                  />
+                </div>
+              </div>
 
-    <div className="mb-6">
-      <SectionTitle title="Property Details" icon={Home} />
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <FieldRow label="Property Address" value={formData.propertyAddress} />
-        <FieldRow label="Property Area" value={formData.propertyArea} />
-        <FieldRow label="Property Type" value={formData.propertyType} />
-        <FieldRow label="Sub-Registrar Office" value={formData.subRegistrarOffice} />
-      </div>
-    </div>
+              <div className="mb-6">
+                <SectionTitle title="Property Details" icon={Home} />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <FieldRow
+                    label="Property Address"
+                    value={formData.propertyAddress}
+                  />
+                  <FieldRow
+                    label="Property Area"
+                    value={formData.propertyArea}
+                  />
+                  <FieldRow
+                    label="Property Type"
+                    value={formData.propertyType}
+                  />
+                  <FieldRow
+                    label="Sub-Registrar Office"
+                    value={formData.subRegistrarOffice}
+                  />
+                </div>
+              </div>
 
-    <div className="mb-6">
-      <SectionTitle title="License/Rent Details" icon={FileText} />
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <FieldRow label="License Duration" value="11 months" />
-        <FieldRow label="License Start Date" value={formatDate(formData.licenseStartDate)} />
-        <FieldRow label="License End Date" value={formatDate(formData.licenseEndDate)} />
-        <FieldRow label="Monthly Rent" value={formData.monthlyRent ? `₹${formData.monthlyRent}` : 'N/A'} />
-        <FieldRow label="Monthly Rent (Words)" value={formData.monthlyRentWords} />
-        <FieldRow label="Maintenance Charges" value={formData.maintenance ? `₹${formData.maintenance}` : 'N/A'} />
-        <FieldRow label="Security Amount" value={formData.securityAmount ? `₹${formData.securityAmount}` : 'N/A'} />
-        <FieldRow label="Rent Payable Day" value={formData.rentDay} />
-        <FieldRow label="Payment Mode" value={formData.paymentMode} />
-        <FieldRow label="Payment Due Day" value={formData.paymentDueDay} />
-        <FieldRow label="Notice Period" value={formData.noticePeriod ? `${formData.noticePeriod} months` : 'N/A'} />
-        <FieldRow label="Rent Increment" value={formData.increment ? `${formData.increment}%` : 'N/A'} />
-        <FieldRow label="Purpose of Rent" value={formData.purpose} />
-      </div>
-    </div>
+              <div className="mb-6">
+                <SectionTitle title="License/Rent Details" icon={FileText} />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <FieldRow label="License Duration" value="11 months" />
+                  <FieldRow
+                    label="License Start Date"
+                    value={formatDate(formData.licenseStartDate)}
+                  />
+                  <FieldRow
+                    label="License End Date"
+                    value={formatDate(formData.licenseEndDate)}
+                  />
+                  <FieldRow
+                    label="Monthly Rent"
+                    value={
+                      formData.monthlyRent ? `₹${formData.monthlyRent}` : "N/A"
+                    }
+                  />
+                  <FieldRow
+                    label="Monthly Rent (Words)"
+                    value={formData.monthlyRentWords}
+                  />
+                  <FieldRow
+                    label="Maintenance Charges"
+                    value={
+                      formData.maintenance ? `₹${formData.maintenance}` : "N/A"
+                    }
+                  />
+                  <FieldRow
+                    label="Security Amount"
+                    value={
+                      formData.securityAmount
+                        ? `₹${formData.securityAmount}`
+                        : "N/A"
+                    }
+                  />
+                  <FieldRow label="Rent Payable Day" value={formData.rentDay} />
+                  <FieldRow label="Payment Mode" value={formData.paymentMode} />
+                  <FieldRow
+                    label="Payment Due Day"
+                    value={formData.paymentDueDay}
+                  />
+                  <FieldRow
+                    label="Notice Period"
+                    value={
+                      formData.noticePeriod
+                        ? `${formData.noticePeriod} months`
+                        : "N/A"
+                    }
+                  />
+                  <FieldRow
+                    label="Rent Increment"
+                    value={
+                      formData.increment ? `${formData.increment}%` : "N/A"
+                    }
+                  />
+                  <FieldRow label="Purpose of Rent" value={formData.purpose} />
+                </div>
+              </div>
 
-    {/* Witness Details */}
-    {(formData.witnessName || formData.witnessAddress) && (
-      <div className="mb-6">
-        <SectionTitle title="Witness Details" icon={Users} />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <FieldRow label="Witness Name" value={formData.witnessName} />
-          <FieldRow label="Witness Address" value={formData.witnessAddress} />
-        </div>
-      </div>
-    )}
-  </>
-)}
+              {/* Witness Details */}
+              {(formData.witnessName || formData.witnessAddress) && (
+                <div className="mb-6">
+                  <SectionTitle title="Witness Details" icon={Users} />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <FieldRow
+                      label="Witness Name"
+                      value={formData.witnessName}
+                    />
+                    <FieldRow
+                      label="Witness Address"
+                      value={formData.witnessAddress}
+                    />
+                  </div>
+                </div>
+              )}
+            </>
+          )}
 
           {/* Admin Remarks */}
           {order.adminRemarks && (
