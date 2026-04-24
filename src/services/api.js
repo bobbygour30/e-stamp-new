@@ -107,5 +107,10 @@ export const authAPI = {
 export const dashboardAPI = {
   getStats: () => api.get('/dashboard/stats'),
 };
+// Add to your api.js
+export const reportsAPI = {
+  getAnalytics: (params) => api.get('/reports/analytics', { params }),
+  exportData: (params) => api.get('/reports/export', { params }),
+};
 
 export default api;

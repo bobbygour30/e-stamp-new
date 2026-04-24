@@ -9,7 +9,8 @@ import {
   Truck,
   Briefcase,
   UserCog,
-  LayoutDashboard
+  LayoutDashboard,
+  BarChart3
 } from 'lucide-react';
 
 export default function AdminSidebar({ activeTab, onTabChange, userRole, permissions }) {
@@ -57,7 +58,14 @@ export default function AdminSidebar({ activeTab, onTabChange, userRole, permiss
       icon: UserCog,
       description: 'Register new employee',
       requiredPermission: 'createEmployee'
-    }
+    },
+    {
+  id: 'reports',
+  label: 'Reports & Analytics',
+  icon: BarChart3,
+  description: 'View insights and analytics',
+  requiredPermission: 'reports'
+},
   ];
 
   // Filter menu items based on user role and permissions
