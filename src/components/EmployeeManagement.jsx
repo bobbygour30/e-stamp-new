@@ -184,7 +184,7 @@ export default function EmployeeManagement() {
   }
 
   return (
-    <div>
+    <div className="p-10">
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <div>

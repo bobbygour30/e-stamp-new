@@ -103,4 +103,9 @@ export const authAPI = {
   registerAsVendor: (data) => api.post('/auth/register', { ...data, role: 'vendor' })
 };
 
+// Add to your api.js
+export const dashboardAPI = {
+  getStats: () => api.get('/dashboard/stats'),
+};
+
 export default api;

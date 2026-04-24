@@ -8,13 +8,21 @@ import {
   UserPlus,
   Truck,
   Briefcase,
-  UserCog
+  UserCog,
+  LayoutDashboard
 } from 'lucide-react';
 
 export default function AdminSidebar({ activeTab, onTabChange, userRole, permissions }) {
   const navigate = useNavigate();
 
   const menuItems = [
+     {
+    id: 'dashboard',
+    label: 'Dashboard',
+    icon: LayoutDashboard,
+    description: 'View analytics and stats',
+    requiredPermission: 'dashboard'
+  },
     {
       id: 'stamp-paper-orders',
       label: 'Stamp Paper Orders',

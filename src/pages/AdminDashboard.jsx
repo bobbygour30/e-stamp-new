@@ -1,15 +1,17 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import AdminSidebar from '../components/AdminSidebar';
+import Dashboard from './Dashboard';
 import StampPaperOrders from '../components/StampPaperOrders';
 import VendorManagement from '../components/VendorManagement';
 import UploadStampPaper from '../components/UploadStampPaper';
 import EmployeeManagement from '../components/EmployeeManagement';
 import CreateEmployee from '../components/CreateEmployee';
+import SecureDashboard from './SecureDashboard';
 
 export default function AdminDashboard() {
   const { user } = useContext(AuthContext);
-  const [activeTab, setActiveTab] = useState('stamp-paper-orders');
+  const [activeTab, setActiveTab] = useState('dashboard');
   const [permissions, setPermissions] = useState({});
   const [preselectedOrder, setPreselectedOrder] = useState(null);
 
@@ -38,7 +40,7 @@ export default function AdminDashboard() {
       case 'create-employee':
         return <CreateEmployee onEmployeeCreated={() => setActiveTab('employee-management')} />;
       default:
-        return <StampPaperOrders onUploadClick={handleUploadClick} />;
+        return <SecureDashboard />;
     }
   };
 
@@ -53,9 +55,7 @@ export default function AdminDashboard() {
       
       {/* Main Content Area */}
       <div className="flex-1 overflow-auto">
-        <div className="p-8">
-          {renderContent()}
-        </div>
+        {renderContent()}
       </div>
     </div>
   );

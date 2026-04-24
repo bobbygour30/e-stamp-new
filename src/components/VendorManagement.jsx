@@ -162,7 +162,7 @@ export default function VendorManagement() {
   }
 
   return (
-    <div>
+    <div className='p-10'>
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <div>

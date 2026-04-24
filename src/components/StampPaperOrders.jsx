@@ -148,7 +148,7 @@ export default function StampPaperOrders({ onUploadClick }) {
   }
 
   return (
-    <div>
+    <div className='p-10'>
       {/* Header */}
       <div className="mb-6">
         <h2 className="text-2xl font-bold text-gray-900">Stamp Paper Orders</h2>
@@ -453,12 +453,13 @@ export default function StampPaperOrders({ onUploadClick }) {
       )}
 
       {/* Order Details Modal */}
-      {showOrderDetails && selectedOrder && (
-        <OrderDetailsModal 
-          order={selectedOrder} 
-          onClose={() => setShowOrderDetails(false)} 
-        />
-      )}
+{showOrderDetails && selectedOrder && (
+  <OrderDetailsModal 
+    order={selectedOrder} 
+    onClose={() => setShowOrderDetails(false)}
+    onStatusUpdate={() => fetchRequests()}
+  />
+)}
     </div>
   );
 }

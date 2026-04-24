@@ -122,7 +122,7 @@ export default function CreateEmployee({ onEmployeeCreated }) {
   }
 
   return (
-    <div>
+    <div className='p-10'>
       {/* Header */}
       <div className="mb-6">
         <div className="flex items-center gap-3">
