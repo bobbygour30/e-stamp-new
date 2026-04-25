@@ -19,7 +19,8 @@ import {
   CheckCircle,
   XCircle,
   Edit,
-  Save
+  Save,
+  CreditCard
 } from "lucide-react";
 import { documentAPI } from "../services/api";
 
@@ -137,7 +138,6 @@ export default function OrderDetailsModal({ order, onClose, onStatusUpdate }) {
   const handleSaveEdit = async () => {
     setSaving(true);
     try {
-      // Update the document with edited form data
       await documentAPI.updateStatus(order._id, {
         formData: editedFormData,
         adminRemarks
@@ -270,6 +270,42 @@ export default function OrderDetailsModal({ order, onClose, onStatusUpdate }) {
               </div>
             </div>
           </div>
+
+          {/* Payment Information Section - NEW */}
+          {(order.transactionId || order.paymentId) && (
+            <div className="mb-6 bg-blue-50 rounded-lg p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <CreditCard size={18} className="text-blue-600" />
+                <h3 className="text-md font-semibold text-blue-900">Payment Information</h3>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                {order.transactionId && (
+                  <div>
+                    <p className="text-xs text-blue-600">Transaction ID</p>
+                    <p className="text-sm font-mono font-medium text-blue-900">
+                      {order.transactionId}
+                    </p>
+                  </div>
+                )}
+                {order.paymentId && (
+                  <div>
+                    <p className="text-xs text-blue-600">Payment ID</p>
+                    <p className="text-sm font-mono font-medium text-blue-900">
+                      {order.paymentId}
+                    </p>
+                  </div>
+                )}
+                {order.appliedCoupon?.code && (
+                  <div className="col-span-2">
+                    <p className="text-xs text-blue-600">Applied Coupon</p>
+                    <p className="text-sm font-medium text-blue-900">
+                      {order.appliedCoupon.code} - Saved ₹{order.appliedCoupon.discountAmount}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* ==================== MARRIAGE REGISTER / MARRIAGE REGISTRATION ==================== */}
           {(docType === "marriage-register" || docType === "marriage-registration") && (

@@ -10,7 +10,9 @@ import {
   Briefcase,
   UserCog,
   LayoutDashboard,
-  BarChart3
+  BarChart3,
+  Tag,
+  Settings
 } from 'lucide-react';
 
 export default function AdminSidebar({ activeTab, onTabChange, userRole, permissions }) {
@@ -53,6 +55,20 @@ export default function AdminSidebar({ activeTab, onTabChange, userRole, permiss
       requiredPermission: 'employeeManagement'
     },
     {
+  id: 'service-charges',
+  label: 'Service Charges',
+  icon: Settings,
+  description: 'Manage document pricing',
+  requiredPermission: 'serviceCharges'
+},
+    {
+  id: 'coupons',
+  label: 'Coupons',
+  icon: Tag,
+  description: 'Manage discount coupons',
+  requiredPermission: 'coupons'
+},
+    {
       id: 'create-employee',
       label: 'Create Employee',
       icon: UserCog,
@@ -88,7 +104,7 @@ export default function AdminSidebar({ activeTab, onTabChange, userRole, permiss
             <Truck size={20} className="text-white" />
           </div>
           <div>
-            <h2 className="text-xl font-bold">LexDraft</h2>
+            <h2 className="text-xl font-bold">Easy E-Stamps</h2>
             <p className="text-xs text-indigo-300">
               {userRole === 'admin' ? 'Admin Portal' : 'Employee Portal'}
             </p>

@@ -9,6 +9,8 @@ import EmployeeManagement from "../components/EmployeeManagement";
 import CreateEmployee from "../components/CreateEmployee";
 import SecureDashboard from "./SecureDashboard";
 import Reports from "./Reports";
+import Coupons from "./Coupons";
+import ServiceCharges from "./ServiceCharges";
 
 export default function AdminDashboard() {
   const { user } = useContext(AuthContext);
@@ -46,6 +48,10 @@ export default function AdminDashboard() {
         );
       case "reports":
         return <Reports />;
+      case "coupons":
+        return <Coupons />;
+      case "service-charges":
+        return <ServiceCharges />;
       default:
         return <SecureDashboard />;
     }

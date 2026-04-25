@@ -2,7 +2,15 @@
 
 import { useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Menu, X, ChevronDown, User, LogOut, LayoutDashboard, Shield } from "lucide-react";
+import {
+  Menu,
+  X,
+  ChevronDown,
+  User,
+  LogOut,
+  LayoutDashboard,
+  Shield,
+} from "lucide-react";
 import { AuthContext } from "../context/AuthContext";
 import assets from "../assets/assets";
 
@@ -10,7 +18,7 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [authDropdown, setAuthDropdown] = useState(false);
-  
+
   const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
 
@@ -98,12 +106,12 @@ export default function Navbar() {
             {/* Logo */}
             <Link to="/" className="flex items-center">
               <img
-                src={assets.logo}
-                alt="LexDraft Logo"
-                className="h-10 w-auto object-contain 
-                           sm:h-9 md:h-10 lg:h-11 
-                           max-w-[140px]"
-              />
+  src={assets.logo}
+  alt="Company Logo"
+  className="h-14 w-auto object-contain 
+             sm:h-12 md:h-14 lg:h-16 
+             max-w-[220px]"
+/>
             </Link>
 
             {/* Desktop Menu */}
@@ -156,7 +164,7 @@ export default function Navbar() {
                   </div>
                   {user && (
                     <span className="text-sm font-medium text-slate-700">
-                      {user.name.split(' ')[0]}
+                      {user.name.split(" ")[0]}
                     </span>
                   )}
                 </button>
@@ -173,17 +181,21 @@ export default function Navbar() {
                   {user ? (
                     <>
                       <div className="px-5 py-3 border-b border-slate-100">
-                        <p className="text-sm font-medium text-slate-900">{user.name}</p>
-                        <p className="text-xs text-slate-500 truncate">{user.email}</p>
-                        {user.role === 'admin' && (
+                        <p className="text-sm font-medium text-slate-900">
+                          {user.name}
+                        </p>
+                        <p className="text-xs text-slate-500 truncate">
+                          {user.email}
+                        </p>
+                        {user.role === "admin" && (
                           <span className="inline-block mt-1 text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded">
                             Admin
                           </span>
                         )}
                       </div>
-                      
+
                       {/* Only show My Dashboard for non-admin users */}
-                      {user.role !== 'admin' && (
+                      {user.role !== "admin" && (
                         <Link
                           to="/dashboard"
                           onClick={() => setAuthDropdown(false)}
@@ -193,9 +205,9 @@ export default function Navbar() {
                           My Dashboard
                         </Link>
                       )}
-                      
+
                       {/* Admin Dashboard Link - Only for admin users */}
-                      {user.role === 'admin' && (
+                      {user.role === "admin" && (
                         <Link
                           to="/admin"
                           onClick={() => setAuthDropdown(false)}
@@ -205,7 +217,7 @@ export default function Navbar() {
                           Admin Dashboard
                         </Link>
                       )}
-                      
+
                       <button
                         onClick={handleLogout}
                         className="flex items-center gap-2 w-full text-left px-5 py-3 text-sm text-red-600 hover:bg-red-50 transition border-t border-slate-100"
@@ -236,7 +248,7 @@ export default function Navbar() {
               </div>
 
               {/* Dashboard/Admin Panel Button - Only shown when user is logged in */}
-              {user && user.role !== 'admin' && (
+              {user && user.role !== "admin" && (
                 <Link
                   to="/dashboard"
                   className="px-5 py-2 rounded-lg bg-purple-700 text-white font-medium hover:bg-purple-800 transition shadow-sm"
@@ -244,8 +256,8 @@ export default function Navbar() {
                   Dashboard
                 </Link>
               )}
-              
-              {user && user.role === 'admin' && (
+
+              {user && user.role === "admin" && (
                 <Link
                   to="/admin"
                   className="px-5 py-2 rounded-lg bg-purple-700 text-white font-medium hover:bg-purple-800 transition shadow-sm"
@@ -280,9 +292,7 @@ export default function Navbar() {
         >
           <div className="p-6 flex flex-col gap-4 overflow-y-auto max-h-full">
             <div className="flex items-center justify-between">
-              <span className="text-lg font-semibold text-slate-900">
-                Menu
-              </span>
+              <span className="text-lg font-semibold text-slate-900">Menu</span>
               <button onClick={() => setMenuOpen(false)}>
                 <X size={22} />
               </button>
@@ -297,8 +307,10 @@ export default function Navbar() {
                   </div>
                   <div className="flex-1">
                     <p className="font-medium text-slate-900">{user.name}</p>
-                    <p className="text-xs text-slate-600 truncate">{user.email}</p>
-                    {user.role === 'admin' && (
+                    <p className="text-xs text-slate-600 truncate">
+                      {user.email}
+                    </p>
+                    {user.role === "admin" && (
                       <span className="inline-block mt-1 text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded">
                         Admin
                       </span>
@@ -312,7 +324,10 @@ export default function Navbar() {
               <details key={idx} className="group">
                 <summary className="flex cursor-pointer items-center justify-between py-2 text-slate-700 font-medium">
                   {item.label}
-                  <ChevronDown className="group-open:rotate-180 transition-transform" size={16} />
+                  <ChevronDown
+                    className="group-open:rotate-180 transition-transform"
+                    size={16}
+                  />
                 </summary>
                 <div className="ml-3 flex flex-col gap-2 pb-2">
                   {item.submenu.map((sub, subIdx) => (
@@ -336,7 +351,7 @@ export default function Navbar() {
             {user ? (
               <>
                 {/* Only show My Dashboard for non-admin users */}
-                {user.role !== 'admin' && (
+                {user.role !== "admin" && (
                   <Link
                     to="/dashboard"
                     onClick={() => setMenuOpen(false)}
@@ -346,9 +361,9 @@ export default function Navbar() {
                     My Dashboard
                   </Link>
                 )}
-                
+
                 {/* Admin Dashboard Link for Mobile - Only for admin users */}
-                {user.role === 'admin' && (
+                {user.role === "admin" && (
                   <Link
                     to="/admin"
                     onClick={() => setMenuOpen(false)}
@@ -358,7 +373,7 @@ export default function Navbar() {
                     Admin Dashboard
                   </Link>
                 )}
-                
+
                 <button
                   onClick={() => {
                     handleLogout();
@@ -391,7 +406,7 @@ export default function Navbar() {
             )}
 
             {/* Mobile Dashboard/Admin Panel Button */}
-            {user && user.role !== 'admin' && (
+            {user && user.role !== "admin" && (
               <Link
                 to="/dashboard"
                 onClick={() => setMenuOpen(false)}
@@ -400,8 +415,8 @@ export default function Navbar() {
                 Go to Dashboard
               </Link>
             )}
-            
-            {user && user.role === 'admin' && (
+
+            {user && user.role === "admin" && (
               <Link
                 to="/admin"
                 onClick={() => setMenuOpen(false)}

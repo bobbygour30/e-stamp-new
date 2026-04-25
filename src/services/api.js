@@ -113,4 +113,22 @@ export const reportsAPI = {
   exportData: (params) => api.get('/reports/export', { params }),
 };
 
+// Add to your api.js
+export const couponAPI = {
+  createCoupon: (data) => api.post('/coupons', data),
+  getAllCoupons: (params) => api.get('/coupons', { params }),
+  getCouponById: (id) => api.get(`/coupons/${id}`),
+  updateCoupon: (id, data) => api.put(`/coupons/${id}`, data),
+  deleteCoupon: (id) => api.delete(`/coupons/${id}`),
+  toggleStatus: (id) => api.put(`/coupons/${id}/toggle-status`),
+  validateCoupon: (data) => api.post('/coupons/validate', data),
+};
+// Add to your api.js
+export const serviceChargeAPI = {
+  getAllCharges: () => api.get('/service-charges'),
+  updateCharge: (id, data) => api.put(`/service-charges/${id}`, data),
+  getChargeByDocumentType: (documentType) => api.get(`/service-charges/document/${documentType}`),
+  initializeCharges: () => api.post('/service-charges/init'),
+  bulkUpdate: (data) => api.put('/service-charges/bulk-update', data),
+};
 export default api;
