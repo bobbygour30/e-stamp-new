@@ -15,7 +15,10 @@ import {
   Award,
   Package,
   Clock,
-  XCircle
+  XCircle,
+  UserCheck,
+  Briefcase,
+  Filter
 } from 'lucide-react';
 import { reportsAPI } from '../services/api';
 import {
@@ -50,6 +53,7 @@ ChartJS.register(
 
 export default function Reports() {
   const [period, setPeriod] = useState('month');
+  const [userType, setUserType] = useState('all'); // 'all', 'users', 'vendors'
   const [customDateRange, setCustomDateRange] = useState({ startDate: '', endDate: '' });
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [data, setData] = useState(null);
@@ -59,12 +63,12 @@ export default function Reports() {
 
   useEffect(() => {
     fetchAnalytics();
-  }, [period]);
+  }, [period, userType]);
 
   const fetchAnalytics = async () => {
     setLoading(true);
     try {
-      const params = { period };
+      const params = { period, userType };
       if (period === 'custom' && customDateRange.startDate && customDateRange.endDate) {
         params.startDate = customDateRange.startDate;
         params.endDate = customDateRange.endDate;
@@ -92,6 +96,7 @@ export default function Reports() {
     try {
       const response = await reportsAPI.exportData({
         type: 'orders',
+        userType: userType,
         startDate: period === 'custom' ? customDateRange.startDate : undefined,
         endDate: period === 'custom' ? customDateRange.endDate : undefined
       });
@@ -99,7 +104,7 @@ export default function Reports() {
       const worksheet = XLSX.utils.json_to_sheet(response.data.data);
       const workbook = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(workbook, worksheet, 'Reports');
-      XLSX.writeFile(workbook, `reports_${new Date().toISOString().split('T')[0]}.xlsx`);
+      XLSX.writeFile(workbook, `reports_${userType}_${new Date().toISOString().split('T')[0]}.xlsx`);
     } catch (error) {
       console.error('Error exporting to Excel:', error);
       alert('Failed to export data');
@@ -185,13 +190,13 @@ export default function Reports() {
     ],
   };
 
-  // Top Vendors Chart
-  const topVendorsData = {
-    labels: data?.topVendors?.map(v => v.name?.split(' ')[0] || 'N/A') || [],
+  // Top Users/Vendors Chart based on filter
+  const topPerformersData = {
+    labels: data?.topPerformers?.map(v => v.name?.split(' ')[0] || 'N/A') || [],
     datasets: [
       {
         label: 'Revenue (₹)',
-        data: data?.topVendors?.map(v => v.revenue) || [],
+        data: data?.topPerformers?.map(v => v.revenue) || [],
         backgroundColor: '#4f46e5',
         borderRadius: 8,
       },
@@ -219,7 +224,20 @@ export default function Reports() {
               <h1 className="text-2xl font-bold text-gray-900">Reports & Analytics</h1>
               <p className="text-gray-600 mt-1">View insights and analytics of your business</p>
             </div>
-            <div className="flex gap-3">
+            <div className="flex gap-3 flex-wrap">
+              {/* User Type Filter */}
+              <div className="relative">
+                <select
+                  value={userType}
+                  onChange={(e) => setUserType(e.target.value)}
+                  className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white flex items-center gap-2"
+                >
+                  <option value="all">All Users</option>
+                  <option value="users">Only Customers</option>
+                  <option value="vendors">Only Vendors</option>
+                </select>
+              </div>
+              
               {/* Period Selector */}
               <div className="relative">
                 <select
@@ -303,10 +321,26 @@ export default function Reports() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Active Filter Badge */}
+        {userType !== 'all' && (
+          <div className="mb-4 flex items-center gap-2">
+            <div className="bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full text-sm flex items-center gap-2">
+              <Filter size={14} />
+              Filtering by: {userType === 'users' ? 'Customers Only' : 'Vendors Only'}
+              <button
+                onClick={() => setUserType('all')}
+                className="ml-2 text-indigo-600 hover:text-indigo-800"
+              >
+                ✕
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Stats Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <StatCard
-            title="Monthly Revenue"
+            title={userType === 'vendors' ? 'Vendor Revenue' : 'Total Revenue'}
             value={`₹${data?.totalRevenue?.toLocaleString() || 0}`}
             icon={DollarSign}
             color="bg-green-500"
@@ -314,7 +348,7 @@ export default function Reports() {
             trendValue={comparison?.totalRevenue ? Math.abs(((data?.totalRevenue - comparison.totalRevenue) / comparison.totalRevenue) * 100).toFixed(1) : 0}
           />
           <StatCard
-            title="New Orders"
+            title={userType === 'vendors' ? 'Vendor Orders' : 'New Orders'}
             value={data?.newOrders || 0}
             icon={ShoppingBag}
             color="bg-blue-500"
@@ -330,12 +364,10 @@ export default function Reports() {
             trendValue={comparison?.successRate ? Math.abs((data?.successRate - comparison.successRate)).toFixed(1) : 0}
           />
           <StatCard
-            title="New Vendors"
-            value={data?.newVendors || 0}
+            title={userType === 'vendors' ? 'Active Vendors' : 'Active Users'}
+            value={userType === 'vendors' ? (data?.activeVendors || 0) : (data?.activeUsers || 0)}
             icon={Users}
             color="bg-purple-500"
-            trend={comparison?.newVendors ? (data?.newVendors > comparison.newVendors ? 'up' : 'down') : null}
-            trendValue={comparison?.newVendors ? Math.abs(((data?.newVendors - comparison.newVendors) / comparison.newVendors) * 100).toFixed(1) : 0}
           />
         </div>
 
@@ -407,16 +439,16 @@ export default function Reports() {
             )}
           </div>
 
-          {/* Top Vendors */}
+          {/* Top Performers (Users or Vendors based on filter) */}
           <div className="bg-white rounded-xl shadow-sm p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
               <Award size={20} className="text-yellow-500" />
-              Top Performing Vendors
+              Top {userType === 'vendors' ? 'Vendors' : 'Customers'} by Revenue
             </h3>
-            {data?.topVendors?.length > 0 ? (
+            {data?.topPerformers?.length > 0 ? (
               <div className="h-80">
                 <Bar
-                  data={topVendorsData}
+                  data={topPerformersData}
                   options={{
                     responsive: true,
                     maintainAspectRatio: false,
@@ -429,18 +461,21 @@ export default function Reports() {
                 />
               </div>
             ) : (
-              <div className="h-80 flex items-center justify-center text-gray-500">No vendor data available</div>
+              <div className="h-80 flex items-center justify-center text-gray-500">No data available</div>
             )}
             <div className="mt-4 space-y-2">
-              {data?.topVendors?.slice(0, 5).map((vendor, index) => (
+              {data?.topPerformers?.slice(0, 5).map((performer, index) => (
                 <div key={index} className="flex justify-between items-center p-2 hover:bg-gray-50 rounded">
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-medium text-gray-500">#{index + 1}</span>
-                    <span className="font-medium text-gray-900">{vendor.name}</span>
+                    <span className="font-medium text-gray-900">{performer.name}</span>
+                    {userType === 'vendors' && performer.companyName && (
+                      <span className="text-xs text-gray-500">({performer.companyName})</span>
+                    )}
                   </div>
                   <div className="text-right">
-                    <p className="text-sm font-semibold text-indigo-600">₹{vendor.revenue.toLocaleString()}</p>
-                    <p className="text-xs text-gray-500">{vendor.orders} orders</p>
+                    <p className="text-sm font-semibold text-indigo-600">₹{performer.revenue.toLocaleString()}</p>
+                    <p className="text-xs text-gray-500">{performer.orders} orders</p>
                   </div>
                 </div>
               ))}
@@ -467,7 +502,7 @@ export default function Reports() {
         {/* Export Note */}
         <div className="text-center text-xs text-gray-400 mt-8 print:hidden">
           <p>Data exported on {new Date().toLocaleString()}</p>
-          <p className="mt-1">© LexDraft - All Rights Reserved</p>
+          <p className="mt-1">© Easy E-stamp - All Rights Reserved</p>
         </div>
       </div>
     </div>
