@@ -12,7 +12,9 @@ import {
   LayoutDashboard,
   BarChart3,
   Tag,
-  Settings
+  Settings,
+  FileText,
+  History
 } from 'lucide-react';
 
 export default function AdminSidebar({ activeTab, onTabChange, userRole, permissions }) {
@@ -54,6 +56,20 @@ export default function AdminSidebar({ activeTab, onTabChange, userRole, permiss
       description: 'Manage employees',
       requiredPermission: 'employeeManagement'
     },
+    {
+  id: 'payment-history',
+  label: 'Payment History',
+  icon: History,
+  description: 'Track all payments',
+  requiredPermission: 'paymentHistory'
+},
+    {
+  id: 'invoices',
+  label: 'Invoices',
+  icon: FileText,
+  description: 'Manage customer invoices',
+  requiredPermission: 'invoices'
+},
     {
   id: 'service-charges',
   label: 'Service Charges',

@@ -131,4 +131,17 @@ export const serviceChargeAPI = {
   initializeCharges: () => api.post('/service-charges/init'),
   bulkUpdate: (data) => api.put('/service-charges/bulk-update', data),
 };
+// Add to your api.js
+export const invoiceAPI = {
+  getAllInvoices: (params) => api.get('/invoices', { params }),
+  getInvoiceById: (id) => api.get(`/invoices/${id}`),
+  updateInvoice: (id, data) => api.put(`/invoices/${id}`, data),
+  generateInvoicePDF: (id) => api.post(`/invoices/${id}/generate-pdf`)
+};
+// Add to your api.js
+export const paymentHistoryAPI = {
+  getPaymentHistory: (params) => api.get('/payments/history', { params }),
+  getPaymentById: (id) => api.get(`/payments/history/${id}`),
+  generateReceipt: (id) => api.get(`/payments/history/${id}/receipt`)
+};
 export default api;

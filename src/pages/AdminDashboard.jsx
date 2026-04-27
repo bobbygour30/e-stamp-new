@@ -11,6 +11,8 @@ import SecureDashboard from "./SecureDashboard";
 import Reports from "./Reports";
 import Coupons from "./Coupons";
 import ServiceCharges from "./ServiceCharges";
+import Invoices from "./Invoices";
+import PaymentHistory from "./PaymentHistory";
 
 export default function AdminDashboard() {
   const { user } = useContext(AuthContext);
@@ -52,6 +54,10 @@ export default function AdminDashboard() {
         return <Coupons />;
       case "service-charges":
         return <ServiceCharges />;
+        case 'invoices':
+  return <Invoices />;
+  case 'payment-history':
+  return <PaymentHistory />;
       default:
         return <SecureDashboard />;
     }
