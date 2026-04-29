@@ -1,3 +1,5 @@
+// components/Footer.js
+import React from 'react';
 import {
   Phone,
   Mail,
@@ -39,9 +41,9 @@ export default function Footer() {
 
   // Navigation items from navbar
   const stampPapersLinks = [
-    { name: "Buy e-Stamp", path: "#" },
-    { name: "State-wise e-Stamp", path: "#" },
-    { name: "Stamp Duty Guide", path: "#" },
+    { name: "Buy e-Stamp", path: "/buy-e-stamp" },
+    { name: "State-wise e-Stamp", path: "/state-wise-e-stamp" },
+    { name: "Stamp Duty Guide", path: "/stamp-duty-guide" },
   ];
 
   const legalDocumentsLinks = [
@@ -67,15 +69,14 @@ export default function Footer() {
   ];
 
   const servicesLinks = [
-    { name: "Document Drafting", path: "#" },
-    { name: "Notary Support", path: "#" },
-    { name: "Consultation", path: "#" },
+    { name: "Document Drafting", path: "/document-drafting" },
+    { name: "Notary Support", path: "/notary-support" },
+    { name: "Consultation", path: "/consultation" },
   ];
 
   const contactLinks = [
     { name: "Contact Information", path: "/contact" },
-    { name: "FAQs", path: "#" },
-    { name: "Legal Guides", path: "#" },
+    { name: "Legal Guides", path: "/legal-guides" },
   ];
 
   return (
@@ -257,12 +258,12 @@ export default function Footer() {
         {/* Bottom Links */}
         <div className="mt-12 pt-8 border-t border-white/10">
           <div className="flex flex-wrap justify-center gap-x-8 gap-y-3 text-sm">
-            <a href="#" className="text-slate-400 hover:text-purple-400 transition">Home</a>
-            <a href="#" className="text-slate-400 hover:text-purple-400 transition">Terms & Conditions</a>
-            <a href="#" className="text-slate-400 hover:text-purple-400 transition">Refund Policy</a>
-            <a href="#" className="text-slate-400 hover:text-purple-400 transition">Privacy Policy</a>
-            <a href="#" className="text-slate-400 hover:text-purple-400 transition">FAQs</a>
-            <a href="#" className="text-slate-400 hover:text-purple-400 transition">Blogs</a>
+            <a href="/" className="text-slate-400 hover:text-purple-400 transition">Home</a>
+            <a href="/terms-and-conditions" className="text-slate-400 hover:text-purple-400 transition">Terms & Conditions</a>
+            <a href="/refund-policy" className="text-slate-400 hover:text-purple-400 transition">Refund Policy</a>
+            <a href="/privacy-policy" className="text-slate-400 hover:text-purple-400 transition">Privacy Policy</a>
+            {/* <a href="/faqs" className="text-slate-400 hover:text-purple-400 transition">FAQs</a> */}
+            {/* <a href="/blogs" className="text-slate-400 hover:text-purple-400 transition">Blogs</a> */}
           </div>
         </div>
 

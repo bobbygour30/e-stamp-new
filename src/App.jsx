@@ -34,6 +34,9 @@ import AdminDashboard from "./pages/AdminDashboard";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentFailure from "./pages/PaymentFailure";
 import ContactPage from "./pages/ContactPage";
+import RefundPolicy from "./pages/RefundPolicy";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsAndConditions from "./pages/TermsAndConditions";
 
 function AppContent() {
   const location = useLocation();
@@ -79,6 +82,10 @@ function AppContent() {
         <Route path="/name-change" element={<NameChange />} />
         <Route path="/marriage-register" element={<MarriageRegister />} />
         <Route path="/rental-agreements" element={<RentalAgreements />} />
+
+        <Route path="/refund-policy" element={<RefundPolicy />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+        <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
         
         {/* Authentication Routes */}
         <Route path="/login" element={<Login />} />

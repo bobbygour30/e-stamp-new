@@ -6,6 +6,79 @@ import { documentAPI, serviceChargeAPI, couponAPI } from "../services/api";
 import PaymentModal from "../components/PaymentModal";
 import { uploadPDFToCloudinary } from "../utils/cloudinary";
 
+// Function to convert number to Indian Rupees words
+const numberToWords = (num) => {
+    if (!num || num === "") return "";
+    
+    const convertToWords = (n) => {
+        const ones = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine'];
+        const teens = ['Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
+        const tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+        
+        const convertLessThanThousand = (n) => {
+            if (n === 0) return '';
+            
+            let result = '';
+            
+            if (n >= 100) {
+                result += ones[Math.floor(n / 100)] + ' Hundred ';
+                n %= 100;
+            }
+            
+            if (n >= 20) {
+                result += tens[Math.floor(n / 10)] + ' ';
+                n %= 10;
+            } else if (n >= 10) {
+                result += teens[n - 10] + ' ';
+                n = 0;
+            }
+            
+            if (n > 0) {
+                result += ones[n] + ' ';
+            }
+            
+            return result.trim();
+        };
+        
+        if (n === 0) return 'Zero';
+        
+        let result = '';
+        const crore = Math.floor(n / 10000000);
+        const lakh = Math.floor((n % 10000000) / 100000);
+        const thousand = Math.floor((n % 100000) / 1000);
+        const remainder = n % 1000;
+        
+        if (crore > 0) {
+            result += convertLessThanThousand(crore) + ' Crore ';
+        }
+        if (lakh > 0) {
+            result += convertLessThanThousand(lakh) + ' Lakh ';
+        }
+        if (thousand > 0) {
+            result += convertLessThanThousand(thousand) + ' Thousand ';
+        }
+        if (remainder > 0) {
+            result += convertLessThanThousand(remainder);
+        }
+        
+        return result.trim() + ' Rupees';
+    };
+    
+    const numValue = parseFloat(num);
+    if (isNaN(numValue)) return "";
+    
+    const rupees = Math.floor(numValue);
+    const paise = Math.round((numValue - rupees) * 100);
+    
+    let result = convertToWords(rupees);
+    
+    if (paise > 0) {
+        result += ' and ' + convertToWords(paise) + ' Paise';
+    }
+    
+    return result;
+};
+
 const initialData = {
     name: "",
     relationType: "S/O",
@@ -150,7 +223,18 @@ export default function RentalAgreements() {
 
     const update = (e) => {
         const { name, value } = e.target;
-        setData(prev => ({ ...prev, [name]: value }));
+        
+        // If monthlyRent field is being updated, automatically convert to words
+        if (name === "monthlyRent") {
+            const words = numberToWords(value);
+            setData(prev => ({ 
+                ...prev, 
+                [name]: value,
+                monthlyRentWords: words
+            }));
+        } else {
+            setData(prev => ({ ...prev, [name]: value }));
+        }
     };
 
     // Format date for display in PDF
