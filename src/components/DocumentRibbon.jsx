@@ -1,4 +1,5 @@
 import { useRef, useEffect, forwardRef } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   IdCard,
   FileWarning,
@@ -44,29 +45,30 @@ const UserPlus = forwardRef((props, ref) => (
 UserPlus.displayName = "UserPlus";
 
 const legalDocuments = [
-  { name: "Address Proof", icon: IdCard },
-  { name: "Lost Document", icon: FileWarning },
-  { name: "Marriage Registration", icon: HeartHandshake },
-  { name: "Name Addition (Birth Certificate)", icon: Baby },
-  { name: "Name Correction", icon: PenTool },
-  { name: "After Marriage Name Change", icon: Users },
-  { name: "Signature Change", icon: FileSignature },
-  { name: "First Baby", icon: Baby },
-  { name: "Single Girl Child", icon: Heart },
-  { name: "Additional Name", icon: UserPlus },
-  { name: "Birth Certificate", icon: ScrollText },
-  { name: "Short Attendance", icon: Calendar },
-  { name: "Anti Ragging", icon: Shield },
-  { name: "Education Loan", icon: Landmark },
-  { name: "Gap Year", icon: School },
-  { name: "Income Certificate", icon: DollarSign },
-  { name: "Name Change", icon: UserMinus },
-  { name: "Marriage Register", icon: BookOpen },
-  { name: "Rental Agreements", icon: Home },
+  { name: "Address Proof", icon: IdCard, path: "/address-proof" },
+  { name: "Lost Document", icon: FileWarning, path: "/lost-document" },
+  { name: "Marriage Registration", icon: HeartHandshake, path: "/marriage-registration" },
+  { name: "Name Addition (Birth Certificate)", icon: Baby, path: "/name-addition-birth-certificate" },
+  { name: "Name Correction", icon: PenTool, path: "/name-correction" },
+  { name: "After Marriage Name Change", icon: Users, path: "/after-marriage-name-change" },
+  { name: "Signature Change", icon: FileSignature, path: "/signature" },
+  { name: "First Baby", icon: Baby, path: "/first-baby" },
+  { name: "Single Girl Child", icon: Heart, path: "/single-girl" },
+  { name: "Additional Name", icon: UserPlus, path: "/additional-name" },
+  { name: "Birth Certificate", icon: ScrollText, path: "/birth-certificate" },
+  { name: "Short Attendance", icon: Calendar, path: "/short-attendence" },
+  { name: "Anti Ragging", icon: Shield, path: "/anti-ragging" },
+  { name: "Education Loan", icon: Landmark, path: "/education-loan" },
+  { name: "Gap Year", icon: School, path: "/gap-year" },
+  { name: "Income Certificate", icon: DollarSign, path: "/income" },
+  { name: "Name Change", icon: UserMinus, path: "/name-change" },
+  { name: "Marriage Register", icon: BookOpen, path: "/marriage-register" },
+  { name: "Rental Agreements", icon: Home, path: "/rental-agreements" },
 ];
 
 export default function DocumentRibbon() {
   const scrollRef = useRef(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const el = scrollRef.current;
@@ -90,6 +92,10 @@ export default function DocumentRibbon() {
     return () => cancelAnimationFrame(animationFrame);
   }, []);
 
+  const handleNavigation = (path) => {
+    navigate(path);
+  };
+
   const duplicatedItems = [...legalDocuments, ...legalDocuments];
 
   return (
@@ -110,6 +116,7 @@ export default function DocumentRibbon() {
             return (
               <div
                 key={`${doc.name}-${idx}`}
+                onClick={() => handleNavigation(doc.path)}
                 className="flex-shrink-0 flex items-center gap-2 px-4 py-2 rounded-full bg-white shadow-sm border border-purple-200 hover:shadow-md hover:border-purple-400 transition-all duration-300 cursor-pointer group"
               >
                 <div className="text-purple-700 group-hover:scale-110 transition-transform duration-300">
@@ -123,8 +130,6 @@ export default function DocumentRibbon() {
           })}
         </div>
       </div>
-
-      
     </div>
   );
 }

@@ -232,7 +232,7 @@ export default function Footer() {
               <Phone size={18} className="mt-1 text-purple-400 group-hover:scale-110 transition" />
               <div>
                 <p className="text-white text-sm font-semibold mb-1">Phone Numbers</p>
-                <p className="text-slate-400 text-sm">9711149319 / 9711149666</p>
+                <p className="text-slate-400 text-sm">9711149319</p>
                 <p className="text-xs text-slate-500 mt-1">Mon-Sat, 9 AM to 7 PM</p>
               </div>
             </div>
@@ -240,8 +240,8 @@ export default function Footer() {
               <Mail size={18} className="mt-1 text-purple-400 group-hover:scale-110 transition" />
               <div>
                 <p className="text-white text-sm font-semibold mb-1">Email Address</p>
-                <p className="text-slate-400 text-sm">info@easyestamp.com</p>
-                <p className="text-slate-400 text-sm">support@easyestamp.com</p>
+                <p className="text-slate-400 text-sm">info@easyestamp.in</p>
+                <p className="text-slate-400 text-sm">support@easyestamp.in</p>
               </div>
             </div>
             <div className="flex items-start gap-3 group">
@@ -273,7 +273,7 @@ export default function Footer() {
         {/* Bottom Bar */}
         <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-slate-400">
           <p>
-            © {currentYear} Easy eStamp (easyestamp.com is a unit of FinoLead Solutions Pvt Ltd). 
+            © {currentYear} Easy eStamp.
             All rights reserved.
           </p>
 

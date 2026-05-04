@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import {
   FileText,
   Edit3,
@@ -15,48 +16,79 @@ import {
 } from "lucide-react";
 
 export default function WhatWeDoAndHowItWorks() {
+  const navigate = useNavigate();
+
+  // Existing navigation paths
+  const navigationPaths = [
+    { name: "Address Proof", path: "/address-proof" },
+    { name: "Lost Document", path: "/lost-document" },
+    { name: "Marriage Registration", path: "/marriage-registration" },
+    { name: "Name Addition (Birth Certificate)", path: "/name-addition-birth-certificate" },
+    { name: "Name Correction", path: "/name-correction" },
+    { name: "After Marriage Name Change", path: "/after-marriage-name-change" },
+    { name: "Signature Change", path: "/signature" },
+    { name: "First Baby", path: "/first-baby" },
+    { name: "Single Girl Child", path: "/single-girl" },
+    { name: "Additional Name", path: "/additional-name" },
+    { name: "Birth Certificate", path: "/birth-certificate" },
+    { name: "Short Attendance", path: "/short-attendence" },
+    { name: "Anti Ragging", path: "/anti-ragging" },
+    { name: "Education Loan", path: "/education-loan" },
+    { name: "Gap Year", path: "/gap-year" },
+    { name: "Income Certificate", path: "/income" },
+    { name: "Name Change", path: "/name-change" },
+    { name: "Marriage Register", path: "/marriage-register" },
+    { name: "Rental Agreements", path: "/rental-agreements" },
+  ];
+
+  // Helper function to get path by name
+  const getPath = (name) => {
+    const item = navigationPaths.find(item => item.name === name);
+    return item ? item.path : "/";
+  };
+
   const services = [
     {
       title: "RENT OR LEASE AGREEMENT",
-      description:
-        "A legal agreement is not a mere piece of paper for signing among two parties but it defends one business organization with its rights and remedies.",
+      description: "A legal agreement is not a mere piece of paper for signing among two parties but it defends one business organization with its rights and remedies.",
       icon: Home,
       gradient: "from-purple-700 to-purple-500",
+      linkName: "Rental Agreements"
     },
     {
       title: "PROPERTY DOCUMENT",
-      description:
-        "Property is commodity that's possessed, whether it's goods, land or creative. An illustration of property is a person's house.",
+      description: "Property is commodity that's possessed, whether it's goods, land or creative. An illustration of property is a person's house.",
       icon: Building2,
       gradient: "from-purple-600 to-purple-400",
+      linkName: "Address Proof"
     },
     {
       title: "AFFIDAVIT LEGAL DOCUMENT",
-      description:
-        "An 'affidavit' is a written statement. It considers having a format under oath. It's only valid when it is on a voluntary basis and without coercion.",
+      description: "An 'affidavit' is a written statement. It considers having a format under oath. It's only valid when it is on a voluntary basis and without coercion.",
       icon: FileSignature,
       gradient: "from-purple-500 to-purple-700",
+      linkName: "Name Change"
     },
     {
       title: "REGISTRATION SERVICE",
-      description:
-        "The act or process of entering information about commodity in a book or system of public records. A document showing that something has been officially registered.",
+      description: "The act or process of entering information about commodity in a book or system of public records. A document showing that something has been officially registered.",
       icon: ScrollText,
       gradient: "from-purple-700 to-purple-600",
+      linkName: "Marriage Registration"
     },
     {
       title: "E-STAMP LEGAL DOCUMENT",
-      description:
-        "E-stamping is an important component of the property purchase or sale.",
+      description: "E-stamping is an important component of the property purchase or sale.",
       icon: Stamp,
       gradient: "from-purple-600 to-purple-700",
+      linkName: "Signature Change"
     },
     {
       title: "DEEDS LEGAL DOCUMENT",
-      description:
-        "The formal nature of a contract guarantees that such a condition will be carried out as expected and agreed upon by all parties involved.",
+      description: "The formal nature of a contract guarantees that such a condition will be carried out as expected and agreed upon by all parties involved.",
       icon: FileCheck,
       gradient: "from-purple-500 to-purple-700",
+      linkName: "Birth Certificate"
     },
   ];
 
@@ -65,16 +97,19 @@ export default function WhatWeDoAndHowItWorks() {
       title: "Select Service",
       desc: "Choose the legal service you need from verified formats.",
       icon: FileText,
+      linkName: "Address Proof"
     },
     {
       title: "Customize Draft",
       desc: "Edit details instantly with our guided live editor.",
       icon: Edit3,
+      linkName: "Name Correction"
     },
     {
       title: "Get Document",
       desc: "Receive legally valid documents securely on email.",
       icon: Mail,
+      linkName: "Birth Certificate"
     },
   ];
 
@@ -83,28 +118,40 @@ export default function WhatWeDoAndHowItWorks() {
       title: "Rental Agreement",
       icon: Home,
       gradient: "from-purple-700 to-purple-500",
+      linkName: "Rental Agreements"
     },
     {
       title: "Print on Stamp Paper",
       icon: Printer,
       gradient: "from-purple-600 to-purple-400",
+      linkName: "Signature Change"
     },
     {
       title: "Name Change",
       icon: UserCheck,
       gradient: "from-purple-500 to-purple-700",
+      linkName: "Name Change"
     },
     {
       title: "State Stamp Paper",
       icon: Stamp,
       gradient: "from-purple-700 to-purple-600",
+      linkName: "Address Proof"
     },
     {
       title: "e-Stamp Paper",
       icon: FileText,
       gradient: "from-purple-600 to-purple-700",
+      linkName: "Birth Certificate"
     },
   ];
+
+  const handleNavigation = (linkName) => {
+    const path = getPath(linkName);
+    if (path) {
+      navigate(path);
+    }
+  };
 
   return (
     <section className="relative py-28 overflow-hidden bg-gradient-to-br from-slate-50 via-purple-50/30 to-white">
@@ -134,15 +181,12 @@ export default function WhatWeDoAndHowItWorks() {
               return (
                 <div
                   key={i}
-                  className="group relative bg-white rounded-2xl p-6 shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 border border-slate-100"
+                  onClick={() => handleNavigation(service.linkName)}
+                  className="group relative bg-white rounded-2xl p-6 shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 border border-slate-100 cursor-pointer"
                 >
-                  {/* Gradient icon background */}
-                  <div
-                    className={`absolute -top-5 left-6 h-14 w-14 rounded-xl bg-gradient-to-br ${service.gradient} flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300`}
-                  >
+                  <div className={`absolute -top-5 left-6 h-14 w-14 rounded-xl bg-gradient-to-br ${service.gradient} flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300`}>
                     <Icon size={24} className="text-white" />
                   </div>
-
                   <div className="pt-12 space-y-4">
                     <h3 className="text-lg font-bold text-slate-900 leading-tight">
                       {service.title}
@@ -177,7 +221,6 @@ export default function WhatWeDoAndHowItWorks() {
           </div>
 
           <div className="relative grid grid-cols-1 md:grid-cols-3 gap-10">
-            {/* Animated connector */}
             <div className="hidden md:block absolute top-1/2 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-purple-300 to-transparent" />
 
             {steps.map((step, i) => {
@@ -185,26 +228,20 @@ export default function WhatWeDoAndHowItWorks() {
               return (
                 <div
                   key={i}
-                  className="relative group bg-white rounded-3xl p-10 shadow-lg hover:shadow-2xl transition-all duration-500"
+                  className="relative group bg-white rounded-3xl p-10 shadow-lg hover:shadow-2xl transition-all duration-500 cursor-pointer"
                   style={{ animationDelay: `${i * 0.2}s` }}
                 >
-                  {/* Step number */}
                   <span className="absolute -top-5 -left-5 h-12 w-12 rounded-xl bg-purple-700 text-white flex items-center justify-center font-bold shadow-lg group-hover:scale-110 transition">
                     {i + 1}
                   </span>
-
-                  {/* Glow */}
                   <div className="absolute inset-0 rounded-3xl bg-purple-100 opacity-0 group-hover:opacity-100 blur-xl transition" />
-
                   <div className="relative space-y-5">
                     <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-purple-700 to-purple-500 text-white flex items-center justify-center shadow-md group-hover:rotate-6 transition">
                       <Icon size={28} />
                     </div>
-
                     <h3 className="text-xl font-semibold text-slate-900">
                       {step.title}
                     </h3>
-
                     <p className="text-slate-600 text-sm leading-relaxed">
                       {step.desc}
                     </p>
@@ -235,17 +272,15 @@ export default function WhatWeDoAndHowItWorks() {
               return (
                 <div
                   key={i}
+                  onClick={() => handleNavigation(item.linkName)}
                   className={`group relative overflow-hidden rounded-2xl bg-gradient-to-br ${item.gradient} p-5 text-white shadow-lg hover:-translate-y-2 hover:shadow-xl transition-all duration-300 cursor-pointer`}
                   style={{ animationDelay: `${i * 0.15}s` }}
                 >
-                  {/* Inner highlight */}
                   <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition" />
-
                   <div className="relative h-full flex flex-col justify-between gap-4">
                     <div className="h-12 w-12 rounded-xl bg-white/20 flex items-center justify-center backdrop-blur-sm">
                       <Icon size={22} />
                     </div>
-
                     <div>
                       <h3 className="text-sm font-semibold leading-tight">
                         {item.title}

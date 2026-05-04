@@ -155,11 +155,7 @@ export default function Testimonials() {
               <div className="flex items-center gap-4 mb-5 relative">
                 {review.avatar ? (
                   <div className="relative">
-                    <img
-                      src={review.avatar}
-                      alt={review.name}
-                      className="h-14 w-14 rounded-full object-cover ring-3 ring-purple-200"
-                    />
+                    
                     <div className="absolute -bottom-1 -right-1 h-5 w-5 bg-purple-700 rounded-full flex items-center justify-center">
                       <Star size={10} fill="white" className="text-white" />
                     </div>

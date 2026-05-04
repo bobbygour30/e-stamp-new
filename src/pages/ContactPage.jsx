@@ -63,14 +63,14 @@ export default function ContactPage() {
     {
       icon: Phone,
       title: "Phone Numbers",
-      details: ["9711149319", "9711149666"],
+      details: ["9711149319"],
       subtext: "Mon-Sat, 9 AM to 7 PM",
       color: "from-purple-600 to-purple-400",
     },
     {
       icon: Mail,
       title: "Email Address",
-      details: ["info@easyestamp.com", "support@easyestamp.com"],
+      details: ["info@easyestamp.in", "support@easyestamp.in"],
       subtext: "24/7 Online Support",
       color: "from-purple-500 to-purple-300",
     },

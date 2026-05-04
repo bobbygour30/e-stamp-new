@@ -6,6 +6,27 @@ import { documentAPI, serviceChargeAPI, couponAPI } from "../services/api";
 import PaymentModal from "../components/PaymentModal";
 import { uploadPDFToCloudinary } from "../utils/cloudinary";
 
+// Generate stamp duty options from ₹10 to ₹2000
+const generateStampDutyOptions = () => {
+  const options = [];
+  // Common stamp duty values
+  const commonValues = [10, 20, 50, 100, 200, 300, 500, 1000, 1500, 2000];
+  
+  // Generate all values from 10 to 2000 with step of 10
+  for (let i = 10; i <= 2000; i += 10) {
+    if (!commonValues.includes(i)) {
+      commonValues.push(i);
+    }
+  }
+  
+  commonValues.sort((a, b) => a - b);
+  
+  return commonValues.map(value => ({
+    value: value,
+    label: `₹${value}`
+  }));
+};
+
 const initialData = {
   name: "",
   relationType: "S/D/W/O",
@@ -15,6 +36,7 @@ const initialData = {
   nameAfterMarriage: "",
   verificationPlace: "",
   verificationDate: "",
+  stampDutyAmount: 0, // New field for stamp duty
 };
 
 export default function AfterMarriageNameChange() {
@@ -36,6 +58,8 @@ export default function AfterMarriageNameChange() {
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
 
+  const stampDutyOptions = generateStampDutyOptions();
+
   useEffect(() => {
     fetchServiceCharge();
   }, []);
@@ -44,7 +68,7 @@ export default function AfterMarriageNameChange() {
     if (pricing) {
       calculateFinalAmount();
     }
-  }, [pricing, couponDiscount]);
+  }, [pricing, couponDiscount, data.stampDutyAmount]);
 
   const fetchServiceCharge = async () => {
     setLoadingPrice(true);
@@ -72,8 +96,16 @@ export default function AfterMarriageNameChange() {
 
   const calculateFinalAmount = () => {
     if (pricing) {
-      const discountedAmount = pricing.total - couponDiscount;
-      setFinalAmount(discountedAmount > 0 ? discountedAmount : 0);
+      // Ensure stampDutyAmount is a number
+      const stampDuty = Number(data.stampDutyAmount) || 0;
+      const baseSubtotal = Number(pricing.subtotal) || 0;
+      const subtotalWithStampDuty = baseSubtotal + stampDuty;
+      const gstPercentage = Number(pricing.breakdown.gstPercentage) || 18;
+      const gstAmount = (subtotalWithStampDuty * gstPercentage) / 100;
+      const totalWithStampDuty = subtotalWithStampDuty + gstAmount;
+      const couponDiscountAmount = Number(couponDiscount) || 0;
+      const discountedAmount = totalWithStampDuty - couponDiscountAmount;
+      setFinalAmount(Math.round(discountedAmount * 100) / 100); // Round to 2 decimal places
     }
   };
 
@@ -87,9 +119,13 @@ export default function AfterMarriageNameChange() {
     setCouponError('');
     
     try {
+      const stampDuty = Number(data.stampDutyAmount) || 0;
+      const baseSubtotal = Number(pricing?.subtotal) || 0;
+      const totalAmount = baseSubtotal + stampDuty;
+      
       const response = await couponAPI.validateCoupon({
         code: couponCode,
-        amount: pricing?.total || 0,
+        amount: totalAmount,
         documentType: 'after-marriage-name-change'
       });
       
@@ -121,7 +157,12 @@ export default function AfterMarriageNameChange() {
 
   const update = (e) => {
     const { name, value } = e.target;
-    setData(prev => ({ ...prev, [name]: value }));
+    // Convert stampDutyAmount to number
+    if (name === "stampDutyAmount") {
+      setData(prev => ({ ...prev, [name]: Number(value) || 0 }));
+    } else {
+      setData(prev => ({ ...prev, [name]: value }));
+    }
   };
 
   // Format date for display in PDF
@@ -234,6 +275,14 @@ export default function AfterMarriageNameChange() {
       .save();
   };
 
+  // Calculate values for display
+  const stampDuty = Number(data.stampDutyAmount) || 0;
+  const baseSubtotal = Number(pricing?.subtotal) || 0;
+  const subtotalWithStampDuty = baseSubtotal + stampDuty;
+  const gstPercentage = Number(pricing?.breakdown?.gstPercentage) || 18;
+  const gstAmount = Math.round((subtotalWithStampDuty * gstPercentage) / 100);
+  const displayFinalAmount = Math.round(finalAmount * 100) / 100;
+
   return (
     <div className="min-h-screen bg-[#f3f1fa] p-6">
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -298,6 +347,29 @@ export default function AfterMarriageNameChange() {
             />
           </div>
 
+          {/* Stamp Duty Dropdown */}
+          <div className="mb-4 mt-2">
+            <label className="block text-sm font-medium text-purple-700 mb-2">
+              Stamp Duty Amount
+            </label>
+            <select
+              name="stampDutyAmount"
+              value={data.stampDutyAmount}
+              onChange={update}
+              className="w-full border border-purple-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white"
+            >
+              <option value="0">Select Stamp Duty Amount</option>
+              {stampDutyOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+            <p className="text-xs text-gray-500 mt-1">
+              Select the stamp duty amount that applies to your document
+            </p>
+          </div>
+
           {/* Price Breakdown Section */}
           <div className="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
             <h3 className="text-md font-semibold text-gray-800 mb-3">Price Details</h3>
@@ -317,8 +389,20 @@ export default function AfterMarriageNameChange() {
                     <span className="font-medium">₹{pricing?.breakdown?.platformFee || 0}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">GST ({pricing?.breakdown?.gstPercentage || 18}%):</span>
-                    <span className="font-medium">₹{pricing?.breakdown?.gstAmount || 0}</span>
+                    <span className="text-gray-600">Subtotal:</span>
+                    <span className="font-medium">₹{baseSubtotal}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Stamp Duty:</span>
+                    <span className="font-medium">₹{stampDuty}</span>
+                  </div>
+                  <div className="flex justify-between border-t border-gray-300 pt-2 mt-1">
+                    <span className="text-gray-600 font-medium">Total before GST:</span>
+                    <span className="font-medium">₹{subtotalWithStampDuty}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">GST ({gstPercentage}%):</span>
+                    <span className="font-medium">₹{gstAmount}</span>
                   </div>
                   {appliedCoupon && (
                     <div className="flex justify-between text-green-600">
@@ -326,10 +410,10 @@ export default function AfterMarriageNameChange() {
                       <span>- ₹{couponDiscount}</span>
                     </div>
                   )}
-                  <div className="border-t pt-2 mt-2">
+                  <div className="border-t-2 border-gray-400 pt-2 mt-2">
                     <div className="flex justify-between font-bold text-gray-900">
                       <span>Total Amount:</span>
-                      <span className="text-lg text-indigo-600">₹{finalAmount}</span>
+                      <span className="text-lg text-indigo-600">₹{displayFinalAmount}</span>
                     </div>
                   </div>
                 </div>
@@ -390,7 +474,7 @@ export default function AfterMarriageNameChange() {
               disabled={loading || uploading}
               className="flex-1 bg-purple-700 hover:bg-purple-800 text-white py-2.5 rounded-lg font-medium disabled:opacity-50 transition"
             >
-              {uploading ? 'Generating PDF...' : loading ? 'Processing...' : `Proceed to Payment (₹${finalAmount})`}
+              {uploading ? 'Generating PDF...' : loading ? 'Processing...' : `Proceed to Payment (₹${displayFinalAmount})`}
             </button>
           </div>
         </div>

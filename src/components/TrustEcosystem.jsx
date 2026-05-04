@@ -323,9 +323,7 @@ export default function TrustEcosystem() {
                 Get Started Now
                 <ArrowRight size={18} className="inline ml-2" />
               </button>
-              <button className="px-8 py-3 rounded-xl border-2 border-white text-white font-semibold hover:bg-white/10 transition">
-                Request a Lawyer
-              </button>
+              
             </div>
             <div className="flex flex-wrap justify-center gap-6 mt-8 pt-6 border-t border-white/20">
               <div className="flex items-center gap-2 text-white/80 text-sm">
@@ -334,7 +332,7 @@ export default function TrustEcosystem() {
               </div>
               <div className="flex items-center gap-2 text-white/80 text-sm">
                 <Mail size={14} />
-                <span>info@easyestamp.com</span>
+                <span>info@easyestamp.in</span>
               </div>
               <div className="flex items-center gap-2 text-white/80 text-sm">
                 <MessageCircle size={14} />
