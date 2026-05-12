@@ -10,7 +10,8 @@ import {
   CheckCircle,
   AlertCircle,
   Percent,
-  Wallet
+  Wallet,
+  Stamp
 } from 'lucide-react';
 import { serviceChargeAPI } from '../services/api';
 
@@ -43,11 +44,11 @@ export default function ServiceCharges() {
   const handleEdit = (charge) => {
     setEditingId(charge._id);
     setEditFormData({
-      basePrice: charge.basePrice,
       platformFee: charge.platformFee,
       gstPercentage: charge.gstPercentage,
       isActive: charge.isActive,
       discountEligible: charge.discountEligible,
+      stampDutyEnabled: charge.stampDutyEnabled || false,
       description: charge.description || ''
     });
   };
@@ -80,7 +81,8 @@ export default function ServiceCharges() {
   };
 
   const calculateTotal = (charge) => {
-    const subtotal = charge.basePrice + charge.platformFee;
+    // Only platform fee now, no base price
+    const subtotal = charge.platformFee;
     const gstAmount = (subtotal * charge.gstPercentage) / 100;
     return subtotal + gstAmount;
   };
@@ -130,7 +132,7 @@ export default function ServiceCharges() {
 
       <div className="p-6">
         {/* Info Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
           <div className="bg-blue-50 rounded-xl p-4">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-blue-100 rounded-lg">
@@ -166,6 +168,19 @@ export default function ServiceCharges() {
               </div>
             </div>
           </div>
+          <div className="bg-orange-50 rounded-xl p-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-orange-100 rounded-lg">
+                <Stamp size={20} className="text-orange-600" />
+              </div>
+              <div>
+                <p className="text-sm text-orange-600">Stamp Duty Enabled</p>
+                <p className="text-2xl font-bold text-orange-900">
+                  {charges.filter(c => c.stampDutyEnabled).length}
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Search Bar */}
@@ -192,10 +207,7 @@ export default function ServiceCharges() {
                     Document Type
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Base Price (₹)
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Platform Fee (₹)
+                    Service Fee (₹)
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     GST (%)
@@ -208,6 +220,9 @@ export default function ServiceCharges() {
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Discount Eligible
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Stamp Duty
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Actions
@@ -239,24 +254,12 @@ export default function ServiceCharges() {
                           {isEditing ? (
                             <input
                               type="number"
-                              value={editFormData.basePrice}
-                              onChange={(e) => handleInputChange('basePrice', parseFloat(e.target.value))}
-                              className="w-24 border border-gray-300 rounded-lg p-1 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                            />
-                          ) : (
-                            <span className="text-sm font-medium text-gray-900">₹{charge.basePrice}</span>
-                          )}
-                        </td>
-                        <td className="px-6 py-4">
-                          {isEditing ? (
-                            <input
-                              type="number"
                               value={editFormData.platformFee}
                               onChange={(e) => handleInputChange('platformFee', parseFloat(e.target.value))}
                               className="w-24 border border-gray-300 rounded-lg p-1 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
                             />
                           ) : (
-                            <span className="text-sm text-gray-600">₹{charge.platformFee}</span>
+                            <span className="text-sm font-medium text-gray-900">₹{charge.platformFee}</span>
                           )}
                         </td>
                         <td className="px-6 py-4">
@@ -309,6 +312,22 @@ export default function ServiceCharges() {
                             </span>
                           )}
                         </td>
+                        <td className="px-6 py-4">
+                          {isEditing ? (
+                            <select
+                              value={editFormData.stampDutyEnabled}
+                              onChange={(e) => handleInputChange('stampDutyEnabled', e.target.value === 'true')}
+                              className="border border-gray-300 rounded-lg p-1 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            >
+                              <option value={true}>Enabled</option>
+                              <option value={false}>Disabled</option>
+                            </select>
+                          ) : (
+                            <span className={`px-2 py-1 text-xs rounded-full ${charge.stampDutyEnabled ? 'bg-orange-100 text-orange-800' : 'bg-gray-100 text-gray-800'}`}>
+                              {charge.stampDutyEnabled ? 'Enabled' : 'Disabled'}
+                            </span>
+                          )}
+                        </td>
                         <td className="px-6 py-4 text-sm">
                           <div className="flex gap-2">
                             {isEditing ? (
@@ -356,10 +375,10 @@ export default function ServiceCharges() {
             <div>
               <h4 className="font-medium text-blue-900">About Service Charges</h4>
               <p className="text-sm text-blue-700 mt-1">
-                • Base price is the document preparation fee<br />
-                • Platform fee is the service charge for using our platform<br />
-                • GST is calculated on the sum of base price and platform fee<br />
-                • Total = Base Price + Platform Fee + GST<br />
+                • Service fee is the charge for using our platform and document preparation<br />
+                • GST is calculated on the service fee<br />
+                • Total = Service Fee + GST + Stamp Duty (if applicable)<br />
+                • Stamp Duty Enabled documents will show stamp duty dropdown to customers<br />
                 • Disabling a document type will hide it from users
               </p>
             </div>

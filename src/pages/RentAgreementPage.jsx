@@ -53,7 +53,7 @@ const initialData = {
   noticePeriod: "",
   increment: "",
   purpose: "",
-  stampDutyAmount: 0, // New field for stamp duty
+  stampDutyAmount: 0,
 };
 
 export default function RentAgreementPage() {
@@ -100,12 +100,12 @@ export default function RentAgreementPage() {
       }
     } catch (error) {
       console.error('Error fetching service charge:', error);
-      // Fallback to default pricing
+      // Fallback to default pricing (no basePrice)
       setPricing({
         subtotal: 500,
         gstAmount: 90,
         total: 590,
-        breakdown: { basePrice: 500, platformFee: 0, gstPercentage: 18, gstAmount: 90 }
+        breakdown: { platformFee: 500, gstPercentage: 18, gstAmount: 90 }
       });
       setFinalAmount(590);
     } finally {
@@ -115,16 +115,15 @@ export default function RentAgreementPage() {
 
   const calculateFinalAmount = () => {
     if (pricing) {
-      // Ensure stampDutyAmount is a number
       const stampDuty = Number(data.stampDutyAmount) || 0;
-      const baseSubtotal = Number(pricing.subtotal) || 0;
-      const subtotalWithStampDuty = baseSubtotal + stampDuty;
+      const platformFee = Number(pricing.breakdown.platformFee) || Number(pricing.subtotal) || 0;
+      const subtotalWithStampDuty = platformFee + stampDuty;
       const gstPercentage = Number(pricing.breakdown.gstPercentage) || 18;
       const gstAmount = (subtotalWithStampDuty * gstPercentage) / 100;
       const totalWithStampDuty = subtotalWithStampDuty + gstAmount;
       const couponDiscountAmount = Number(couponDiscount) || 0;
       const discountedAmount = totalWithStampDuty - couponDiscountAmount;
-      setFinalAmount(Math.round(discountedAmount * 100) / 100); // Round to 2 decimal places
+      setFinalAmount(Math.round(discountedAmount * 100) / 100);
     }
   };
 
@@ -139,8 +138,8 @@ export default function RentAgreementPage() {
     
     try {
       const stampDuty = Number(data.stampDutyAmount) || 0;
-      const baseSubtotal = Number(pricing?.subtotal) || 0;
-      const totalAmount = baseSubtotal + stampDuty;
+      const platformFee = Number(pricing?.breakdown?.platformFee) || Number(pricing?.subtotal) || 0;
+      const totalAmount = platformFee + stampDuty;
       
       const response = await couponAPI.validateCoupon({
         code: couponCode,
@@ -176,7 +175,6 @@ export default function RentAgreementPage() {
 
   const update = (e) => {
     const { name, value } = e.target;
-    // Convert stampDutyAmount to number
     if (name === "stampDutyAmount") {
       setData(prev => ({ ...prev, [name]: Number(value) || 0 }));
     } else {
@@ -184,14 +182,12 @@ export default function RentAgreementPage() {
     }
   };
 
-  // Format date for display in PDF
   const formatDateForDisplay = (dateString) => {
     if (!dateString) return "__________";
     const date = new Date(dateString);
     return date.toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' });
   };
 
-  // Generate PDF as Blob using html2pdf
   const generatePDFBlob = async () => {
     const element = previewRef.current;
     if (!element) {
@@ -303,10 +299,9 @@ export default function RentAgreementPage() {
       .save();
   };
 
-  // Calculate values for display
   const stampDuty = Number(data.stampDutyAmount) || 0;
-  const baseSubtotal = Number(pricing?.subtotal) || 0;
-  const subtotalWithStampDuty = baseSubtotal + stampDuty;
+  const platformFee = Number(pricing?.breakdown?.platformFee) || Number(pricing?.subtotal) || 0;
+  const subtotalWithStampDuty = platformFee + stampDuty;
   const gstPercentage = Number(pricing?.breakdown?.gstPercentage) || 18;
   const gstAmount = Math.round((subtotalWithStampDuty * gstPercentage) / 100);
   const displayFinalAmount = Math.round(finalAmount * 100) / 100;
@@ -392,7 +387,7 @@ export default function RentAgreementPage() {
             </>
           )}
 
-          {/* Price Breakdown Section */}
+          {/* Price Breakdown Section - Updated without Document Fee */}
           {step === 4 && (
             <div className="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
               <h3 className="text-md font-semibold text-gray-800 mb-3">Price Details</h3>
@@ -404,16 +399,8 @@ export default function RentAgreementPage() {
                 <>
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Document Fee:</span>
-                      <span className="font-medium">₹{pricing?.breakdown?.basePrice || 0}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Platform Fee:</span>
-                      <span className="font-medium">₹{pricing?.breakdown?.platformFee || 0}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Subtotal:</span>
-                      <span className="font-medium">₹{baseSubtotal}</span>
+                      <span className="text-gray-600">Service Fee:</span>
+                      <span className="font-medium">₹{platformFee}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600">Stamp Duty:</span>
@@ -671,7 +658,6 @@ function Input({ label, ...props }) {
   );
 }
 
-/* DATE INPUT COMPONENT */
 function DateInput({ label, name, value, onChange }) {
   return (
     <div className="mb-3">
