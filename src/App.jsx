@@ -38,6 +38,9 @@ import RefundPolicy from "./pages/RefundPolicy";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsAndConditions from "./pages/TermsAndConditions";
 import ScrollToTop from "./components/ScrollToTop";
+import AgreementToSale from "./pages/AgreementToSaleAfterLoan";
+import AgreementToSaleAfterLoan from "./pages/AgreementToSaleAfterLoan";
+import AgreementToSaleBeforeLoan from "./pages/AgreementToSaleBeforeLoan";
 
 function AppContent() {
   const location = useLocation();
@@ -84,6 +87,8 @@ function AppContent() {
         <Route path="/name-change" element={<NameChange />} />
         <Route path="/marriage-register" element={<MarriageRegister />} />
         <Route path="/rental-agreements" element={<RentalAgreements />} />
+        <Route path="/agreement-to-sale-after-loan" element={<AgreementToSaleAfterLoan />} />
+        <Route path="/agreement-to-sale-before-loan" element={<AgreementToSaleBeforeLoan />} />
 
         <Route path="/refund-policy" element={<RefundPolicy />} />
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />

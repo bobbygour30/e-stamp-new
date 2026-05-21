@@ -34,6 +34,8 @@ import {
   Book,
   ArrowRight,
   Star,
+  FileCheck,
+  Handshake,
 } from "lucide-react";
 import { AuthContext } from "../context/AuthContext";
 import assets from "../assets/assets";
@@ -93,6 +95,8 @@ export default function Navbar() {
     { name: "Name Change", path: "/name-change", icon: UserMinus, color: "from-purple-500 to-purple-600", description: "Complete name change", popular: true },
     { name: "Marriage Register", path: "/marriage-register", icon: BookOpen, color: "from-rose-500 to-rose-600", description: "Marriage register extract", popular: false },
     { name: "Rental Agreements", path: "/rental-agreements", icon: Home, color: "from-emerald-500 to-emerald-600", description: "Legal rent agreement", popular: true },
+    { name: "Agreement to Sale (Before Loan)", path: "/agreement-to-sale-before-loan", icon: FileCheck, color: "from-blue-600 to-blue-700", description: "Pre-loan property sale agreement", popular: true },
+    { name: "Agreement to Sale (After Loan)", path: "/agreement-to-sale-after-loan", icon: Handshake, color: "from-indigo-600 to-indigo-700", description: "Post-loan property sale agreement", popular: true },
   ];
 
   const navItems = [
@@ -187,7 +191,7 @@ export default function Navbar() {
                         <div className="flex items-center justify-between">
                           <div>
                             <h2 className="text-2xl font-bold text-white">Legal Documents</h2>
-                            <p className="text-purple-100 text-sm mt-1">Choose from 19+ verified legal document templates</p>
+                            <p className="text-purple-100 text-sm mt-1">Choose from 21+ verified legal document templates</p>
                           </div>
                           <div className="flex items-center gap-2 bg-white/20 rounded-full px-4 py-2">
                             <Star size={16} className="text-yellow-400 fill-yellow-400" />
@@ -445,7 +449,7 @@ export default function Navbar() {
           }
         `}</style>
 
-        {/* Mobile Overlay & Drawer - Keep existing mobile code */}
+        {/* Mobile Overlay & Drawer */}
         <div
           className={`lg:hidden fixed inset-0 z-40 bg-black/50 transition-opacity ${
             menuOpen ? "opacity-100 visible" : "opacity-0 invisible"
