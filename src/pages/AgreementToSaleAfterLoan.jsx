@@ -174,7 +174,7 @@ export default function AgreementToSaleAfterLoan() {
   const fetchServiceCharge = async () => {
     setLoadingPrice(true);
     try {
-      const response = await serviceChargeAPI.getChargeByDocumentType('agreement-to-sale');
+      const response = await serviceChargeAPI.getChargeByDocumentType('agreement-to-sale-after-loan');
       if (response.data.success) {
         setServiceCharge(response.data.charge);
         setPricing(response.data.pricing);
@@ -224,7 +224,7 @@ export default function AgreementToSaleAfterLoan() {
       const response = await couponAPI.validateCoupon({
         code: couponCode,
         amount: totalAmount,
-        documentType: 'agreement-to-sale'
+        documentType: 'agreement-to-sale-after-loan'
       });
       
       if (response.data.valid) {
@@ -362,7 +362,7 @@ export default function AgreementToSaleAfterLoan() {
       });
 
       const requestId = response.data.requestId;
-      const uploadResult = await uploadPDFToCloudinary(pdfBlob, 'agreement-to-sale', requestId);
+      const uploadResult = await uploadPDFToCloudinary(pdfBlob, 'agreement-to-sale-after-loan', requestId);
       
       await documentAPI.updatePDFUrl(requestId, {
         pdfUrl: uploadResult.url,

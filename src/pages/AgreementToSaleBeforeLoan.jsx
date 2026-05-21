@@ -171,7 +171,7 @@ export default function AgreementToSaleBeforeLoan() {
   const fetchServiceCharge = async () => {
     setLoadingPrice(true);
     try {
-      const response = await serviceChargeAPI.getChargeByDocumentType('agreement-to-sale');
+      const response = await serviceChargeAPI.getChargeByDocumentType('agreement-to-sale-before-loan');
       if (response.data.success) {
         setServiceCharge(response.data.charge);
         setPricing(response.data.pricing);
@@ -221,7 +221,7 @@ export default function AgreementToSaleBeforeLoan() {
       const response = await couponAPI.validateCoupon({
         code: couponCode,
         amount: totalAmount,
-        documentType: 'agreement-to-sale'
+        documentType: 'agreement-to-sale-before-loan'
       });
       
       if (response.data.valid) {
@@ -328,7 +328,7 @@ export default function AgreementToSaleBeforeLoan() {
       }
       
       const response = await documentAPI.createRequest({
-        documentType: 'agreement-to-sale',
+        documentType: 'agreement-to-sale-before-loan',
         formData: data,
         paymentAmount: finalAmount,
         appliedCoupon: appliedCoupon ? {
@@ -338,7 +338,7 @@ export default function AgreementToSaleBeforeLoan() {
       });
 
       const requestId = response.data.requestId;
-      const uploadResult = await uploadPDFToCloudinary(pdfBlob, 'agreement-to-sale', requestId);
+      const uploadResult = await uploadPDFToCloudinary(pdfBlob, 'agreement-to-sale-before-loan', requestId);
       
       await documentAPI.updatePDFUrl(requestId, {
         pdfUrl: uploadResult.url,
