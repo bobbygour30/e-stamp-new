@@ -183,10 +183,11 @@ export default function Signup() {
               <input
                 type="tel"
                 name="phone"
-                placeholder="Phone Number (Optional)"
+                placeholder="Phone Number"
                 value={formData.phone}
                 onChange={handleChange}
                 className="bg-transparent w-full outline-none text-slate-700"
+                required
               />
             </div>
 
