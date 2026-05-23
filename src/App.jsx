@@ -42,6 +42,8 @@ import AgreementToSale from "./pages/AgreementToSaleAfterLoan";
 import AgreementToSaleAfterLoan from "./pages/AgreementToSaleAfterLoan";
 import AgreementToSaleBeforeLoan from "./pages/AgreementToSaleBeforeLoan";
 import AllDocumentsPage from "./pages/AllDocumentsPage";
+import RentAgreementGST from "./pages/RentAgreementGST";
+import RentAgreementSociety from "./pages/RentAgreementSociety";
 
 function AppContent() {
   const location = useLocation();
@@ -88,6 +90,8 @@ function AppContent() {
         <Route path="/name-change" element={<NameChange />} />
         <Route path="/marriage-register" element={<MarriageRegister />} />
         <Route path="/rental-agreements" element={<RentalAgreements />} />
+        <Route path="/rental-agreements-gst" element={<RentAgreementGST />} />
+        <Route path="/rental-agreements-society" element={<RentAgreementSociety />} />
         <Route path="/agreement-to-sale-after-loan" element={<AgreementToSaleAfterLoan />} />
         <Route path="/agreement-to-sale-before-loan" element={<AgreementToSaleBeforeLoan />} />
 
