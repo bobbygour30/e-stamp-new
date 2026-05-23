@@ -27,6 +27,7 @@ import {
   Zap,
   Heart,
 } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export default function TrustEcosystem() {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -319,10 +320,10 @@ export default function TrustEcosystem() {
               documentation needs. Get your e-stamp paper in minutes.
             </p>
             <div className="flex flex-wrap justify-center gap-4">
-              <button className="px-8 py-3 rounded-xl bg-white text-purple-700 font-semibold hover:bg-slate-50 hover:scale-105 transition-all shadow-lg">
+              <Link to="/all-documents" className="px-8 py-3 rounded-xl bg-white text-purple-700 font-semibold hover:bg-slate-50 hover:scale-105 transition-all shadow-lg">
                 Get Started Now
                 <ArrowRight size={18} className="inline ml-2" />
-              </button>
+              </Link>
               
             </div>
             <div className="flex flex-wrap justify-center gap-6 mt-8 pt-6 border-t border-white/20">

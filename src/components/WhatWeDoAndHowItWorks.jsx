@@ -13,12 +13,28 @@ import {
   Building2,
   Landmark,
   FileCheck,
+  IdCard,
+  FileWarning,
+  HeartHandshake,
+  Baby,
+  PenTool,
+  Users,
+  Heart,
+  UserPlus,
+  Calendar,
+  Shield,
+  School,
+  DollarSign,
+  UserMinus,
+  BookOpen,
+  Handshake,
 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 
 export default function WhatWeDoAndHowItWorks() {
   const navigate = useNavigate();
 
-  // Existing navigation paths
+  // Updated navigation paths with all new items
   const navigationPaths = [
     { name: "Address Proof", path: "/address-proof" },
     { name: "Lost Document", path: "/lost-document" },
@@ -39,6 +55,8 @@ export default function WhatWeDoAndHowItWorks() {
     { name: "Name Change", path: "/name-change" },
     { name: "Marriage Register", path: "/marriage-register" },
     { name: "Rental Agreements", path: "/rental-agreements" },
+    { name: "Agreement to Sale (Before Loan)", path: "/agreement-to-sale-before-loan" },
+    { name: "Agreement to Sale (After Loan)", path: "/agreement-to-sale-after-loan" },
   ];
 
   // Helper function to get path by name
@@ -113,38 +131,67 @@ export default function WhatWeDoAndHowItWorks() {
     },
   ];
 
+  // Updated bestsellers with all items - all using consistent purple gradient
   const bestsellers = [
-    {
-      title: "Rental Agreement",
-      icon: Home,
-      gradient: "from-purple-700 to-purple-500",
-      linkName: "Rental Agreements"
-    },
-    {
-      title: "Print on Stamp Paper",
-      icon: Printer,
-      gradient: "from-purple-600 to-purple-400",
-      linkName: "Signature Change"
-    },
-    {
-      title: "Name Change",
-      icon: UserCheck,
-      gradient: "from-purple-500 to-purple-700",
-      linkName: "Name Change"
-    },
-    {
-      title: "State Stamp Paper",
-      icon: Stamp,
-      gradient: "from-purple-700 to-purple-600",
-      linkName: "Address Proof"
-    },
-    {
-      title: "e-Stamp Paper",
-      icon: FileText,
-      gradient: "from-purple-600 to-purple-700",
-      linkName: "Birth Certificate"
-    },
+    { title: "Address Proof", icon: IdCard, linkName: "Address Proof" },
+    { title: "Lost Document", icon: FileWarning, linkName: "Lost Document" },
+    { title: "Marriage Registration", icon: HeartHandshake, linkName: "Marriage Registration" },
+    { title: "Name Addition (Birth Certificate)", icon: Baby, linkName: "Name Addition (Birth Certificate)" },
+    { title: "Name Correction", icon: PenTool, linkName: "Name Correction" },
+    { title: "After Marriage Name Change", icon: Users, linkName: "After Marriage Name Change" },
+    { title: "Signature Change", icon: FileSignature, linkName: "Signature Change" },
+    { title: "First Baby", icon: Baby, linkName: "First Baby" },
+    { title: "Single Girl Child", icon: Heart, linkName: "Single Girl Child" },
+    { title: "Additional Name", icon: UserPlus, linkName: "Additional Name" },
+    { title: "Birth Certificate", icon: ScrollText, linkName: "Birth Certificate" },
+    { title: "Short Attendance", icon: Calendar, linkName: "Short Attendance" },
+    { title: "Anti Ragging", icon: Shield, linkName: "Anti Ragging" },
+    { title: "Education Loan", icon: Landmark, linkName: "Education Loan" },
+    { title: "Gap Year", icon: School, linkName: "Gap Year" },
+    { title: "Income Certificate", icon: DollarSign, linkName: "Income Certificate" },
+    { title: "Name Change", icon: UserMinus, linkName: "Name Change" },
+    { title: "Marriage Register", icon: BookOpen, linkName: "Marriage Register" },
+    { title: "Rental Agreements", icon: Home, linkName: "Rental Agreements" },
+    { title: "Agreement to Sale (Before Loan)", icon: FileCheck, linkName: "Agreement to Sale (Before Loan)" },
+    { title: "Agreement to Sale (After Loan)", icon: Handshake, linkName: "Agreement to Sale (After Loan)" },
   ];
+
+  // Auto-slide logic
+  const scrollContainerRef = useRef(null);
+  const [isHovering, setIsHovering] = useState(false);
+  const autoSlideInterval = useRef(null);
+
+  const startAutoSlide = () => {
+    if (autoSlideInterval.current) clearInterval(autoSlideInterval.current);
+    autoSlideInterval.current = setInterval(() => {
+      if (!isHovering && scrollContainerRef.current) {
+        const container = scrollContainerRef.current;
+        const cardWidth = 216;
+        const maxScroll = container.scrollWidth - container.clientWidth;
+        
+        if (container.scrollLeft + cardWidth >= maxScroll) {
+          container.scrollTo({ left: 0, behavior: 'smooth' });
+        } else {
+          container.scrollBy({ left: cardWidth, behavior: 'smooth' });
+        }
+      }
+    }, 3000);
+  };
+
+  useEffect(() => {
+    startAutoSlide();
+    return () => {
+      if (autoSlideInterval.current) clearInterval(autoSlideInterval.current);
+    };
+  }, [isHovering]);
+
+  const handleMouseEnter = () => {
+    setIsHovering(true);
+  };
+
+  const handleMouseLeave = () => {
+    setIsHovering(false);
+  };
 
   const handleNavigation = (linkName) => {
     const path = getPath(linkName);
@@ -154,7 +201,7 @@ export default function WhatWeDoAndHowItWorks() {
   };
 
   return (
-    <section className="relative py-28 overflow-hidden bg-gradient-to-br from-slate-50 via-purple-50/30 to-white">
+    <section className="relative py-28 overflow-x-clip overflow-y-visible bg-gradient-to-br from-slate-50 via-purple-50/30 to-white">
       {/* Background decor */}
       <div className="absolute -top-32 -left-32 h-96 w-96 bg-purple-200/20 rounded-full blur-3xl" />
       <div className="absolute -bottom-32 -right-32 h-96 w-96 bg-purple-300/20 rounded-full blur-3xl" />
@@ -252,7 +299,7 @@ export default function WhatWeDoAndHowItWorks() {
           </div>
         </div>
 
-        {/* BESTSELLERS */}
+        {/* BESTSELLERS - Auto-sliding carousel with Water Drop effect */}
         <div className="space-y-16">
           <div className="text-center space-y-4">
             <span className="inline-block px-4 py-1.5 rounded-full bg-purple-100 text-purple-700 text-sm font-semibold tracking-wide">
@@ -266,37 +313,153 @@ export default function WhatWeDoAndHowItWorks() {
             </p>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-6">
-            {bestsellers.map((item, i) => {
-              const Icon = item.icon;
-              return (
-                <div
-                  key={i}
-                  onClick={() => handleNavigation(item.linkName)}
-                  className={`group relative overflow-hidden rounded-2xl bg-gradient-to-br ${item.gradient} p-5 text-white shadow-lg hover:-translate-y-2 hover:shadow-xl transition-all duration-300 cursor-pointer`}
-                  style={{ animationDelay: `${i * 0.15}s` }}
-                >
-                  <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition" />
-                  <div className="relative h-full flex flex-col justify-between gap-4">
-                    <div className="h-12 w-12 rounded-xl bg-white/20 flex items-center justify-center backdrop-blur-sm">
-                      <Icon size={22} />
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-semibold leading-tight">
-                        {item.title}
-                      </h3>
-                      <div className="mt-2 flex items-center gap-1 text-xs opacity-90 group-hover:translate-x-1 transition">
-                        Explore
-                        <ArrowRight size={12} />
+          {/* Auto-sliding horizontal carousel */}
+          <div 
+            className="relative w-full"
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+          >
+            <div 
+              ref={scrollContainerRef}
+              className="overflow-x-auto pb-12 hide-scrollbar"
+              style={{ 
+                scrollbarWidth: 'none',
+                msOverflowStyle: 'none'
+              }}
+            >
+              <div className="flex gap-6 px-4" style={{ minWidth: 'max-content' }}>
+                {bestsellers.map((item, i) => {
+                  const Icon = item.icon;
+                  return (
+                    <div
+                      key={i}
+                      onClick={() => handleNavigation(item.linkName)}
+                      className="bestseller-card group relative rounded-2xl bg-gradient-to-br from-purple-600 to-purple-800 p-5 text-white shadow-lg cursor-pointer w-[200px] flex-shrink-0"
+                    >
+                      {/* Water drop ripple effects */}
+                      <div className="ripple ripple-1"></div>
+                      <div className="ripple ripple-2"></div>
+                      <div className="ripple ripple-3"></div>
+                      
+                      {/* Shine effect */}
+                      <div className="shine"></div>
+                      
+                      {/* Card content */}
+                      <div className="relative z-10 h-full flex flex-col justify-between gap-4">
+                        <div className="h-12 w-12 rounded-xl bg-white/20 flex items-center justify-center backdrop-blur-sm  transition-transform duration-300 group-hover:rotate-6">
+                          <Icon size={22} />
+                        </div>
+                        <div>
+                          <h3 className="text-sm font-semibold leading-tight">
+                            {item.title}
+                          </h3>
+                          <div className="mt-2 flex items-center gap-1 text-xs opacity-90 group-hover:gap-2 transition-all duration-300">
+                            Explore
+                            <ArrowRight size={12} className="group-hover:translate-x-1 transition-transform" />
+                          </div>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </div>
-              );
-            })}
+                  );
+                })}
+              </div>
+            </div>
+            
+            {/* Gradient overlays */}
+            <div className="absolute left-0 top-0 bottom-0 w-16 bg-gradient-to-r from-slate-50 via-slate-50/30 to-transparent pointer-events-none" />
+            <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-slate-50 via-slate-50/30 to-transparent pointer-events-none" />
           </div>
         </div>
       </div>
+
+      <style jsx global>{`
+        .hide-scrollbar {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+        
+        /* Water Drop Animation Effect */
+        .bestseller-card {
+          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+          overflow: visible;
+          position: relative;
+        }
+        
+       
+        
+        /* Ripple animations */
+        .ripple {
+          position: absolute;
+          border-radius: 50%;
+          background: radial-gradient(circle, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 70%);
+          pointer-events: none;
+          opacity: 0;
+        }
+        
+        .bestseller-card:hover .ripple-1 {
+          animation: waterDrop 0.8s ease-out forwards;
+          top: 50%;
+          left: 50%;
+          width: 0;
+          height: 0;
+          margin-left: 0;
+          margin-top: 0;
+        }
+        
+        .bestseller-card:hover .ripple-2 {
+          animation: waterDrop 0.8s ease-out 0.2s forwards;
+          top: 30%;
+          left: 70%;
+          width: 0;
+          height: 0;
+        }
+        
+        .bestseller-card:hover .ripple-3 {
+          animation: waterDrop 0.8s ease-out 0.4s forwards;
+          top: 70%;
+          left: 20%;
+          width: 0;
+          height: 0;
+        }
+        
+        @keyframes waterDrop {
+          0% {
+            width: 0;
+            height: 0;
+            opacity: 0.6;
+          }
+          50% {
+            opacity: 0.4;
+          }
+          100% {
+            width: 200px;
+            height: 200px;
+            opacity: 0;
+            margin-left: -100px;
+            margin-top: -100px;
+          }
+        }
+        
+        /* Shine effect on hover */
+        .shine {
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+          transition: left 0.5s ease;
+          pointer-events: none;
+          border-radius: inherit;
+        }
+        
+        .bestseller-card:hover .shine {
+          left: 100%;
+        }
+      `}</style>
     </section>
   );
 }

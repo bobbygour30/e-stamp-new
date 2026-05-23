@@ -41,6 +41,7 @@ import ScrollToTop from "./components/ScrollToTop";
 import AgreementToSale from "./pages/AgreementToSaleAfterLoan";
 import AgreementToSaleAfterLoan from "./pages/AgreementToSaleAfterLoan";
 import AgreementToSaleBeforeLoan from "./pages/AgreementToSaleBeforeLoan";
+import AllDocumentsPage from "./pages/AllDocumentsPage";
 
 function AppContent() {
   const location = useLocation();
@@ -93,6 +94,7 @@ function AppContent() {
         <Route path="/refund-policy" element={<RefundPolicy />} />
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
+        <Route path="/all-documents" element={<AllDocumentsPage />} />
         
         {/* Authentication Routes */}
         <Route path="/login" element={<Login />} />
