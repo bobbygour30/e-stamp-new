@@ -97,6 +97,9 @@ export default function Navbar() {
     { name: "Rental Agreements", path: "/rental-agreements", icon: Home, color: "from-emerald-500 to-emerald-600", description: "Legal rent agreement", popular: true },
     { name: "Agreement to Sale (Before Loan)", path: "/agreement-to-sale-before-loan", icon: FileCheck, color: "from-blue-600 to-blue-700", description: "Pre-loan property sale agreement", popular: true },
     { name: "Agreement to Sale (After Loan)", path: "/agreement-to-sale-after-loan", icon: Handshake, color: "from-indigo-600 to-indigo-700", description: "Post-loan property sale agreement", popular: true },
+    // Add these to your allLegalDocuments array
+{ name: "Rent Agreement (GST)", path: "/rental-agreements-gst", icon: FileText, color: "from-purple-500 to-purple-600", description: "Rent agreement with GST details for commercial properties", popular: true },
+{ name: "Rent Agreement (Society)", path: "/rental-agreements-society", icon: Home, color: "from-emerald-500 to-emerald-600", description: "Residential rent agreement for society flats", popular: true },
   ];
 
   const navItems = [
