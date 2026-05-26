@@ -44,6 +44,7 @@ import AgreementToSaleBeforeLoan from "./pages/AgreementToSaleBeforeLoan";
 import AllDocumentsPage from "./pages/AllDocumentsPage";
 import RentAgreementGST from "./pages/RentAgreementGST";
 import RentAgreementSociety from "./pages/RentAgreementSociety";
+import StampPaper from "./pages/StampPaper";
 
 function AppContent() {
   const location = useLocation();
@@ -94,6 +95,7 @@ function AppContent() {
         <Route path="/rental-agreements-society" element={<RentAgreementSociety />} />
         <Route path="/agreement-to-sale-after-loan" element={<AgreementToSaleAfterLoan />} />
         <Route path="/agreement-to-sale-before-loan" element={<AgreementToSaleBeforeLoan />} />
+        <Route path="/stamp" element={<StampPaper />} />
 
         <Route path="/refund-policy" element={<RefundPolicy />} />
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
